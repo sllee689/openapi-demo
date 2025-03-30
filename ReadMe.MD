@@ -351,6 +351,104 @@ HashEx 交易平台 API 提供了程序化交易的能力，允许开发者通�
   }
 }
 ```
+# 批量交易接口文档补充
+
+## 4.6 批量创建订单
+
+**请求方法**: POST  
+**接口路径**: `/spot/v1/u/trade/order/batch/create`
+
+**请求参数**:
+
+| 参数名 | 类型 | 必填 | 说明 |
+|-------|-----|-----|------|
+| ordersJsonStr | String | 是 | 订单列表的JSON字符串 |
+
+**ordersJsonStr包含的订单对象字段**:
+
+| 参数名 | 类型 | 必填 | 说明 |
+|-------|-----|-----|------|
+| symbol | String | 是 | 交易对，如 "BTC_USDT" |
+| direction | String | 是 | 交易方向："BUY"买入，"SELL"卖出 |
+| tradeType | String | 是 | 订单类型："LIMIT"限价单，"MARKET"市价单 |
+| totalAmount | String | 是 | 委托数量 |
+| price | String | 条件必填 | 委托价格，限价单必填 |
+| clientOrderId | String | 否 | 客户自定义订单ID |
+| balanceType | Integer | 否 | 账户类型：1.现货账户(默认)，2.杠杆账户 |
+
+**请求示例**:
+```json
+{
+  "ordersJsonStr": "[{\"symbol\":\"BTC_USDT\",\"direction\":\"BUY\",\"tradeType\":\"LIMIT\",\"totalAmount\":\"0.001\",\"price\":\"80000\",\"clientOrderId\":\"BATCH_LIMIT_BUY_123456789\"},{\"symbol\":\"BTC_USDT\",\"direction\":\"SELL\",\"tradeType\":\"LIMIT\",\"totalAmount\":\"0.001\",\"price\":\"90000\",\"clientOrderId\":\"BATCH_LIMIT_SELL_123456789\"}]"
+}
+```
+
+**响应参数**:
+
+| 参数名 | 类型 | 说明 |
+|-------|-----|------|
+| code | Integer | 状态码，0表示成功 |
+| message | String | 响应信息 |
+| data | String | 响应数据，通常为批量订单创建结果 |
+
+**响应示例**:
+```json
+{
+  "code": 0,
+  "message": "success",
+  "data": "批量下单成功，成功2个，失败0个"
+}
+```
+
+**批量创建订单注意事项**:
+
+1. 支持不同交易对的订单一次性提交。
+2. 批量操作遵循"尽力而为"原则，部分订单失败不会影响其他订单处理
+3. 响应仅包含成功和失败的订单数量，具体订单状态需要通过订单查询接口获取
+4. 撤单接口每次最多支持20个订单，超过限制会返回错误
+
+## 4.7 批量撤销订单
+
+**请求方法**: POST  
+**接口路径**: `/spot/v1/u/trade/order/batch/cancel`
+
+**请求参数**:
+
+| 参数名 | 类型 | 必填 | 说明 |
+|-------|-----|-----|------|
+| orderIdsJson | String | 是 | 订单ID列表的JSON字符串 |
+
+**请求示例**:
+```json
+{
+  "orderIdsJson": "[\"475534805480815680\",\"475534266177207360\"]"
+}
+```
+
+**响应参数**:
+
+| 参数名 | 类型 | 说明 |
+|-------|-----|------|
+| code | Integer | 状态码，0表示成功 |
+| message | String | 响应信息 |
+| data | Boolean | 是否成功 |
+
+**响应示例**:
+```json
+{
+  "code": 0,
+  "message": "success",
+  "data": true
+}
+```
+
+**批量撤销订单注意事项**:
+
+1. 批量撤单接口每次最多支持撤销20个订单，超过限制会返回错误
+2. 批量撤单操作为异步处理，返回成功仅表示请求已受理
+3. 部分订单可能因已成交或已撤销等原因无法被撤销，不影响其他订单的撤销
+4. 撤单后建议通过订单查询接口确认所有订单的最终状态
+5. 高频交易场景下，建议合理安排撤单请求间隔，避免频繁调用
 
 ## 5. 市场数据接口
 
