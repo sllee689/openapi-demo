@@ -21,12 +21,14 @@ HashEx 交易平台 API 提供了程序化交易的能力，允许开发者通�
 
 ### 3.2 签名算法
 
-**签名计算步骤**：
+签名算法流程：
 
-1. 将所有请求参数按键名字母顺序排序（使用 TreeMap）
+1. 将常规请求参数按键名字母顺序排序（使用TreeMap）
 2. 构建参数字符串：`key1=value1&key2=value2&...`
-3. 使用 HMAC-SHA256 算法，以 secretKey 为密钥对参数字符串进行签名
-4. 将结果转换为十六进制字符串
+3. 在参数字符串末尾附加时间戳：`key1=value1&key2=value2&...&timestamp=xxx`
+   （其中`timestamp`值与请求头`X-Request-Timestamp`相同）
+4. 使用HMAC-SHA256算法，以secretKey为密钥对最终参数字符串进行签名
+5. 将签名结果转换为十六进制字符串
 
 ## 4. 交易接口
 
