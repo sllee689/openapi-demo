@@ -23,13 +23,15 @@ public class HashexApiUtils {
      * @param sortedParams 排序后的参数
      * @return 签名字符串
      */
-    public static String generateSignature(String secretKey, TreeMap<String, String> sortedParams) {
+    public static String generateSignature(String secretKey, TreeMap<String, String> sortedParams,
+                                            String timestamp) {
         try {
             // 构建原始字符串
             String rawString = sortedParams.entrySet().stream()
                     .map(entry -> entry.getKey() + "=" + entry.getValue())
                     .collect(Collectors.joining("&"));
-
+            //增加一个时间戳参数
+            rawString += "&timestamp=" + timestamp;
             // 使用HMAC-SHA256算法生成签名
             Mac mac = Mac.getInstance("HmacSHA256");
             SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
@@ -78,7 +80,7 @@ public class HashexApiUtils {
     public static void addAuthHeaders(HttpUriRequestBase httpGet, String accessKey, String secretKey, TreeMap<String, String> queryParams) {
         String timestamp = generateTimestamp();
         String nonce = generateNonce();
-        String signature = generateSignature(secretKey, queryParams);
+        String signature = generateSignature(secretKey, queryParams, timestamp);
 
         httpGet.setHeader("X-Access-Key", accessKey);
         httpGet.setHeader("X-Signature", signature);

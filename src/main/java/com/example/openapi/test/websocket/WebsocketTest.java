@@ -59,7 +59,7 @@ public class WebsocketTest {
         TreeMap<String, String> signParams = new TreeMap<>();
 
         // 生成签名
-        String signature = HashexApiUtils.generateSignature(SECRET_KEY, signParams);
+        String signature = HashexApiUtils.generateSignature(SECRET_KEY, signParams, timestamp);
 
         // 构建请求头
         Map<String, String> headers = new HashMap<>();
