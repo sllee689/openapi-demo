@@ -24,7 +24,7 @@ public class BatchOrderCreateTest {
      * @return 批量创建结果
      * @throws HashExApiException 如果API调用失败
      */
-    public String batchCreateOrders(List<OrderCreateTest.OrderRequest> orderRequestList) throws HashExApiException {
+    public List<Long> batchCreateOrders(List<OrderCreateTest.OrderRequest> orderRequestList) throws HashExApiException {
         try {
             // 验证参数
             if (orderRequestList == null || orderRequestList.isEmpty()) {
@@ -48,13 +48,23 @@ public class BatchOrderCreateTest {
 
             // 解析响应JSON
             cn.hutool.json.JSONObject jsonObject = new cn.hutool.json.JSONObject(responseJson);
-            ApiResponse<String> apiResponse = JSONUtil.toBean(jsonObject, ApiResponse.class);
 
-            if (!apiResponse.isSuccess()) {
-                throw new HashExApiException("批量创建订单失败: " + apiResponse.getMessage());
+            // 检查API响应是否成功
+            int code = jsonObject.getInt("code");
+            String message = jsonObject.getStr("msg");
+
+            if (code != 0) {
+                throw new HashExApiException("批量创建订单失败: " + message);
             }
 
-            return apiResponse.getData();
+            // 提取订单ID数组
+            cn.hutool.json.JSONArray dataArray = jsonObject.getJSONArray("data");
+            List<Long> orderIds = new ArrayList<>();
+            for (int i = 0; i < dataArray.size(); i++) {
+                orderIds.add(dataArray.getLong(i));
+            }
+
+            return orderIds;
         } catch (Exception e) {
             if (e instanceof HashExApiException) {
                 throw (HashExApiException) e;
@@ -91,8 +101,8 @@ public class BatchOrderCreateTest {
         orderList.add(sellOrder);
 
         // 批量创建订单
-        String result = batchCreateOrders(orderList);
-        log.info("批量创建订单成功，结果: {}", result);
+        List<Long> orderIds = batchCreateOrders(orderList);
+        log.info("批量创建订单成功，订单ID: {}", orderIds);
     }
 
     /**
@@ -110,8 +120,8 @@ public class BatchOrderCreateTest {
         orderList.add(OrderCreateTest.OrderRequest.marketSell("ETH_USDT", new BigDecimal("0.01")));
 
         // 批量创建订单
-        String result = batchCreateOrders(orderList);
-        log.info("多交易对批量下单成功，结果: {}", result);
+        List<Long> orderIds = batchCreateOrders(orderList);
+        log.info("批量创建订单成功，订单ID: {}", orderIds);
     }
 
     public static void main(String[] args) throws HashExApiException {
