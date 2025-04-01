@@ -1,4 +1,4 @@
-package com.example.openapi.test.query;
+package com.example.openapi.test.spot.query;
 
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;

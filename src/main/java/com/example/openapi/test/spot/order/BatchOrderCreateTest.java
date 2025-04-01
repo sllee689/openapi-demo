@@ -1,9 +1,8 @@
-package com.example.openapi.test.order;
+package com.example.openapi.test.spot.order;
 
 import cn.hutool.json.JSONUtil;
 import com.example.openapi.client.ApiClient;
 import com.example.openapi.client.HashExApiException;
-import com.example.openapi.test.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

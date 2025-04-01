@@ -1,4 +1,4 @@
-package com.example.openapi.test.order;
+package com.example.openapi.test.spot.order;
 
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;

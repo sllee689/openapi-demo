@@ -1,4 +1,4 @@
-package com.example.openapi.test.websocket;
+package com.example.openapi.test.spot.websocket;
 
 import cn.hutool.core.lang.Console;
 import cn.hutool.json.JSONArray;

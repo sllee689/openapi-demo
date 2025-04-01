@@ -1,4 +1,4 @@
-package com.example.openapi.test.order;
+package com.example.openapi.test.spot.order;
 
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
@@ -45,7 +45,8 @@ public class OrderQueryTest {
 
             // 使用TypeReference处理泛型
             ApiResponse<OrderVO> apiResponse = JSONUtil.toBean(jsonObject,
-                    new cn.hutool.core.lang.TypeReference<ApiResponse<OrderVO>>() {}, false);
+                    new cn.hutool.core.lang.TypeReference<>() {
+                    }, false);
 
             if (!apiResponse.isSuccess()) {
                 throw new HashExApiException("查询订单失败: " + apiResponse.getMessage());
