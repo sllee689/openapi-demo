@@ -63,7 +63,7 @@ public class OrderTradeQueryTest {
             }
 
             // 调用API
-            String responseJson = apiClient.sendGetRequest("/spot/v1/u/trade/order/deal", queryParams);
+            String responseJson = apiClient.sendGetRequest("/spot/v1/u/trade/order/deal", queryParams,true);
 
             // 解析响应JSON
             JSONObject jsonObject = new JSONObject(responseJson);

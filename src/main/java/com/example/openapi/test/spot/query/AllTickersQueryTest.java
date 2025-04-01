@@ -28,7 +28,7 @@ public class AllTickersQueryTest {
             TreeMap<String, String> queryParams = new TreeMap<>();
 
             // 调用API，注意添加/spot/v1前缀
-            String responseJson = apiClient.sendGetRequest("/spot/v1/p/quotation/tickers", queryParams);
+            String responseJson = apiClient.sendGetRequest("/spot/v1/p/quotation/tickers", queryParams,false);
 
             // 解析响应JSON
             JSONObject jsonObject = new JSONObject(responseJson);

@@ -85,7 +85,7 @@ public class UnfinishedOrderQueryTest {
             }
 
             // 调用API - 使用正确的API路径(添加/spot/v1前缀)
-            String responseJson = apiClient.sendGetRequest("/spot/v1/u/trade/order/list", queryParams);
+            String responseJson = apiClient.sendGetRequest("/spot/v1/u/trade/order/list", queryParams,true);
 
             // 解析响应JSON
             JSONObject jsonObject = new JSONObject(responseJson);

@@ -61,7 +61,7 @@ public class DataQueryTest {
             }
 
             // 调用API - 使用正确的API路径
-            String responseJson = apiClient.sendGetRequest("/spot/v1/p/quotation/kline", queryParams);
+            String responseJson = apiClient.sendGetRequest("/spot/v1/p/quotation/kline", queryParams,false);
 
             // 解析响应JSON
             JSONObject jsonObject = new JSONObject(responseJson);

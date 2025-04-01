@@ -48,7 +48,7 @@ public class ApiClient implements AutoCloseable {
      * @return 响应字符串
      * @throws HashExApiException 如果API调用失败
      */
-    public String sendGetRequest(String endpoint, TreeMap<String, String> queryParams) throws HashExApiException {
+    public String sendGetRequest(String endpoint, TreeMap<String, String> queryParams,boolean needAuth) throws HashExApiException {
         try {
             String endPointUrl = baseUrl + endpoint;
 
@@ -65,7 +65,9 @@ public class ApiClient implements AutoCloseable {
             HttpGet httpGet = new HttpGet(uri);
 
             // 添加认证头
-            HashexApiUtils.addAuthHeaders(httpGet, accessKey, secretKey, queryParams);
+            if (needAuth) {
+                HashexApiUtils.addAuthHeaders(httpGet, accessKey, secretKey, queryParams);
+            }
 
             // 执行请求
             try (CloseableHttpResponse response = httpClient.execute(httpGet)) {

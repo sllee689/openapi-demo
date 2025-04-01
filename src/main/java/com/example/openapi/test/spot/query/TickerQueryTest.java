@@ -34,7 +34,7 @@ public class TickerQueryTest {
             queryParams.put("symbol", symbol);
 
             // 调用API - 使用正确的API路径(注意添加/spot/v1前缀)
-            String responseJson = apiClient.sendGetRequest("/spot/v1/p/quotation/ticker", queryParams);
+            String responseJson = apiClient.sendGetRequest("/spot/v1/p/quotation/ticker", queryParams,false);
 
             // 解析响应JSON
             JSONObject jsonObject = new JSONObject(responseJson);

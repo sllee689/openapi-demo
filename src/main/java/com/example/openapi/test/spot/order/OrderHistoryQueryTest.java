@@ -212,7 +212,7 @@ public class OrderHistoryQueryTest {
             }
 
             // 调用API
-            String responseJson = apiClient.sendGetRequest("/spot/v1/u/trade/order/history", queryParams);
+            String responseJson = apiClient.sendGetRequest("/spot/v1/u/trade/order/history", queryParams,true);
 
             // 解析响应JSON
             JSONObject jsonObject = new JSONObject(responseJson);

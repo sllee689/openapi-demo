@@ -38,7 +38,7 @@ public class OrderQueryTest {
             queryParams.put("orderId", orderId.toString());
 
             // 调用API
-            String responseJson = apiClient.sendGetRequest("/spot/v1/u/trade/order/detail", queryParams);
+            String responseJson = apiClient.sendGetRequest("/spot/v1/u/trade/order/detail", queryParams,true);
 
             // 解析响应JSON
             JSONObject jsonObject = new JSONObject(responseJson);
