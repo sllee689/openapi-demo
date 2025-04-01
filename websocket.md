@@ -2,17 +2,30 @@
 
 ## 1. WebSocket 概述
 
-HashEx交易平台提供WebSocket接口，支持实时订阅行情数据和用户数据，相比REST API具有更低的延迟和更高的效率。
+HashEx交易平台提供WebSocket接口，支持实时订阅行情数据和用户数据，相比REST API具有更低的延迟和更高的效率。WebSocket连接不需要认证，但订阅用户私有数据时需要提供认证token。
 
 ## 2. 服务地址
 
 - WebSocket基础URL: `wss://open.hashex.vip/spot/v1/ws/socket`
+- 获取用户认证Token URL: `https://open.hashex.vip/spot/v1/u/ws/token`
 
 ## 3. 认证机制
 
-### 3.1 认证参数
+### 3.1 用户数据认证流程
 
-连接WebSocket时需要在请求头中包含以下认证信息：
+订阅用户私有数据需要先获取认证token，然后在订阅消息中提供该token：
+
+1. 调用 `/spot/v1/u/ws/token` 接口获取WebSocket认证token
+2. 在订阅用户数据时将获取的token添加到订阅消息中
+
+### 3.2 获取认证Token
+
+**接口信息:**
+- **路径**: `/spot/v1/u/ws/token`
+- **方法**: `GET`
+- **是否签名**: 是
+
+**请求头:**
 
 | 请求头 | 说明 |
 |-------|------|
@@ -21,7 +34,7 @@ HashEx交易平台提供WebSocket接口，支持实时订阅行情数据和用�
 | `X-Request-Timestamp` | 请求时间戳（毫秒） |
 | `X-Request-Nonce` | 随机字符串，防止重放攻击 |
 
-### 3.2 签名算法
+**签名算法:**
 
 签名算法流程：
 
@@ -32,11 +45,19 @@ HashEx交易平台提供WebSocket接口，支持实时订阅行情数据和用�
 4. 使用HMAC-SHA256算法，以secretKey为密钥对最终参数字符串进行签名
 5. 将签名结果转换为十六进制字符串
 
+**响应数据:**
+
+| 参数名 | 类型 | 说明 |
+|-------|-----|------|
+| code | Integer | 状态码，0表示成功 |
+| message | String | 响应信息 |
+| data | String | WebSocket认证Token |
+
 ## 4. 心跳机制
 
-- 客户端需要每25秒发送一次`ping`消息
+- 客户端需要每50秒发送一次`ping`消息
 - 服务端会回复`pong`消息
-- 如果服务端超过30秒未收到心跳，将断开连接
+- 如果服务端超过60秒未收到心跳，将断开连接
 
 ## 5. 订阅类型
 
@@ -126,7 +147,6 @@ HashEx交易平台提供WebSocket接口，支持实时订阅行情数据和用�
 
 #### 5.1.2 K线数据订阅
 
-**无需API权限，公共接口**
 
 **请求格式**:
 ```json
@@ -171,7 +191,6 @@ HashEx交易平台提供WebSocket接口，支持实时订阅行情数据和用�
 
 #### 5.1.3 统计数据订阅
 
-**无需API权限，公共接口**
 
 **请求格式**:
 ```json
@@ -210,12 +229,13 @@ HashEx交易平台提供WebSocket接口，支持实时订阅行情数据和用�
 
 ### 5.2 用户数据订阅
 
-**需要API权限，私有接口**
+**需要请求/spot/v1/u/ws/token获取 token**
 
 **请求格式**:
 ```json
 {
-  "sub": "subUser"
+  "sub": "subUser",
+  "token": "获取到的认证Token"
 }
 ```
 
@@ -317,29 +337,14 @@ HashEx交易平台提供WebSocket接口，支持实时订阅行情数据和用�
 Java客户端示例：
 
 ```java
-// 构建WebSocket URL和请求头
+// 1. 连接WebSocket (不需要认证)
 String wsUrl = "wss://open.hashex.vip/spot/v1/ws/socket";
-String timestamp = generateTimestamp();
-String nonce = generateNonce();
-
-// 准备签名参数（必须使用TreeMap保证顺序）
-TreeMap<String, String> signParams = new TreeMap<>();
-// 生成签名时将timestamp添加在末尾
-String signature = generateSignature(SECRET_KEY, signParams, timestamp);
-
-// 构建请求头
-Map<String, String> headers = new HashMap<>();
-headers.put("X-Access-Key", ACCESS_KEY);
-headers.put("X-Signature", signature);
-headers.put("X-Request-Timestamp", timestamp);
-headers.put("X-Request-Nonce", nonce);
-
-// 创建WebSocketClient
-WebSocketClient client = new WebSocketClient(new URI(wsUrl), headers) {
+WebSocketClient client = new WebSocketClient(new URI(wsUrl)) {
     @Override
     public void onOpen(ServerHandshake handshakedata) {
-        // 发送订阅请求
+        // 连接成功后订阅公共数据
         send("{\"sub\":\"subSymbol\",\"symbol\":\"BTC_USDT\"}");
+        send("{\"sub\":\"subKline\",\"symbol\":\"BTC_USDT\",\"type\":\"1m\"}");
         
         // 设置定时发送心跳
         Timer timer = new Timer();
@@ -349,6 +354,14 @@ WebSocketClient client = new WebSocketClient(new URI(wsUrl), headers) {
                 send("ping");
             }
         }, 0, 25000); // 每25秒发送一次心跳
+        
+        // 获取token后订阅用户数据
+        new Thread(() -> {
+            String token = getWebSocketToken();
+            if (token != null) {
+                send("{\"sub\":\"subUser\",\"token\":\"" + token + "\"}");
+            }
+        }).start();
     }
 
     @Override
@@ -358,6 +371,37 @@ WebSocketClient client = new WebSocketClient(new URI(wsUrl), headers) {
     }
 };
 
+// 2. 获取WebSocket认证Token
+private String getWebSocketToken() {
+    try {
+        String url = "https://open.hashex.vip/spot/v1/u/ws/token";
+        long timestamp = System.currentTimeMillis();
+        String nonce = UUID.randomUUID().toString();
+
+        // 准备签名参数
+        TreeMap<String, String> sortedParams = new TreeMap<>();
+        String signature = generateSignature(SECRET_KEY, sortedParams, String.valueOf(timestamp));
+
+        // 发送请求获取Token
+        HttpRequest request = HttpRequest.get(url)
+            .header("X-Access-Key", ACCESS_KEY)
+            .header("X-Request-Timestamp", String.valueOf(timestamp))
+            .header("X-Request-Nonce", nonce)
+            .header("X-Signature", signature);
+        
+        String response = request.execute().body();
+        JSONObject json = JSONUtil.parseObj(response);
+        
+        if (json.getInt("code") == 0) {
+            return json.getStr("data");
+        }
+        return null;
+    } catch (Exception e) {
+        e.printStackTrace();
+        return null;
+    }
+}
+
 // 连接服务器
 client.connect();
 ```
@@ -366,7 +410,8 @@ client.connect();
 
 1. **心跳维护**: 每25秒发送一次心跳消息，确保连接不断开
 2. **断线重连**: 实现自动重连机制，处理网络波动情况
-3. **认证优先**: 建立连接后先完成认证，再进行数据订阅
-4. **数据验证**: 关键业务数据建议同时使用REST API进行二次确认
-5. **高效处理**: 针对高频数据实现合理的缓存和处理策略，避免内存溢出
-6. **错误处理**: 妥善处理各类异常情况，包括认证失败、订阅错误等
+3. **Token管理**: Token有效期有限，需要及时更新
+4. **异步获取Token**: 连接成功后异步获取Token，不阻塞主线程
+5. **数据验证**: 关键业务数据建议同时使用REST API进行二次确认
+6. **高效处理**: 针对高频数据实现合理的缓存和处理策略，避免内存溢出
+7. **错误处理**: 妥善处理各类异常情况，包括认证失败、订阅错误等

@@ -109,8 +109,8 @@ public class BatchCancelOrderTest {
 
         // 这里可以指定要撤销的订单ID列表
         List<String> orderIds = new ArrayList<>();
-        orderIds.add("475534805480815680");
-        orderIds.add("475534266177207360");
+        orderIds.add("477292986250590464");
+        orderIds.add("477292986254784768");
 
         log.info("准备撤销 {} 个指定订单", orderIds.size());
         for (String orderId : orderIds) {

@@ -1,6 +1,7 @@
 package com.example.openapi.test.spot.websocket;
 
 import cn.hutool.core.lang.Console;
+import cn.hutool.http.HttpRequest;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
@@ -19,6 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class WebsocketTest {
     // 服务器地址
+    private static final String HOST = "https://open.hashex.vip";
     private static final String WS_HOST = "wss://open.hashex.vip";
     // API凭证
     private static final String ACCESS_KEY = "0a9970e8986247d6e6d5deadc886a4e558c0a1c4f2047c2a00bc96e2efd24499";
@@ -51,28 +53,56 @@ public class WebsocketTest {
      * 创建 WebSocketClient 实例
      */
     private static HashexWebSocketClient createWebSocketClient() throws URISyntaxException {
-        // 生成时间戳和随机数
-        String timestamp = HashexApiUtils.generateTimestamp();
-        String nonce = HashexApiUtils.generateNonce();
-
-        // 准备签名参数（必须使用 TreeMap 保证顺序）
-        TreeMap<String, String> signParams = new TreeMap<>();
-
-        // 生成签名
-        String signature = HashexApiUtils.generateSignature(SECRET_KEY, signParams, timestamp);
-
-        // 构建请求头
-        Map<String, String> headers = new HashMap<>();
-        headers.put("X-Access-Key", ACCESS_KEY);
-        headers.put("X-Signature", signature);
-        headers.put("X-Request-Timestamp", timestamp);
-        headers.put("X-Request-Nonce", nonce);
-
         // 构建 WebSocket URL
         String wsUrl = String.format("%s/spot/v1/ws/socket", WS_HOST);
         Console.log("正在连接 WebSocket: {}", wsUrl);
 
-        return new HashexWebSocketClient(new URI(wsUrl), headers);
+        return new HashexWebSocketClient(new URI(wsUrl));
+    }
+
+    /**
+     * 获取WebSocket认证Token
+     */
+    private static String getWebSocketToken() {
+        try {
+            String url = HOST + "/spot/v1/u/ws/token";
+            long timestamp = System.currentTimeMillis();
+            String nonce = UUID.randomUUID().toString();
+
+            // 构建签名
+            // 创建排序参数
+            TreeMap<String, String> sortedParams = new TreeMap<>();
+            // 如果需要请求参数，可以在这里添加
+            // 此处是空的因为没有请求参数
+
+            // 构建签名 - 使用正确的方法
+            String signature = HashexApiUtils.generateSignature(
+                    SECRET_KEY,
+                    sortedParams,
+                    String.valueOf(timestamp));
+
+
+            // 发送请求获取Token
+            String response = HttpRequest.get(url)
+                    .header("X-Access-Key", ACCESS_KEY)
+                    .header("X-Request-Timestamp", String.valueOf(timestamp))
+                    .header("X-Request-Nonce", nonce)
+                    .header("X-Signature", signature)
+                    .execute()
+                    .body();
+
+            // 解析响应获取Token
+            JSONObject jsonResponse = JSONUtil.parseObj(response);
+            if (jsonResponse.getInt("code") == 0) {
+                return jsonResponse.getStr("data");
+            } else {
+                Console.error("获取WebSocket Token失败: {}", jsonResponse);
+                return null;
+            }
+        } catch (Exception e) {
+            Console.error("获取WebSocket Token异常: {}", e.getMessage());
+            return null;
+        }
     }
 
     /**
@@ -82,8 +112,8 @@ public class WebsocketTest {
         private Timer heartbeatTimer;
         private String symbol = "BTC_USDT";
 
-        public HashexWebSocketClient(URI serverUri, Map<String, String> httpHeaders) {
-            super(serverUri, httpHeaders);
+        public HashexWebSocketClient(URI serverUri) {
+            super(serverUri);
         }
 
         @Override
@@ -97,17 +127,31 @@ public class WebsocketTest {
             // 设置定时心跳
             startHeartbeatTimer();
 
-            // 发送订阅请求
+            // 发送普通订阅请求
             sendSubscription(symbol);
-
-            // 发送用户订阅请求
-            sendUserSubscription();
             // 发送K线订阅请求
             sendKlineSubscription(symbol, "1m");
-            // 发送统计数据订阅请求
+            // 发送行情数据订阅请求
             sendStatsSubscription();
 
+            // 发送用户订阅请求（先获取token）
+            sendUserSubscriptionWithToken();
+        }
 
+        /**
+         * 获取token并发送���户订阅请求
+         */
+        private void sendUserSubscriptionWithToken() {
+            try {
+                // 获取WebSocket Token
+                String token = getWebSocketToken();
+                if (token != null) {
+                    // 使用token发送用户订阅
+                    sendUserSubscription(token);
+                }
+            } catch (Exception e) {
+                Console.error("用户数据订阅失败: {}", e.getMessage());
+            }
         }
 
         /**
@@ -145,7 +189,7 @@ public class WebsocketTest {
         private void sendSubscription(String symbol) {
             try {
                 JSONObject subscribeMsg = JSONUtil.createObj();
-                subscribeMsg.set("sub", "subSymbol");  // 必须匹配WsReqType定义的值
+                subscribeMsg.set("sub", "subSymbol");
                 subscribeMsg.set("symbol", symbol);
 
                 String subscribeText = subscribeMsg.toString();
@@ -156,16 +200,21 @@ public class WebsocketTest {
             }
         }
 
-        private void sendUserSubscription() {
+        /**
+         * 发送用户数据订阅请求（带Token认证）
+         */
+        private void sendUserSubscription(String token) {
             try {
                 JSONObject subscribeMsg = JSONUtil.createObj();
-                subscribeMsg.set("sub", "subUser");  // 必须匹配WsReqType定义的值
+                subscribeMsg.set("sub", "subUser");
+                // 添加token到订阅消息
+                subscribeMsg.set("token", token);
 
                 String subscribeText = subscribeMsg.toString();
                 this.send(subscribeText);
-                Console.log("已发送订阅请求: {}", subscribeText);
+                Console.log("已发送用户订阅请求: {}", subscribeText);
             } catch (Exception e) {
-                Console.error("发送订阅消息失败: {}", e.getMessage());
+                Console.error("发送用户订阅消息失败: {}", e.getMessage());
             }
         }
 
@@ -188,18 +237,18 @@ public class WebsocketTest {
         }
 
         /**
-         * 发送统计数据订阅请求
+         * 发送行情数据订阅请求
          */
         private void sendStatsSubscription() {
             try {
                 JSONObject subscribeMsg = JSONUtil.createObj();
-                subscribeMsg.set("sub", "subStats");  // 必须匹配WsReqType定义的值
+                subscribeMsg.set("sub", "subStats");
 
                 String subscribeText = subscribeMsg.toString();
                 this.send(subscribeText);
-                Console.log("已发送统计数据订阅请求: {}", subscribeText);
+                Console.log("已发送行情数据订阅请求: {}", subscribeText);
             } catch (Exception e) {
-                Console.error("发送统计数据订阅消息失败: {}", e.getMessage());
+                Console.error("发送行情数据订阅消息失败: {}", e.getMessage());
             }
         }
 
