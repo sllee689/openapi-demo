@@ -259,7 +259,7 @@ public class OrderTradeQueryTest {
     public static void main(String[] args) throws HashExApiException {
         apiClient = new ApiClient("https://open.hashex.vip",
                 "0a9970e8986247d6e6d5deadc886a4e558c0a1c4f2047c2a00bc96e2efd24499",
-                "yZGQ4OWExMjVmMWViYWE1MmU0ZGQwY2ZmODQ4NDI0ZWI0OWU1MTUyNmUyZDU4NWJmZWRmYmM4ZDA1NWEyYjAxMmE=");
+                "dd89a125f1ebaa52e4dd0cff848424eb49e51526e2d585bfedfbc8d055a2b01a");
         OrderTradeQueryTest tradeTest = new OrderTradeQueryTest();
 
         // 测试查询指定订单的成交明细

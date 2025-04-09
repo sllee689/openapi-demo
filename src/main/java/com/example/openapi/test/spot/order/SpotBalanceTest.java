@@ -26,7 +26,7 @@ public class SpotBalanceTest {
     // API配置
     private static final String BASE_URL = "https://open.hashex.vip";
     private static final String ACCESS_KEY = "0a9970e8986247d6e6d5deadc886a4e558c0a1c4f2047c2a00bc96e2efd24499";
-    private static final String SECRET_KEY = "yZGQ4OWExMjVmMWViYWE1MmU0ZGQwY2ZmODQ4NDI0ZWI0OWU1MTUyNmUyZDU4NWJmZWRmYmM4ZDA1NWEyYjAxMmE=";
+    private static final String SECRET_KEY = "dd89a125f1ebaa52e4dd0cff848424eb49e51526e2d585bfedfbc8d055a2b01a";
 
     // 接口端点
     private static final String BALANCE_ENDPOINT = "/spot/v1/u/balance/spot";
