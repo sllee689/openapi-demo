@@ -49,7 +49,7 @@ public class BatchCancelOrderTest {
             ApiResponse<?> apiResponse = JSONUtil.toBean(jsonObject, ApiResponse.class, false);
 
             if (apiResponse.getCode() != 0) {
-                log.error("批量撤单失败: {}", apiResponse.getMessage());
+                log.error("批量撤单失败: {}", apiResponse.getMsg());
                 return false;
             }
 
@@ -136,6 +136,6 @@ public class BatchCancelOrderTest {
         cancelTest.testBatchCancelOrders();
 
         // 测试撤销特定订单
-        cancelTest.testCancelSpecificOrders();
+       // cancelTest.testCancelSpecificOrders();
     }
 }

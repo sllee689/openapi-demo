@@ -73,7 +73,7 @@ public class OrderTradeQueryTest {
                     new cn.hutool.core.lang.TypeReference<ApiResponse<ApiPageResult>>() {}, false);
 
             if (apiResponse.getCode() != 0) {
-                throw new HashExApiException("查询成交明细失败: " + apiResponse.getMessage());
+                throw new HashExApiException("查询成交明细失败: " + apiResponse.getMsg());
             }
 
             // 从原始API返回转换到标准PageResult

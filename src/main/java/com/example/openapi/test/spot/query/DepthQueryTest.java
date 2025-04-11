@@ -56,7 +56,7 @@ public class DepthQueryTest {
                     new cn.hutool.core.lang.TypeReference<ApiResponse<DepthVO>>() {}, false);
 
             if (apiResponse.getCode() != 0) {
-                throw new HashExApiException("获取深度数据失败: " + apiResponse.getMessage());
+                throw new HashExApiException("获取深度数据失败: " + apiResponse.getMsg());
             }
 
             return apiResponse.getData();

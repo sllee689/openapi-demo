@@ -11,6 +11,7 @@ import org.apache.hc.core5.net.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Console;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
@@ -125,7 +126,7 @@ public class SpotBalanceTest {
         try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
             int statusCode = response.getCode();
             String responseBody = EntityUtils.toString(response.getEntity());
-
+            log.info("接口 {},返回结果{}", BALANCE_ENDPOINT, responseBody);
             if (statusCode >= 200 && statusCode < 300) {
                 return objectMapper.readValue(
                         responseBody,

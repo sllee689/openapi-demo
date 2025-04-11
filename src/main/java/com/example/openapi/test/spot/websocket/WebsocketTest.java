@@ -139,7 +139,7 @@ public class WebsocketTest {
         }
 
         /**
-         * 获取token并发送���户订阅请求
+         * 获取token并发送用户订阅请求
          */
         private void sendUserSubscriptionWithToken() {
             try {

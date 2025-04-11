@@ -38,7 +38,7 @@ public class AllTickersQueryTest {
                     new cn.hutool.core.lang.TypeReference<ApiResponse<List<TickerVO>>>() {}, false);
 
             if (!apiResponse.isSuccess()) {
-                throw new HashExApiException("获取全交易对Ticker数据失败: " + apiResponse.getMessage());
+                throw new HashExApiException("获取全交易对Ticker数据失败: " + apiResponse.getMsg());
             }
 
             return apiResponse.getData();

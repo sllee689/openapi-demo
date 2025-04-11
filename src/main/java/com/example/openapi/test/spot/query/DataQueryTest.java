@@ -72,7 +72,7 @@ public class DataQueryTest {
 
             // 使用msg而不是message来判断信息
             if (apiResponse.getCode() != 0) {
-                throw new HashExApiException("获取K线数据失败: " + apiResponse.getMessage());
+                throw new HashExApiException("获取K线数据失败: " + apiResponse.getMsg());
             }
 
             return apiResponse.getData();
@@ -103,8 +103,7 @@ public class DataQueryTest {
 
     public static void main(String[] args) throws HashExApiException {
         apiClient = new ApiClient(
-                //"https://open.hashex.vip",
-                "http://localhost:8080",
+                "https://open.hashex.vip",
                 "0a9970e8986247d6e6d5deadc886a4e558c0a1c4f2047c2a00bc96e2efd24499",
                 "dd89a125f1ebaa52e4dd0cff848424eb49e51526e2d585bfedfbc8d055a2b01a");
         DataQueryTest dataQueryTest = new DataQueryTest();

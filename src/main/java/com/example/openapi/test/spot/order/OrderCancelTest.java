@@ -45,7 +45,7 @@ public class OrderCancelTest {
             ApiResponse<String> apiResponse = JSONUtil.toBean(jsonObject, ApiResponse.class);
 
             if (!apiResponse.isSuccess()) {
-                throw new HashExApiException("撤销订单失败: " + apiResponse.getMessage());
+                throw new HashExApiException("撤销订单失败: " + apiResponse.getMsg());
             }
 
             return apiResponse.getData();
@@ -100,7 +100,7 @@ public class OrderCancelTest {
             ApiResponse<String> apiResponse = JSONUtil.toBean(jsonObject, ApiResponse.class);
 
             if (!apiResponse.isSuccess()) {
-                throw new HashExApiException("创建订单失败: " + apiResponse.getMessage());
+                throw new HashExApiException("创建订单失败: " + apiResponse.getMsg());
             }
 
             return apiResponse.getData();

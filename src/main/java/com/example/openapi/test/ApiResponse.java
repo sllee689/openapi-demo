@@ -6,15 +6,15 @@ package com.example.openapi.test;
  */
 public class ApiResponse<T> {
     private int code;
-    private String message;
+    private String msg;
     private T data;
     
     public ApiResponse() {
     }
     
-    public ApiResponse(int code, String message, T data) {
+    public ApiResponse(int code, String msg, T data) {
         this.code = code;
-        this.message = message;
+        this.msg = msg;
         this.data = data;
     }
     
@@ -26,12 +26,12 @@ public class ApiResponse<T> {
         this.code = code;
     }
     
-    public String getMessage() {
-        return message;
+    public String getMsg() {
+        return msg;
     }
     
-    public void setMessage(String message) {
-        this.message = message;
+    public void setMsg(String msg) {
+        this.msg = msg;
     }
     
     public T getData() {
@@ -50,7 +50,7 @@ public class ApiResponse<T> {
     public String toString() {
         return "ApiResponse{" +
                 "code=" + code +
-                ", message='" + message + '\'' +
+                ", msg='" + msg + '\'' +
                 ", data=" + data +
                 '}';
     }

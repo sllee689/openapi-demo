@@ -222,7 +222,7 @@ public class OrderHistoryQueryTest {
                     new cn.hutool.core.lang.TypeReference<ApiResponse<PageResult>>() {}, false);
 
             if (apiResponse.getCode() != 0) {
-                throw new HashExApiException("查询历史订单失败: " + apiResponse.getMessage());
+                throw new HashExApiException("查询历史订单失败: " + apiResponse.getMsg());
             }
 
             // 从PageResult转换到ScrollPageResult

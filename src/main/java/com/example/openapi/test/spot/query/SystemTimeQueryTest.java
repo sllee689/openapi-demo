@@ -39,7 +39,7 @@ public class SystemTimeQueryTest {
                     new cn.hutool.core.lang.TypeReference<ApiResponse<Long>>() {}, false);
 
             if (apiResponse.getCode() != 0) {
-                throw new HashExApiException("获取系统时间失败: " + apiResponse.getMessage());
+                throw new HashExApiException("获取系统时间失败: " + apiResponse.getMsg());
             }
 
             return apiResponse.getData();

@@ -51,7 +51,7 @@ public class DealQueryTest {
                     new cn.hutool.core.lang.TypeReference<ApiResponse<List<DealVO>>>() {}, false);
 
             if (apiResponse.getCode() != 0) {
-                throw new HashExApiException("获取成交数据失败: " + apiResponse.getMessage());
+                throw new HashExApiException("获取成交数据失败: " + apiResponse.getMsg());
             }
 
             return apiResponse.getData();
