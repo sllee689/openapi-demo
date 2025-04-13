@@ -51,7 +51,7 @@ public class FuturesDepthTest {
                     new cn.hutool.core.lang.TypeReference<ApiResponse<FuturesDepthVO>>() {}, false);
 
             if (apiResponse.getCode() != 0) {
-                throw new HashExApiException("获取合约深度数据失败: " + apiResponse.getMessage());
+                throw new HashExApiException("获取合约深度数据失败: " + apiResponse.getMsg());
             }
 
             return apiResponse.getData();

@@ -39,7 +39,7 @@ public class ServerTimeTest {
                     new cn.hutool.core.lang.TypeReference<ApiResponse<Long>>() {}, false);
 
             if (apiResponse.getCode() != 0) {
-                throw new HashExApiException("获取服务器时间失败: " + apiResponse.getMessage());
+                throw new HashExApiException("获取服务器时间失败: " + apiResponse.getMsg());
             }
 
             return apiResponse.getData();
@@ -52,7 +52,7 @@ public class ServerTimeTest {
     }
 
     /**
-     * 测试获取服务器时���
+     * 测试获取服务器时间
      */
     private void testGetServerTime() throws HashExApiException {
         log.info("===== 获取服务器时间测试 =====");

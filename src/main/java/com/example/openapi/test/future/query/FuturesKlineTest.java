@@ -71,7 +71,7 @@ public class FuturesKlineTest {
                     new cn.hutool.core.lang.TypeReference<ApiResponse<List<FuturesKlineVO>>>() {}, false);
 
             if (apiResponse.getCode() != 0) {
-                throw new HashExApiException("获取合约K线数据失败: " + apiResponse.getMessage());
+                throw new HashExApiException("获取合约K线数据失败: " + apiResponse.getMsg());
             }
 
             return apiResponse.getData();

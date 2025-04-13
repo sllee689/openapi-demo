@@ -40,7 +40,7 @@ public class OrderCreateTest {
                     new cn.hutool.core.lang.TypeReference<ApiResponse<SymbolDetailTest.SymbolDetailVO>>() {}, false);
 
             if (apiResponse.getCode() != 0) {
-                throw new HashExApiException("获取币对详情失败: " + apiResponse.getMessage());
+                throw new HashExApiException("获取币对详情失败: " + apiResponse.getMsg());
             }
 
             return apiResponse.getData();
@@ -143,7 +143,7 @@ public class OrderCreateTest {
                     new cn.hutool.core.lang.TypeReference<ApiResponse<Object>>() {}, false);
 
             if (apiResponse.getCode() != 0) {
-                throw new HashExApiException("下单失败: " + apiResponse.getMessage());
+                throw new HashExApiException("下单失败: " + apiResponse.getMsg());
             }
 
             return apiResponse.getData();
@@ -216,7 +216,7 @@ public class OrderCreateTest {
     private void testCreateOrderWithTP_SL() throws HashExApiException {
         log.info("===== 创建带止盈止损的订单测试 =====");
 
-        // 获取币对信息，查看合约面��
+        // 获取币对信息，查看合约信息
         String symbol = "btc_usdt";
         SymbolDetailTest.SymbolDetailVO symbolDetail = getSymbolDetail(symbol);
         log.info("交易对: {}, 合约面值: {}", symbol, symbolDetail.getContractSize());
@@ -274,7 +274,6 @@ public class OrderCreateTest {
         private Boolean copyTrade;         // 是否复制交易
         private Integer sourceType;        // 来源类型
 
-        // 保持原有的 Getters and Setters ��变
         public String getSymbol() {
             return symbol;
         }

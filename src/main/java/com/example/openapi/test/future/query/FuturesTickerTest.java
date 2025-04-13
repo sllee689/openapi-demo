@@ -8,6 +8,9 @@ import com.example.openapi.test.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 import java.util.TreeMap;
 
 public class FuturesTickerTest {
@@ -44,7 +47,7 @@ public class FuturesTickerTest {
                     new cn.hutool.core.lang.TypeReference<ApiResponse<FuturesTickerVO>>() {}, false);
 
             if (apiResponse.getCode() != 0) {
-                throw new HashExApiException("获取合约行情数据失败: " + apiResponse.getMessage());
+                throw new HashExApiException("获取合约行情数据失败: " + apiResponse.getMsg());
             }
 
             return apiResponse.getData();
@@ -66,8 +69,8 @@ public class FuturesTickerTest {
         FuturesTickerVO tickerData = getFuturesTickerData("btc_usdt");
 
         log.info("交易对: {}, 最新价: {}, 24小时涨跌幅: {}%, 24小时最高价: {}, 24小时最低价: {}, 24小时成交量: {}, 24小时成交额: {}",
-                tickerData.getS(), tickerData.getC(), tickerData.getP(), tickerData.getH(),
-                tickerData.getL(), tickerData.getV(), tickerData.getQ());
+                tickerData.getS(), tickerData.getC(), tickerData.getR(), tickerData.getH(),
+                tickerData.getL(), tickerData.getA(), tickerData.getV());
     }
 
     public static void main(String[] args) throws HashExApiException {
@@ -89,82 +92,175 @@ public class FuturesTickerTest {
         private String o;      // 24小时前价格
         private String h;      // 24小时最高价
         private String l;      // 24小时最低价
-        private String v;      // 24小时成交量
-        private String q;      // 24小时成交额
-        private String p;      // 24小时涨跌幅(%)
-        private String t;      // 时间戳
+        private String a;      // 24小时成交量 (注意：这是API实际返回的字��)
+        private String v;      // 24小时成交额 (注意：这是API实际返回的字段)
+        private String r;      // 24小时涨跌幅(%) (注意：这是API实际返回的字段)
+        private Long t;        // 时间戳 (改为Long类型)
+        private TickerTrendVO tickerTrendVo; // 价格趋势数据
 
-        // Getters and Setters
+        // 现有的getter/setter需要修改为对应新字段
+
+        public String getA() {
+            return a;
+        }
+
+        public void setA(String a) {
+            this.a = a;
+        }
+
+        public String getR() {
+            return r;
+        }
+
+        public void setR(String r) {
+            this.r = r;
+        }
+
+        public Long getT() {
+            return t;
+        }
+
+        public void setT(Long t) {
+            this.t = t;
+        }
         public String getS() {
             return s;
         }
-
         public void setS(String s) {
             this.s = s;
         }
-
         public String getC() {
             return c;
         }
-
         public void setC(String c) {
             this.c = c;
         }
-
         public String getO() {
             return o;
         }
-
         public void setO(String o) {
             this.o = o;
         }
-
         public String getH() {
             return h;
         }
-
         public void setH(String h) {
             this.h = h;
         }
-
         public String getL() {
             return l;
         }
-
         public void setL(String l) {
             this.l = l;
         }
-
         public String getV() {
             return v;
         }
-
         public void setV(String v) {
             this.v = v;
         }
 
-        public String getQ() {
-            return q;
+        public TickerTrendVO getTickerTrendVo() {
+            return tickerTrendVo;
         }
 
-        public void setQ(String q) {
-            this.q = q;
+        public void setTickerTrendVo(TickerTrendVO tickerTrendVo) {
+            this.tickerTrendVo = tickerTrendVo;
         }
 
-        public String getP() {
-            return p;
+        @Override
+        public String toString() {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            StringBuilder sb = new StringBuilder();
+            sb.append("交易对: ").append(s)
+                    .append(", 最新价格: ").append(c)
+                    .append(", 24h涨跌幅: ").append(r).append("%")
+                    .append(", 24h最高: ").append(h)
+                    .append(", 24h最低: ").append(l)
+                    .append(", 24h成交量: ").append(a)
+                    .append(", 24h成交额: ").append(v)
+                    .append(", 时间: ").append(t != null ? sdf.format(new Date(t)) : "未知");
+
+            if (tickerTrendVo != null) {
+                sb.append("\n").append(tickerTrendVo);
+            }
+
+            return sb.toString();
+        }
+        /**
+         * 价格趋势数据VO类
+         */
+        public static class TickerTrendVO {
+            private List<TickerTrendItem> list;
+
+            public List<TickerTrendItem> getList() {
+                return list;
+            }
+
+            public void setList(List<TickerTrendItem> list) {
+                this.list = list;
+            }
+
+            @Override
+            public String toString() {
+                if (list == null || list.isEmpty()) {
+                    return "没有趋势数据";
+                }
+                StringBuilder sb = new StringBuilder("价格趋势数据：\n");
+                for (TickerTrendItem item : list) {
+                    sb.append(item).append("\n");
+                }
+                return sb.toString();
+            }
         }
 
-        public void setP(String p) {
-            this.p = p;
-        }
+        /**
+         * 价格趋势数据项类
+         */
+        public static class TickerTrendItem {
+            private Integer symbolId;
+            private String symbol;
+            private Double price;
+            private Long time;
 
-        public String getT() {
-            return t;
-        }
+            public Integer getSymbolId() {
+                return symbolId;
+            }
 
-        public void setT(String t) {
-            this.t = t;
+            public void setSymbolId(Integer symbolId) {
+                this.symbolId = symbolId;
+            }
+
+            public String getSymbol() {
+                return symbol;
+            }
+
+            public void setSymbol(String symbol) {
+                this.symbol = symbol;
+            }
+
+            public Double getPrice() {
+                return price;
+            }
+
+            public void setPrice(Double price) {
+                this.price = price;
+            }
+
+            public Long getTime() {
+                return time;
+            }
+
+            public void setTime(Long time) {
+                this.time = time;
+            }
+
+            @Override
+            public String toString() {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                return String.format("  [%s] %s 价格: %s 时间: %s",
+                        symbolId, symbol, price, sdf.format(new Date(time)));
+            }
         }
     }
 }

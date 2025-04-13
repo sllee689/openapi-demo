@@ -69,7 +69,7 @@ public PageResult<OrderTradeVO> getOrderTradeList(TradeListRequest request) thro
                 new cn.hutool.core.lang.TypeReference<ApiResponse<JSONObject>>() {}, false);
 
         if (apiResponse.getCode() != 0) {
-            throw new HashExApiException("查询成交明细失败: " + apiResponse.getMessage());
+            throw new HashExApiException("查询成交明细失败: " + apiResponse.getMsg());
         }
 
         // 解析数据部分

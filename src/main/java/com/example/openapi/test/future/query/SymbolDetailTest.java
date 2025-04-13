@@ -44,7 +44,7 @@ public class SymbolDetailTest {
                     new cn.hutool.core.lang.TypeReference<ApiResponse<SymbolDetailVO>>() {}, false);
 
             if (apiResponse.getCode() != 0) {
-                throw new HashExApiException("获取交易对配置信息失败: " + apiResponse.getMessage());
+                throw new HashExApiException("获取交易对配置信息失败: " + apiResponse.getMsg());
             }
 
             return apiResponse.getData();

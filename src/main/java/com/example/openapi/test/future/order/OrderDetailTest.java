@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 import java.util.TreeMap;
 
 /**
- * 合约订���查询测试类
+ * 合约订单查询测试类
  */
 public class OrderDetailTest {
 
@@ -50,7 +50,7 @@ public class OrderDetailTest {
                     new cn.hutool.core.lang.TypeReference<ApiResponse<OrderVO>>() {}, false);
 
             if (apiResponse.getCode() != 0) {
-                throw new HashExApiException("查询订单失败: " + apiResponse.getMessage());
+                throw new HashExApiException("查询订单失败: " + apiResponse.getMsg());
             }
 
             return apiResponse.getData();
@@ -149,7 +149,7 @@ public class OrderDetailTest {
         private BigDecimal price;          // 价格
         private BigDecimal origQty;        // 原始数量
         private BigDecimal executedQty;    // 已成交数量
-        private BigDecimal executedPrice;  // 成交均价
+        private BigDecimal avgPrice;  // 成交均价
         private String state;             // 订单状态
         private String timeInForce;        // 有效方式
         private Long createdTime;           // 创建时间
@@ -221,12 +221,12 @@ public class OrderDetailTest {
             this.executedQty = executedQty;
         }
 
-        public BigDecimal getExecutedPrice() {
-            return executedPrice;
+        public BigDecimal getAvgPrice() {
+            return avgPrice;
         }
 
-        public void setExecutedPrice(BigDecimal executedPrice) {
-            this.executedPrice = executedPrice;
+        public void setAvgPrice(BigDecimal avgPrice) {
+            this.avgPrice = avgPrice;
         }
 
         public String getState() {
@@ -280,7 +280,7 @@ public class OrderDetailTest {
                     "  价格: " + price + "\n" +
                     "  数量: " + origQty + "\n" +
                     "  已成交数量: " + (executedQty != null ? executedQty : "0") + "\n" +
-                    "  成交均价: " + (executedPrice == null ? "未成交" : executedPrice) + "\n" +
+                    "  成交均价: " + (avgPrice == null ? "未成交" : avgPrice) + "\n" +
                     "  订单状态: " + (state == null || "null".equals(state) ? "未知" : state) + "\n" +
                     "  有效方式: " + timeInForce + "\n" +
                     "  创建时间: " + (createdTime == null ? "未知" : createdTime) + "\n" +

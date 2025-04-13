@@ -51,7 +51,7 @@ public class FuturesDealsTest {
                     new cn.hutool.core.lang.TypeReference<ApiResponse<List<FuturesDealVO>>>() {}, false);
 
             if (apiResponse.getCode() != 0) {
-                throw new HashExApiException("获取合约成交数据失败: " + apiResponse.getMessage());
+                throw new HashExApiException("获取合约成交数据失败: " + apiResponse.getMsg());
             }
 
             return apiResponse.getData();

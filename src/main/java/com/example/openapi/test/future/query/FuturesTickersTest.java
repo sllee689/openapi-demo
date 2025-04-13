@@ -8,6 +8,8 @@ import com.example.openapi.test.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -38,7 +40,7 @@ public class FuturesTickersTest {
                     new cn.hutool.core.lang.TypeReference<ApiResponse<List<FuturesTickerVO>>>() {}, false);
 
             if (apiResponse.getCode() != 0) {
-                throw new HashExApiException("获取全部合约行���数据失败: " + apiResponse.getMessage());
+                throw new HashExApiException("获取全部合约行情数据失败: " + apiResponse.getMsg());
             }
 
             return apiResponse.getData();
@@ -64,9 +66,7 @@ public class FuturesTickersTest {
         // 打印前5个交易对的行情数据（如果有的话）
         int count = 0;
         for (FuturesTickerVO ticker : tickersList) {
-            log.info("交易对: {}, 最新价: {}, 24小时涨跌幅: {}%, 24小时最高价: {}, 24小时最低价: {}, 24小时成交量: {}, 24小时成交额: {}",
-                    ticker.getS(), ticker.getC(), ticker.getP(), ticker.getH(),
-                    ticker.getL(), ticker.getV(), ticker.getQ());
+            log.info(ticker.toString());
 
             count++;
             if (count >= 5) break; // 只打印前5个
@@ -84,7 +84,7 @@ public class FuturesTickersTest {
     }
 
     /**
-     * 合约行情数据模型类 - 与单个Ticker接口使用相同的模型
+     * 合约行情数据模型类 - 已根据API实际返回结构调整
      */
     public static class FuturesTickerVO {
         private String s;      // 交易对
@@ -92,10 +92,11 @@ public class FuturesTickersTest {
         private String o;      // 24小时前价格
         private String h;      // 24小时最高价
         private String l;      // 24小时最低价
-        private String v;      // 24小时成交量
-        private String q;      // 24小时成交额
-        private String p;      // 24小时涨跌幅(%)
+        private String a;      // 24小时成交量(文档中为v)
+        private String v;      // 24小时成交额(文档中为q)
+        private String r;      // 24小时涨跌幅(%)(文档中为p)
         private String t;      // 时间戳
+        private TickerTrendVO tickerTrendVo; // 价格趋势数据
 
         // Getters and Setters
         public String getS() {
@@ -138,6 +139,14 @@ public class FuturesTickersTest {
             this.l = l;
         }
 
+        public String getA() {
+            return a;
+        }
+
+        public void setA(String a) {
+            this.a = a;
+        }
+
         public String getV() {
             return v;
         }
@@ -146,20 +155,12 @@ public class FuturesTickersTest {
             this.v = v;
         }
 
-        public String getQ() {
-            return q;
+        public String getR() {
+            return r;
         }
 
-        public void setQ(String q) {
-            this.q = q;
-        }
-
-        public String getP() {
-            return p;
-        }
-
-        public void setP(String p) {
-            this.p = p;
+        public void setR(String r) {
+            this.r = r;
         }
 
         public String getT() {
@@ -168,6 +169,100 @@ public class FuturesTickersTest {
 
         public void setT(String t) {
             this.t = t;
+        }
+
+        public TickerTrendVO getTickerTrendVo() {
+            return tickerTrendVo;
+        }
+
+        public void setTickerTrendVo(TickerTrendVO tickerTrendVo) {
+            this.tickerTrendVo = tickerTrendVo;
+        }
+        @Override
+        public String toString() {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String timeStr = t != null ? sdf.format(new Date(Long.parseLong(t))) : "未知";
+
+            StringBuilder sb = new StringBuilder();
+            sb.append(String.format("交易对: %s, 最新价: %s, 最高价: %s, 最低价: %s\n", s, c, h, l));
+            sb.append(String.format("成交量: %s, 成交额: %s, 涨跌幅: %s%%\n", a, v, r));
+            sb.append(String.format("时间: %s\n", timeStr));
+
+            if (tickerTrendVo != null) {
+                sb.append(tickerTrendVo);
+            }
+
+            return sb.toString();
+        }
+    }
+
+    public static class TickerTrendVO {
+        private List<TickerTrendItem> list;
+
+        public List<TickerTrendItem> getList() {
+            return list;
+        }
+
+        public void setList(List<TickerTrendItem> list) {
+            this.list = list;
+        }
+
+        @Override
+        public String toString() {
+            if (list == null || list.isEmpty()) {
+                return "没有趋势数据";
+            }
+            StringBuilder sb = new StringBuilder("价格趋势数据：\n");
+            for (TickerTrendItem item : list) {
+                sb.append(item).append("\n");
+            }
+            return sb.toString();
+        }
+    }
+
+    public static class TickerTrendItem {
+        private Integer symbolId;
+        private String symbol;
+        private Double price;
+        private Long time;
+
+        public Integer getSymbolId() {
+            return symbolId;
+        }
+
+        public void setSymbolId(Integer symbolId) {
+            this.symbolId = symbolId;
+        }
+
+        public String getSymbol() {
+            return symbol;
+        }
+
+        public void setSymbol(String symbol) {
+            this.symbol = symbol;
+        }
+
+        public Double getPrice() {
+            return price;
+        }
+
+        public void setPrice(Double price) {
+            this.price = price;
+        }
+
+        public Long getTime() {
+            return time;
+        }
+
+        public void setTime(Long time) {
+            this.time = time;
+        }
+
+        @Override
+        public String toString() {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            return String.format("  [%s] %s 价格: %s 时间: %s",
+                    symbolId, symbol, price, sdf.format(new Date(time)));
         }
     }
 }

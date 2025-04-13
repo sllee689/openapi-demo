@@ -46,7 +46,7 @@ public class OrderCancelTest {
                     new cn.hutool.core.lang.TypeReference<ApiResponse<Object>>() {}, false);
 
             if (apiResponse.getCode() != 0) {
-                throw new HashExApiException("撤销订单失败: " + apiResponse.getMessage());
+                throw new HashExApiException("撤销订单失败: " + apiResponse.getMsg());
             }
 
             return apiResponse.getData();
@@ -117,7 +117,7 @@ public class OrderCancelTest {
             }
         } else {
             log.error("未知的创建订单返回格式: {}", createResult);
-            throw new RuntimeException("未知的创建���单返回格式");
+            throw new RuntimeException("未知的创建订单返回格式");
         }
     }
 

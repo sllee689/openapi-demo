@@ -44,7 +44,7 @@ public class UserBalanceTest {
                     new cn.hutool.core.lang.TypeReference<ApiResponse<List<BalanceVO>>>() {}, false);
 
             if (apiResponse.getCode() != 0) {
-                throw new HashExApiException("获取用户资金失败: " + apiResponse.getMessage());
+                throw new HashExApiException("获取用户资金失败: " + apiResponse.getMsg());
             }
 
             return apiResponse.getData();
@@ -82,8 +82,8 @@ public class UserBalanceTest {
     public static void main(String[] args) throws HashExApiException {
         apiClient = new ApiClient(
                 "https://open.hashex.vip",
-                "7ebd2b8b89b922ed6ee962df3910ddd742299ada9220adcf448a14efde8f5b35",
-                "52af950c4af9eba6d436ba028790b451bdb4dbafe506f61dcf3282e3eb5b8ffb");
+                "0a9970e8986247d6e6d5deadc886a4e558c0a1c4f2047c2a00bc96e2efd24499",
+                "dd89a125f1ebaa52e4dd0cff848424eb49e51526e2d585bfedfbc8d055a2b01a");
         UserBalanceTest balanceTest = new UserBalanceTest();
 
         balanceTest.testGetUserBalance();

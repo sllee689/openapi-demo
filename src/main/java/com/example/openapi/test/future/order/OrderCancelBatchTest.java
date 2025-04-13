@@ -55,7 +55,7 @@ public class OrderCancelBatchTest {
                     new cn.hutool.core.lang.TypeReference<ApiResponse<Object>>() {}, false);
 
             if (apiResponse.getCode() != 0) {
-                throw new HashExApiException("批量撤销订单失败: " + apiResponse.getMessage());
+                throw new HashExApiException("批量撤销订单失败: " + apiResponse.getMsg());
             }
 
             return apiResponse.getData();
@@ -71,7 +71,7 @@ public class OrderCancelBatchTest {
      * 测试批量撤销限价单
      */
     private void testCancelBatchLimitOrders() throws HashExApiException {
-        log.info("===== ���试批量撤销合约限价单 =====");
+        log.info("===== 测试批量撤销合约限价单 =====");
 
         // 创建订单测试对象
         OrderCreateTest orderCreateTest = new OrderCreateTest(apiClient);
