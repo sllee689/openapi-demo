@@ -2,7 +2,7 @@
 
 ## 1. API 概述
 
-HashEx 合约交易平台 API 提供了程序化交易的能力，允许开发者通过 HTTP 请求创建订���、查询市场数据等功能。
+HashEx 合约交易平台 API 提供了程序化交易的能力，允许开发者通过 HTTP 请求创建订单、查询市场数据等功能。
 
 ## 2. 服务地址
 
@@ -238,18 +238,18 @@ HashEx 合约交易平台 API 提供了程序化交易的能力，允许开发�
 
 **data数组中每个对象的字段**:
 
-| 参数名 | 类型 | 说明 |
-|-------|-----|------|
-| s | String | 交易对 |
-| t | Long | 时间戳 |
-| c | String | 最新价格 |
-| o | String | 24小时前价格 |
-| h | String | 24小时最高价 |
-| l | String | 24小时最低价 |
-| a | String | 24小时成交量 |
-| v | String | 24小时成交额 |
-| r | String | 24小时���跌幅(%) |
-| tickerTrendVo | Object | 价格趋势数据 |
+| 参数名 | 类型 | 说明         |
+|-------|-----|------------|
+| s | String | 交易对        |
+| t | Long | 时间戳        |
+| c | String | 最新价格       |
+| o | String | 24小时前价格    |
+| h | String | 24小时最高价    |
+| l | String | 24小时最低价    |
+| a | String | 24小时成交量    |
+| v | String | 24小时成交额    |
+| r | String | 24小时涨跌幅(%) |
+| tickerTrendVo | Object | 价格趋势数据     |
 
 **tickerTrendVo对象字段**:
 
@@ -409,7 +409,7 @@ HashEx 合约交易平台 API 提供了程序化交易的能力，允许开发�
 ### 4.7 获取合约最新成交信息
 
 **请求方法**: GET  
-**接���路径**: `/fut/v1/public/q/deal`  
+**接口路径**: `/fut/v1/public/q/deal`  
 **是否签名**: 否
 
 **请求参数**:
@@ -706,13 +706,13 @@ HashEx 合约交易平台 API 提供了程序化交易的能力，允许开发�
 
 **请求参数**:
 
-| 参数名 | 类型 | 是否必须 | 说明 |
-|-------|-----|---------|------|
-| symbol | String | 否 | 交易对 |
-| orderId | String | 否 | 订���ID |
-| startTime | Long | 否 | 开始时间 |
-| endTime | Long | 否 | 结束时间 |
-| page | Integer | 否 | 页码，默认1 |
+| 参数名 | 类型 | 是否必须 | 说明        |
+|-------|-----|---------|-----------|
+| symbol | String | 否 | 交易对       |
+| orderId | String | 否 | 订单ID      |
+| startTime | Long | 否 | 开始时间      |
+| endTime | Long | 否 | 结束时间      |
+| page | Integer | 否 | 页码，默认1    |
 | size | Integer | 否 | 每页大小，默认10 |
 
 **响应参数**:
@@ -734,16 +734,16 @@ HashEx 合约交易平台 API 提供了程序化交易的能力，允许开发�
 
 **items数组中每个对象的字段**:
 
-| 参数名 | 类型 | 说明 |
-|-------|-----|------|
-| orderId | String | 订单ID |
-| execId | String | 成交ID |
-| symbol | String | 交易对 |
-| quantity | String | 成交数量 |
-| price | String | 成交价格 |
-| fee | String | 手续费 |
+| 参数名 | 类型 | 说明    |
+|-------|-----|-------|
+| orderId | String | 订单ID  |
+| execId | String | 成交ID  |
+| symbol | String | 交易对   |
+| quantity | String | 成交数量  |
+| price | String | 成交价格  |
+| fee | String | 手续费   |
 | feeCoin | String | 手续费币种 |
-| timestamp | Long | ��交时间戳 |
+| timestamp | Long | 成交时间戳 |
 
 **响应格式**:
 ```json
@@ -792,16 +792,16 @@ HashEx 合约交易平台 API 提供了程序化交易的能力，允许开发�
 
 **data数组中每个对象的字段**:
 
-| 参数名 | 类型 | 说明 |
-|-------|-----|------|
-| coin | String | 币种 |
-| balanceType | String | 资金类型 |
-| walletBalance | String | 钱包余额 |
-| availableBalance | String | 可用余额 |
-| openOrderMarginFrozen | String | ��托冻结金额 |
-| isolatedMargin | String | 逐仓保证金 |
-| crossedMargin | String | 全仓保证金 |
-| bonus | String | 赠送金额 |
+| 参数名 | 类型 | 说明     |
+|-------|-----|--------|
+| coin | String | 币种     |
+| balanceType | String | 资金类型   |
+| walletBalance | String | 钱包余额   |
+| availableBalance | String | 可用余额   |
+| openOrderMarginFrozen | String | 委托冻结金额 |
+| isolatedMargin | String | 逐仓保证金  |
+| crossedMargin | String | 全仓保证金  |
+| bonus | String | 赠送金额   |
 
 **响应格式**:
 ```json
