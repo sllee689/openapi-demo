@@ -93,8 +93,8 @@ public class OrderCreateTest {
         try {
             // 创建订单请求对象
             OrderRequest request = isMarketOrder ?
-                    OrderRequest.marketSell("ETH_USDT", btcAmount) :
-                    OrderRequest.limitSell("ETH_USDT", btcAmount, btcPrice);
+                    OrderRequest.marketSell("BTC_USDT", btcAmount) :
+                    OrderRequest.limitSell("BTC_USDT", btcAmount, btcPrice);
 
             // 发送订单请求
             return createOrder(request);
@@ -120,8 +120,8 @@ public class OrderCreateTest {
         try {
             // 创建订单请求对象，使用静态工厂方法
             OrderRequest request = isMarketOrder ?
-                    OrderRequest.marketBuy("ETH_USDT", btcAmount) :
-                    OrderRequest.limitBuy("ETH_USDT", btcAmount, btcPrice);
+                    OrderRequest.marketBuy("BTC_USDT", btcAmount) :
+                    OrderRequest.limitBuy("BTC_USDT", btcAmount, btcPrice);
 
             // 发送订单请求
             return createOrder(request);
