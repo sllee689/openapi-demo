@@ -27,7 +27,7 @@ HashEx 交易平台 API 提供了程序化交易的能力，允许开发者通�
 2. 构建参数字符串：`key1=value1&key2=value2&...`
 3. 在参数字符串末尾附加时间戳：`key1=value1&key2=value2&...&timestamp=xxx`
    （其中`timestamp`值与请求头`X-Request-Timestamp`相同）
-4. 使用HMAC-SHA256算法，以secretKey为密钥对最终参数字符串进行签名
+4. 使用HMAC-SHA256算法，以secretKey为密钥对最终参数字符串进行签名，编码使用 UTF-8
 5. 将签名结果转换为十六进制字符串
 6. 参数内容形式为application/x-www-form-urlencoded的 query string中发送
 
