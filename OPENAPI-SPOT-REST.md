@@ -80,6 +80,9 @@ HashEx 交易平台 API 提供了程序化交易的能力，允许开发者通�
   "data": "123456789012345678"
 }
 ```
+**订单创建注意事项**:
+
+1. 订单创建功能为异步处理，返回的订单ID可能在稍后时间才会在系统中可见。
 
 ### 4.2 查询订单详情
 
@@ -89,9 +92,9 @@ HashEx 交易平台 API 提供了程序化交易的能力，允许开发者通�
 
 **请求参数**:
 
-| 参数名 | 类型 | 必填 | 说明 |
-|-------|-----|-----|------|
-| orderId | Long | 是 | 订单ID |
+| 参数名 | 类型 | 必填 | 说明                           |
+|-------|-----|-----|------------------------------|
+| orderId | Long | 是 | 订单ID,用户创建订单时返回的 ID 或者查询到的 ID |
 
 **响应参数**:
 
@@ -103,24 +106,36 @@ HashEx 交易平台 API 提供了程序化交易的能力，允许开发者通�
 
 **data对象字段**:
 
-| 参数名 | 类型 | 说明 |
-|-------|-----|------|
-| orderId | String | 订单ID |
-| clientOrderId | String | 客户端订单ID |
-| symbol | String | 交易对 |
-| orderType | String | 订单类型：LIMIT或MARKET |
-| orderSide | String | 买卖方向：BUY或SELL |
-| balanceType | Integer | 账户类型：1.现货账户，2.杠杆账户 |
-| timeInForce | String | 订单有效方式，如GTC |
-| price | String | 委托价格 |
-| origQty | String | 原始委托数量 |
-| avgPrice | String | 平均成交价 |
-| executedQty | String | 已成交数量 |
-| marginFrozen | String | 冻结保证金 |
-| state | String | 订单状态 |
-| createdTime | Long | 创建时间戳 |
-| sourceId | String | 订单来源ID，可能为null |
-| forceClose | String | 是否强平标志，可能为null |
+| 参数名 | 类型 | 说明                            |
+|-------|-----|-------------------------------|
+| orderId | String | 订单ID                          |
+| clientOrderId | String | 客户端订单ID                       |
+| symbol | String | 交易对                           |
+| orderType | String | 订单类型：LIMIT或MARKET             |
+| orderSide | String | 买卖方向：BUY或SELL                 |
+| balanceType | Integer | 账户类型：1.现货账户，2.杠杆账户            |
+| timeInForce | String | 订单有效方式，如GTC                   |
+| price | String | 委托价格                          |
+| origQty | String | 原始委托数量                        |
+| avgPrice | String | 平均成交价                         |
+| executedQty | String | 已成交数量                         |
+| marginFrozen | String | 冻结保证金                         |
+| state | String | 订单状态，详见下表                     |
+| createdTime | Long | 创建时间戳                         |
+| sourceId | String | 订单来源ID，可能为null                |
+| forceClose | String | 是否强平标志，true-是，false-否，可能为null |
+
+**订单状态说明**:
+
+| 状态代码 | 状态说明 |
+|---------|---------|
+| `NEW` | 新建订单（未成交） |
+| `PARTIALLY_FILLED` | 部分成交 |
+| `PARTIALLY_CANCELED` | 部分撤销 |
+| `FILLED` | 全部成交 |
+| `CANCELED` | 已撤销 |
+| `REJECTED` | 下单失败 |
+| `EXPIRED` | 已过期 |
 
 **响应格式**:
 ```json
@@ -156,12 +171,15 @@ HashEx 交易平台 API 提供了程序化交易的能力，允许开发者通�
 
 **请求参数**:
 
-| 参数名 | 类型 | 必填 | 说明 |
-|-------|-----|-----|------|
-| clientOrderId | String | 否 | 客户自定义订单ID |
-| startTime | Long | 否 | 查询开始时间戳(毫秒) |
-| endTime | Long | 否 | 查询结束时间戳(毫秒) | 
-| state | Integer | 否 | 订单状态筛选 |
+| 参数名 | 类型 | 必填 | 说明                                                                |
+|-------|-----|-----|-------------------------------------------------------------------|
+| symbol | String | 否 | 交易对，如"BTC_USDT"                                                   |
+| clientOrderId | String | 否 | 客户自定义订单ID                                                         |
+| startTime | Long | 否 | 查询开始时间戳(毫秒)                                                       |
+| endTime | Long | 否 | 查询结束时间戳(毫秒)                                                       | 
+| state | Integer | 否 | 订单状态筛选：1-新建订单(未成交)、2-部分成交、3-全部成交、4-已撤销、5-下单失败、6-已过期、9-未完成、10-历史订单 |
+| page | Integer | 否 | 页码，从1开始，默认1                                                       |
+| size | Integer | 否 | 每页条数，最大100，默认10                                                   |
 
 **响应参数**:  
 
@@ -182,24 +200,24 @@ HashEx 交易平台 API 提供了程序化交易的能力，允许开发者通�
 
 **items数组中每个对象的字段**:  
 
-| 参数名       | 类型    | 说明                 |
-|-------------|---------|----------------------|
-| orderId     | String  | 订单ID               |
-| clientOrderId | String  | 客户端订单ID          |
-| symbol      | String  | 交易对               |
+| 参数名       | 类型    | 说明                    |
+|-------------|---------|-----------------------|
+| orderId     | String  | 订单ID                  |
+| clientOrderId | String  | 客户端订单ID               |
+| symbol      | String  | 交易对                   |
 | orderType   | String  | 订单类型: LIMIT or MARKET |
-| orderSide   | String  | 买卖方向: BUY或SELL     |
-| balanceType | Integer | 账户类型             |
-| timeInForce | String  | 订单有效方式，如GTC      |
-| price       | String  | 委托价格             |
-| origQty     | String  | 原始委托数量           |
-| avgPrice    | String  | 平均成交价            |
-| executedQty | String  | 已成交数量            |
-| marginFrozen | String | 冻结保证金            |
-| sourceId | String | 订单来源ID，可能为null |
-| forceClose | String | 是否强平标志，可能为null |
-| state       | String  | 订单状态             |
-| createdTime | Long    | 创建时间戳            |
+| orderSide   | String  | 买卖方向: BUY或SELL        |
+| balanceType | Integer | 账户类型                  |
+| timeInForce | String  | 订单有效方式，如GTC           |
+| price       | String  | 委托价格                  |
+| origQty     | String  | 原始委托数量                |
+| avgPrice    | String  | 平均成交价                 |
+| executedQty | String  | 已成交数量                 |
+| marginFrozen | String | 冻结保证金                 |
+| sourceId | String | 订单来源ID，可能为null        |
+| forceClose | String | 是否强平标志，可能为null        |
+| state       | String  | 订单状态参考订单详情接口          |
+| createdTime | Long    | 创建时间戳                 |
 
 **响应示例**:
 ```json
@@ -238,6 +256,18 @@ HashEx 交易平台 API 提供了程序化交易的能力，允许开发者通�
 **接口路径**: `/spot/v1/u/trade/order/history`  
 **是否签名**: 是
 
+**请求参数**:
+
+| 参数名 | 类型 | 必填 | 说明 |
+|-------|-----|-----|------|
+| symbol | String | 否 | 交易对，如 "BTC_USDT" |
+| startTime | Long | 否 | 查询起始时间（毫秒时间戳） |
+| endTime | Long | 否 | 查询结束时间（毫秒时间戳） |
+| balanceType | Integer | 否 | 账户类型：1.现货账户(默认)，2.杠杆账户 |
+| id | Long | 否 | 分页标识，来自上一次请求结果 |
+| direction | String | 否 | 翻页方向："NEXT"(下一页)，"PREV"(上一页) |
+| limit | Integer | 否 | 每页记录数，默认值根据系统配置 |
+
 **响应参数**:  
 
 | 参数名 | 类型    | 说明           |
@@ -256,24 +286,24 @@ HashEx 交易平台 API 提供了程序化交易的能力，允许开发者通�
 
 **items数组中每个对象的字段**:  
 
-| 参数名       | 类型   | 说明                     |
-|-------------|--------|--------------------------|
-| orderId     | String | 订单ID                   |
-| clientOrderId | String | 客户端订单ID              |
-| symbol      | String | 交易对                   |
-| orderType   | String | 订单类型: LIMIT或MARKET    |
-| orderSide   | String | 买卖方向: BUY或SELL         |
-| balanceType | Integer | 账户类型                 |
-| timeInForce | String  | 订单有效方式，如GTC          |
-| price       | String | 委托价格                 |
-| origQty     | String | 原始委托数量               |
-| avgPrice    | String | 平均成交价                |
-| executedQty | String | 已成交数量                |
-| marginFrozen | String | 冻结保证金               |
+| 参数名       | 类型   | 说明                 |
+|-------------|--------|--------------------|
+| orderId     | String | 订单ID               |
+| clientOrderId | String | 客户端订单ID            |
+| symbol      | String | 交易对                |
+| orderType   | String | 订单类型: LIMIT或MARKET |
+| orderSide   | String | 买卖方向: BUY或SELL     |
+| balanceType | Integer | 账户类型               |
+| timeInForce | String  | 订单有效方式，如GTC        |
+| price       | String | 委托价格               |
+| origQty     | String | 原始委托数量             |
+| avgPrice    | String | 平均成交价              |
+| executedQty | String | 已成交数量              |
+| marginFrozen | String | 冻结保证金              |
 | sourceId    | String | 订单来源ID，可为空         |
 | forceClose  | String | 是否强平标志，可为空         |
-| state       | String | 订单状态                  |
-| createdTime | Long   | 创建时间戳                |
+| state       | String | 订单状态参考订单详情接口       |
+| createdTime | Long   | 创建时间戳              |
 
 **响应示例**:
 ```json
@@ -319,7 +349,7 @@ HashEx 交易平台 API 提供了程序化交易的能力，允许开发者通�
 |-------|-----|-----|------|
 | orderId | Long | 否 | 订单ID |
 | symbol | String | 否 | 交易对，如 "BTC_USDT" |
-| balanceType | Integer | 否 | 账户类型：1.现货账户，2.杠杆账户 |
+| balanceType | Integer | 否 | 账户类型：1.现货账户 |
 | page | Integer | 否 | 页码，从1开始 |
 | size | Integer | 否 | 每页条数 |
 
@@ -378,7 +408,6 @@ HashEx 交易平台 API 提供了程序化交易的能力，允许开发者通�
   }
 }
 ```
-# 批量交易接口文档补充
 
 ## 4.6 批量创建订单
 
@@ -424,7 +453,7 @@ HashEx 交易平台 API 提供了程序化交易的能力，允许开发者通�
 {"code":0,"msg":"success","data":[477292215849220352,477292215853414656]}
 ```
 
-**批量创建订单注意事项**:
+**批量创建订单接口注意事项**:
 
 1. 支持不同交易对的订单一次性提交。
 2. 批量操作遵循"尽力而为"原则，部分订单失败不会影响其他订单处理

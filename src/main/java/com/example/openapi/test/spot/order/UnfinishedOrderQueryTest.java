@@ -83,6 +83,7 @@ public class UnfinishedOrderQueryTest {
             if (size != null) {
                 queryParams.put("size", size.toString());
             }
+            queryParams.put("state", null);
 
             // 调用API - 使用正确的API路径(添加/spot/v1前缀)
             String responseJson = apiClient.sendGetRequest("/spot/v1/u/trade/order/list", queryParams,true);
@@ -92,7 +93,8 @@ public class UnfinishedOrderQueryTest {
 
             // 使用TypeReference处理泛型
             ApiResponse<ApiPageResult> apiResponse = JSONUtil.toBean(jsonObject,
-                    new cn.hutool.core.lang.TypeReference<ApiResponse<ApiPageResult>>() {}, false);
+                    new cn.hutool.core.lang.TypeReference<>() {
+                    }, false);
 
             if (apiResponse.getCode() != 0) {
                 throw new HashExApiException("查询未完成订单失败: " + apiResponse.getMsg());
