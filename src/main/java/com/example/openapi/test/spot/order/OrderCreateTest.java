@@ -56,9 +56,6 @@ public class OrderCreateTest {
                 queryParams.put("clientOrderId", orderRequest.getClientOrderId());
             }
 
-            // 账户类型默认为1（现货账户）
-            queryParams.put("balanceType", orderRequest.getBalanceType().toString());
-
             // 调用API
             String responseJson = apiClient.sendPostRequest("/spot/v1/u/trade/order/create", queryParams);
 
@@ -170,7 +167,6 @@ public class OrderCreateTest {
         private String tradeType;        // 订单类型：LIMIT或MARKET
         private BigDecimal totalAmount;  // 数量
         private BigDecimal price;        // 价格（市价单可为null）
-        private Integer balanceType = 1; // 账户类型 1.现货账户 2.杠杆账户
         private String clientOrderId;    // 自定义订单ID
 
         // 默认构造函数
@@ -187,14 +183,12 @@ public class OrderCreateTest {
 
         // 完整参数构造函数
         public OrderRequest(String symbol, String direction, String tradeType,
-                            BigDecimal totalAmount, BigDecimal price,
-                            Integer balanceType, String clientOrderId) {
+                            BigDecimal totalAmount, BigDecimal price, String clientOrderId) {
             this.symbol = symbol;
             this.direction = direction;
             this.tradeType = tradeType;
             this.totalAmount = totalAmount;
             this.price = price;
-            this.balanceType = balanceType == null ? 1 : balanceType;
             this.clientOrderId = clientOrderId;
         }
 
@@ -338,14 +332,6 @@ public class OrderCreateTest {
 
         public void setPrice(BigDecimal price) {
             this.price = price;
-        }
-
-        public Integer getBalanceType() {
-            return balanceType;
-        }
-
-        public void setBalanceType(Integer balanceType) {
-            this.balanceType = balanceType == null ? 1 : balanceType;
         }
 
         public String getClientOrderId() {

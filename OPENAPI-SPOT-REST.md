@@ -62,7 +62,6 @@ HashEx 交易平台 API 提供了程序化交易的能力，允许开发者通�
 | totalAmount | String | 是 | 委托数量 |
 | price | String | 条件必填 | 委托价格，限价单必填 |
 | clientOrderId | String | 否 | 客户自定义订单ID |
-| balanceType | Integer | 否 | 账户类型：1.现货账户(默认)，2.杠杆账户 |
 
 **响应参数**:
 
@@ -349,7 +348,6 @@ HashEx 交易平台 API 提供了程序化交易的能力，允许开发者通�
 |-------|-----|-----|------|
 | orderId | Long | 否 | 订单ID |
 | symbol | String | 否 | 交易对，如 "BTC_USDT" |
-| balanceType | Integer | 否 | 账户类型：1.现货账户 |
 | page | Integer | 否 | 页码，从1开始 |
 | size | Integer | 否 | 每页条数 |
 
@@ -431,7 +429,6 @@ HashEx 交易平台 API 提供了程序化交易的能力，允许开发者通�
 | totalAmount | String | 是 | 委托数量 |
 | price | String | 条件必填 | 委托价格，限价单必填 |
 | clientOrderId | String | 否 | 客户自定义订单ID |
-| balanceType | Integer | 否 | 账户类型：1.现货账户(默认)，2.杠杆账户 |
 
 **请求示例**:
 ```json

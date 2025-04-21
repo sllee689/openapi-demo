@@ -87,8 +87,6 @@ public class OrderQueryTest {
                 queryParams.put("clientOrderId", orderRequest.getClientOrderId());
             }
 
-            queryParams.put("balanceType", orderRequest.getBalanceType().toString());
-
             // 调用API
             String responseJson = apiClient.sendPostRequest("/spot/v1/u/trade/order/create", queryParams);
 
