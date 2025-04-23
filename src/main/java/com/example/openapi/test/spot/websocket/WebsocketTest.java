@@ -321,16 +321,20 @@ public class WebsocketTest {
          * 处理单档深度数据
          */
         private void processDepthData(JSONObject data) {
-            String symbol = data.getStr("s");
-            String price = data.getStr("p");
-            String quantity = data.getStr("q");
-            int direction = data.getInt("m"); // 1买/0卖
+            String id = data.getStr("id");         // 深度更新唯一标识
+            String symbol = data.getStr("s");      // 交易对
+            String price = data.getStr("p");       // 价格
+            String quantity = data.getStr("q");    // 数量
+            int direction = data.getInt("m");      // 方向(1买入/2卖出)
+            long timestamp = data.getLong("t");    // 时间戳(毫秒)
 
-            Console.log("收到{}单档深度: {} {} {}@{}",
+            Console.log("收到{}单档深度: ID:{}, {} {} {}@{}, 时间:{}",
                     symbol,
-                    direction == 1 ? "买入" : "卖出",
+                    id,
+                    direction == 1 ? "买入" : (direction == 2 ? "卖出" : "未知"),
                     quantity,
-                    price);
+                    price,
+                    new Date(timestamp));
         }
 
         /**
