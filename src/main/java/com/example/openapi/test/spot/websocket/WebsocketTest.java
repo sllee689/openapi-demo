@@ -309,6 +309,9 @@ public class WebsocketTest {
                         // 用户交易信息
                         processUserTradeData(data);
                         break;
+                    case "znxMessage": // 添加系统消息处理
+                        processZnxMessageData(data);
+                        break;
                     default:
                         Console.error("收到未知类型消息: {}, 内容: {}", resType, message);
                 }
@@ -519,6 +522,26 @@ public class WebsocketTest {
                     symbol, interval, new Date(timestamp),
                     open, close, high, low,
                     amount, volume, changeRate);
+        }
+
+
+        /**
+         * 处理系统通知消息
+         */
+        private void processZnxMessageData(JSONObject data) {
+            try {
+                long id = data.getLong("id");
+                String title = data.getStr("title");
+                String content = data.getStr("content");
+                String aggType = data.getStr("aggType");
+                String detailType = data.getStr("detailType");
+                long createdTime = data.getLong("createdTime");
+
+                Console.log("收到系统通知: [{}] {} - {}", title, content, new Date(createdTime));
+                Console.log("通知类型: {} / {}, 消息ID: {}", aggType, detailType, id);
+            } catch (Exception e) {
+                Console.error("处理系统通知消息异常: {}", e.getMessage());
+            }
         }
 
         /**

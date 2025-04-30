@@ -331,6 +331,41 @@ HashEx交易平台提供WebSocket接口，支持实时订阅行情数据和用�
 }
 ```
 
+### 5.3 系统通知订阅
+
+系统通知会自动推送，无需特殊订阅。当系统有重要通知（如价格波动提醒）时，会通过此通道推送。
+
+**响应数据类型** (znxMessage):
+
+字段说明:
+- `id`: 通知消息ID
+- `tenantId`: 租户ID
+- `title`: 通知标题
+- `content`: 通知内容
+- `aggType`: 消息聚合类型，如"SYSTEM"
+- `detailType`: 消息详细类型，如"SYSTEM_PRICE"表示价格提醒
+- `createdTime`: 创建时间戳(毫秒)
+- `allScope`: 是否全局范围消息
+- `userId`: 用户ID，-1表示系统消息
+- `read`: 是否已读
+
+```json
+{
+   "resType": "znxMessage",
+   "data": {
+      "id": 336912,
+      "tenantId": 1,
+      "title": "行情价格",
+      "content": "VVVUSDT 10分钟涨跌幅 -3.01%，现价 4.177 USDT",
+      "aggType": "SYSTEM",
+      "detailType": "SYSTEM_PRICE",
+      "createdTime": 1745932297862,
+      "allScope": true,
+      "userId": -1,
+      "read": false
+   }
+}
+
 ## 6. 错误码
 
 | 错误码 | 描述 |
