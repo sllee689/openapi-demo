@@ -1,12 +1,12 @@
-# HashEx OpenAPI 接入文档
+# MGBX OpenAPI 接入文档
 
 ## 1. API 概述
 
-HashEx 交易平台 API 提供了程序化交易的能力，允许开发者通过 HTTP 请求创建订单、查询市场数据等功能。
+MGBX 交易平台 API 提供了程序化交易的能力，允许开发者通过 HTTP 请求创建订单、查询市场数据等功能。
 
 ## 2. 服务地址
 
-**API 基础 URL**: `https://open.hashex.vip`
+**API 基础 URL**: `https://open.mgbx.com`
 
 ## 3. 认证机制
 

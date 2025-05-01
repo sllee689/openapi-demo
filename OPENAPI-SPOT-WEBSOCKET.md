@@ -1,13 +1,13 @@
-# HashEx WebSocket API接入文档
+# MGBX WebSocket API接入文档
 
 ## 1. WebSocket 概述
 
-HashEx交易平台提供WebSocket接口，支持实时订阅行情数据和用户数据，相比REST API具有更低的延迟和更高的效率。WebSocket连接不需要认证，但订阅用户私有数据时需要提供认证token。
+MGBX 交易平台提供WebSocket接口，支持实时订阅行情数据和用户数据，相比REST API具有更低的延迟和更高的效率。WebSocket连接不需要认证，但订阅用户私有数据时需要提供认证token。
 
 ## 2. 服务地址
 
-- WebSocket基础URL: `wss://open.hashex.vip/spot/v1/ws/socket`
-- 获取用户认证Token URL: `https://open.hashex.vip/spot/v1/u/ws/token`
+- WebSocket基础URL: `wss://open.mgbx.com/spot/v1/ws/socket`
+- 获取用户认证Token URL: `https://open.mgbx.com/spot/v1/u/ws/token`
 
 ## 3. 认证机制
 
@@ -365,6 +365,7 @@ HashEx交易平台提供WebSocket接口，支持实时订阅行情数据和用�
       "read": false
    }
 }
+```
 
 ## 6. 错误码
 
@@ -375,81 +376,7 @@ HashEx交易平台提供WebSocket接口，支持实时订阅行情数据和用�
 | sub fail | 订阅失败 |
 | system error | 系统错误 |
 
-## 7. WebSocket客户端示例
-
-Java客户端示例：
-
-```java
-// 1. 连接WebSocket (不需要认证)
-String wsUrl = "wss://open.hashex.vip/spot/v1/ws/socket";
-WebSocketClient client = new WebSocketClient(new URI(wsUrl)) {
-    @Override
-    public void onOpen(ServerHandshake handshakedata) {
-        // 连接成功后订阅公共数据
-        send("{\"sub\":\"subSymbol\",\"symbol\":\"BTC_USDT\"}");
-        send("{\"sub\":\"subKline\",\"symbol\":\"BTC_USDT\",\"type\":\"1m\"}");
-        
-        // 设置定时发送心跳
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                send("ping");
-            }
-        }, 0, 25000); // 每25秒发送一次心跳
-        
-        // 获取token后订阅用户数据
-        new Thread(() -> {
-            String token = getWebSocketToken();
-            if (token != null) {
-                send("{\"sub\":\"subUser\",\"token\":\"" + token + "\"}");
-            }
-        }).start();
-    }
-
-    @Override
-    public void onMessage(String message) {
-        // 处理接收到的消息
-        System.out.println("收到消息: " + message);
-    }
-};
-
-// 2. 获取WebSocket认证Token
-private String getWebSocketToken() {
-    try {
-        String url = "https://open.hashex.vip/spot/v1/u/ws/token";
-        long timestamp = System.currentTimeMillis();
-        String nonce = UUID.randomUUID().toString();
-
-        // 准备签名参数
-        TreeMap<String, String> sortedParams = new TreeMap<>();
-        String signature = generateSignature(SECRET_KEY, sortedParams, String.valueOf(timestamp));
-
-        // 发送请求获取Token
-        HttpRequest request = HttpRequest.get(url)
-            .header("X-Access-Key", ACCESS_KEY)
-            .header("X-Request-Timestamp", String.valueOf(timestamp))
-            .header("X-Request-Nonce", nonce)
-            .header("X-Signature", signature);
-        
-        String response = request.execute().body();
-        JSONObject json = JSONUtil.parseObj(response);
-        
-        if (json.getInt("code") == 0) {
-            return json.getStr("data");
-        }
-        return null;
-    } catch (Exception e) {
-        e.printStackTrace();
-        return null;
-    }
-}
-
-// 连接服务器
-client.connect();
-```
-
-## 8. 最佳实践
+## 7. 最佳实践
 
 1. **心跳维护**: 每25秒发送一次心跳消息，确保连接不断开
 2. **断线重连**: 实现自动重连机制，处理网络波动情况

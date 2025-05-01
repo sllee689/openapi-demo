@@ -127,7 +127,8 @@ public class BatchCancelOrderTest {
     }
 
     public static void main(String[] args) throws HashExApiException {
-        apiClient = new ApiClient("https://open.hashex.vip",
+        //替换自己的 accessKey 和 secretKey
+        apiClient = new ApiClient("https://open.mgbx.com",
                 "0a9970e8986247d6e6d5deadc886a4e558c0a1c4f2047c2a00bc96e2efd24499",
                 "dd89a125f1ebaa52e4dd0cff848424eb49e51526e2d585bfedfbc8d055a2b01a");
         BatchCancelOrderTest cancelTest = new BatchCancelOrderTest();

@@ -26,6 +26,14 @@ public class ApiClient implements AutoCloseable {
     private final String secretKey;
     private final CloseableHttpClient httpClient;
 
+    public ApiClient(String baseUrl) {
+        this.baseUrl = baseUrl;
+        this.accessKey = null;
+        this.secretKey = null;
+        this.httpClient = HttpClients.createDefault();
+    }
+
+
     /**
      * 构造函数
      *

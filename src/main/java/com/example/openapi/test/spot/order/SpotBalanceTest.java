@@ -24,8 +24,8 @@ import java.util.TreeMap;
 public class SpotBalanceTest {
     private static final Logger log = LoggerFactory.getLogger(SpotBalanceTest.class);
     private static final ObjectMapper objectMapper = new ObjectMapper();
-    // API配置
-    private static final String BASE_URL = "https://open.hashex.vip";
+    // //替换自己的 accessKey 和 secretKey
+    private static final String BASE_URL = "https://open.mgbx.com";
     private static final String ACCESS_KEY = "0a9970e8986247d6e6d5deadc886a4e558c0a1c4f2047c2a00bc96e2efd24499";
     private static final String SECRET_KEY = "dd89a125f1ebaa52e4dd0cff848424eb49e51526e2d585bfedfbc8d055a2b01a";
 
