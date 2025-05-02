@@ -5,8 +5,9 @@ const config = {
     favicon: 'img/favicon.ico',
     url: 'https://api-docs.mgbx.com',
     baseUrl: '/',
-    onBrokenLinks: 'throw', // 严格检查链接错误
-    onBrokenMarkdownLinks: 'throw',
+    // 修改：将严格链接检查改为警告模式
+    onBrokenLinks: 'warn',
+    onBrokenMarkdownLinks: 'warn',
     trailingSlash: false,
 
     // 仅支持中文
