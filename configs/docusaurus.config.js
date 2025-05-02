@@ -23,7 +23,6 @@ const config = {
                 docs: {
                     routeBasePath: '/', // 文档作为主页
                     sidebarPath: require.resolve('./sidebars.js'),
-                    editUrl: null, // 移除编辑链接
                 },
                 blog: false, // 禁用博客功能
                 theme: {
