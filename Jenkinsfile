@@ -28,61 +28,52 @@ pipeline {
 
         stage('处理API文档') {
             steps {
-                // 首先查找Markdown文件位置以确定正确路径
+                // 首先查找Markdown文件位置
                 sh '''
                     echo "查找API文档位置..."
                     find ${WORKSPACE} -name "*.md" -type f | sort
 
-                    # 定义可能的文档路径
-                    DOC_PATHS=(
-                        "${WORKSPACE}/docs"
-                        "${WORKSPACE}/src/docs"
-                        "${WORKSPACE}/src/main/resources/docs"
-                        "${WORKSPACE}/sdk/docs"
-                        "${WORKSPACE}/website/docs/api"
-                    )
-
-                    # REST API文档路径
+                    # 使用兼容sh的方式检查各路径
                     REST_DOC_PATH=""
                     WEBSOCKET_DOC_PATH=""
 
-                    # 查找文档
-                    for path in "${DOC_PATHS[@]}"; do
-                        if [ -f "${path}/OPENAPI-SPOT-REST.md" ]; then
-                            REST_DOC_PATH="${path}/OPENAPI-SPOT-REST.md"
+                    # 逐个检查可能的文档位置
+                    for DIR in "${WORKSPACE}/docs" "${WORKSPACE}/src/docs" "${WORKSPACE}/src/main/resources/docs" "${WORKSPACE}/sdk/docs" "${WORKSPACE}/website/docs/api"; do
+                        if [ -f "${DIR}/OPENAPI-SPOT-REST.md" ]; then
+                            REST_DOC_PATH="${DIR}/OPENAPI-SPOT-REST.md"
                             echo "找到REST文档: ${REST_DOC_PATH}"
                         fi
 
-                        if [ -f "${path}/OPENAPI-SPOT-WEBSOCKET.md" ]; then
-                            WEBSOCKET_DOC_PATH="${path}/OPENAPI-SPOT-WEBSOCKET.md"
+                        if [ -f "${DIR}/OPENAPI-SPOT-WEBSOCKET.md" ]; then
+                            WEBSOCKET_DOC_PATH="${DIR}/OPENAPI-SPOT-WEBSOCKET.md"
                             echo "找到WebSocket文档: ${WEBSOCKET_DOC_PATH}"
                         fi
                     done
 
                     # 复制REST API文档
                     if [ -n "$REST_DOC_PATH" ]; then
-                        cp -f ${REST_DOC_PATH} ${DOCUSAURUS_DIR}/docs/api/rest.md
+                        cp -f "${REST_DOC_PATH}" "${DOCUSAURUS_DIR}/docs/api/rest.md"
                         echo "已复制REST API文档"
                         # 添加前置元数据
-                        sed -i '1i ---\\ntitle: REST API\\ndescription: MGBX REST API接入文档\\n---\\n' ${DOCUSAURUS_DIR}/docs/api/rest.md
+                        sed -i '1i ---\\ntitle: REST API\\ndescription: MGBX REST API接入文档\\n---\\n' "${DOCUSAURUS_DIR}/docs/api/rest.md"
                     else
                         echo "警告: 未找到REST API文档，创建空文档"
-                        echo -e "---\\ntitle: REST API\\ndescription: MGBX REST API接入文档\\n---\\n\\n# REST API\\n\\n文档正在更新中..." > ${DOCUSAURUS_DIR}/docs/api/rest.md
+                        echo -e "---\\ntitle: REST API\\ndescription: MGBX REST API接入文档\\n---\\n\\n# REST API\\n\\n文档正在更新中..." > "${DOCUSAURUS_DIR}/docs/api/rest.md"
                     fi
 
                     # 复制WebSocket API文档
                     if [ -n "$WEBSOCKET_DOC_PATH" ]; then
-                        cp -f ${WEBSOCKET_DOC_PATH} ${DOCUSAURUS_DIR}/docs/api/websocket.md
+                        cp -f "${WEBSOCKET_DOC_PATH}" "${DOCUSAURUS_DIR}/docs/api/websocket.md"
                         echo "已复制WebSocket API文档"
                         # 添加前置元数据
-                        sed -i '1i ---\\ntitle: WebSocket API\\ndescription: MGBX WebSocket API接入文档\\n---\\n' ${DOCUSAURUS_DIR}/docs/api/websocket.md
+                        sed -i '1i ---\\ntitle: WebSocket API\\ndescription: MGBX WebSocket API接入文档\\n---\\n' "${DOCUSAURUS_DIR}/docs/api/websocket.md"
                     else
                         echo "警告: 未找到WebSocket API文档，创建空文档"
-                        echo -e "---\\ntitle: WebSocket API\\ndescription: MGBX WebSocket API接入文档\\n---\\n\\n# WebSocket API\\n\\n文档正在更新中..." > ${DOCUSAURUS_DIR}/docs/api/websocket.md
+                        echo -e "---\\ntitle: WebSocket API\\ndescription: MGBX WebSocket API接入文档\\n---\\n\\n# WebSocket API\\n\\n文档正在更新中..." > "${DOCUSAURUS_DIR}/docs/api/websocket.md"
                     fi
 
                     # 创建首页文档
-                    cat > ${DOCUSAURUS_DIR}/docs/intro.md << EOF
+                    cat > "${DOCUSAURUS_DIR}/docs/intro.md" << EOF
         ---
         id: intro
         slug: /
@@ -107,21 +98,21 @@ pipeline {
         EOF
                 '''
 
-                // 复制配置文件 - 从configs目录读取
+                // 复制配置文件
                 writeFile file: "${DOCUSAURUS_DIR}/docusaurus.config.js", text: readFile("${WORKSPACE}/configs/docusaurus.config.js")
                 writeFile file: "${DOCUSAURUS_DIR}/sidebars.js", text: readFile("${WORKSPACE}/configs/sidebars.js")
                 writeFile file: "${DOCUSAURUS_DIR}/src/css/custom.css", text: readFile("${WORKSPACE}/configs/custom.css")
 
                 // 创建简单logo
                 sh '''
-                    cat > ${DOCUSAURUS_DIR}/static/img/logo.svg << EOF
+                    cat > "${DOCUSAURUS_DIR}/static/img/logo.svg" << EOF
         <svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
           <rect width="200" height="200" fill="#ffffff"/>
           <text x="50%" y="50%" font-family="Arial" font-size="48" text-anchor="middle" fill="#2e8555">MGBX</text>
         </svg>
         EOF
                     # 创建空favicon
-                    touch ${DOCUSAURUS_DIR}/static/img/favicon.ico
+                    touch "${DOCUSAURUS_DIR}/static/img/favicon.ico"
                 '''
             }
         }
