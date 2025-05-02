@@ -1,0 +1,100 @@
+/**
+ * 自定义 CSS
+ */
+
+/* 主题颜色 */
+:root {
+    --ifm-color-primary: #2e8555;
+    --ifm-color-primary-dark: #29784c;
+    --ifm-color-primary-darker: #277148;
+    --ifm-color-primary-darkest: #205d3b;
+    --ifm-color-primary-light: #33925d;
+    --ifm-color-primary-lighter: #359962;
+    --ifm-color-primary-lightest: #3cad6e;
+    --ifm-code-font-size: 95%;
+    --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+}
+
+/* 暗色主题 */
+[data-theme='dark'] {
+    --ifm-color-primary: #25c2a0;
+    --ifm-color-primary-dark: #21af90;
+    --ifm-color-primary-darker: #1fa588;
+    --ifm-color-primary-darkest: #1a8870;
+    --ifm-color-primary-light: #29d5b0;
+    --ifm-color-primary-lighter: #32d8b4;
+    --ifm-color-primary-lightest: #4fddbf;
+    --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+}
+
+/* API文档表格样式 */
+table {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+    margin-bottom: 1em;
+    overflow-x: auto;
+}
+
+table th {
+    background-color: var(--ifm-table-head-background);
+    font-weight: var(--ifm-table-head-font-weight);
+}
+
+table td,
+table th {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    white-space: normal;
+    padding: 0.75rem;
+    border: 1px solid var(--ifm-table-border-color);
+}
+
+/* 代码块样式优化 */
+pre {
+    white-space: pre-wrap;
+    overflow-x: auto;
+    max-width: 100%;
+    margin-bottom: 1em;
+}
+
+.markdown code {
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* 响应式表格 */
+@media (max-width: 996px) {
+    table {
+        display: block;
+        overflow-x: auto;
+    }
+}
+
+/* 页面内链接平滑滚动 */
+html {
+    scroll-behavior: smooth;
+}
+
+/* 侧边栏改进 */
+.menu__link {
+    line-height: 1.5;
+    padding: 0.5rem 0.8rem;
+}
+
+/* 移除页面底部多余的导航元素 */
+.pagination-nav {
+    display: none;
+}
+
+/* 隐藏文章末尾的编辑链接 */
+.theme-edit-this-page {
+    display: none;
+}
+
+/* 隐藏不需要的标题链接图标 */
+h1:hover .hash-link,
+h2:hover .hash-link,
+h3:hover .hash-link {
+    opacity: 0.5;
+}
