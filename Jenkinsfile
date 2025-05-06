@@ -155,9 +155,8 @@ title: MGBX API 文档中心
 
 ## 快速开始
 
-1. [创建 API 密钥](api/rest#认证机制)
-2. [了解签名算法](api/rest#签名算法)
-3. [开始使用 API](api/rest#交易接口)
+1. [了解签名算法](api/rest#签名算法)
+2. [开始使用 API](api/rest#交易接口)
 
 EOF
                 '''
