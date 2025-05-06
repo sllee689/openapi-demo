@@ -60,7 +60,18 @@ const config = {
             // 移除页脚链接
             footer: {
                 style: 'dark',
-                links: [], // 不显示任何链接
+                links: [
+                    {
+                        title: '社区',
+                        items: [
+                            {
+                                label: 'GitHub',
+                                href: 'https://github.com/megabit-open/openapi-spot-docs',
+                                className: 'github-link',
+                            },
+                        ],
+                    },
+                ],
                 copyright: `Copyright © ${new Date().getFullYear()} MGBX. All rights reserved.`,
             },
 
