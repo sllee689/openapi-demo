@@ -13,20 +13,39 @@ pipeline {
     }
 
     stages {
-        stage('准备环境') {
-            steps {
-                echo "准备构建环境"
-                sh 'node -v && npm -v'
+       // 在"准备环境"阶段中添加或替换现有的图片目录创建代码
+       stage('准备环境') {
+           steps {
+               echo "准备构建环境"
+               sh 'node -v && npm -v'
 
-                // 清理并重建目录
-                sh '''
-                    rm -rf ${DOCUSAURUS_DIR}
-                    mkdir -p ${API_DOCS_DIR}
-                    mkdir -p ${DOCUSAURUS_DIR}/src/css
-                    mkdir -p ${DOCUSAURUS_DIR}/static/img
-                '''
-            }
-        }
+               // 清理并重建目录
+               sh '''
+                   rm -rf ${DOCUSAURUS_DIR}
+                   mkdir -p ${API_DOCS_DIR}
+                   mkdir -p ${DOCUSAURUS_DIR}/src/css
+                   mkdir -p ${DOCUSAURUS_DIR}/static/img
+                   mkdir -p ${DOCUSAURUS_DIR}/static/icons
+               '''
+
+               // 复制已有的图片资源
+               script {
+                   if (fileExists("${WORKSPACE}/static/img")) {
+                       sh '''
+                           echo "复制已有图片资源..."
+                           cp -rf ${WORKSPACE}/static/img/* ${DOCUSAURUS_DIR}/static/img/
+                           echo "图片资源已复制"
+
+                           # 显示已复制的图片列表
+                           echo "已复制的图片文件:"
+                           ls -la ${DOCUSAURUS_DIR}/static/img/
+                       '''
+                   } else {
+                       echo "警告: 未找到 static/img 目录，跳过图片复制"
+                   }
+               }
+           }
+       }
 
         stage('查找API文档') {
             steps {
@@ -227,6 +246,21 @@ EOF
             steps {
                 echo "归档构建结果"
                 archiveArtifacts artifacts: "${DOCUSAURUS_DIR}/build/**", fingerprint: true
+            }
+        }
+
+        stage('部署到S3') {
+            steps {
+                withAWS(region: 'ap-northeast-1', credentials: 'aws-credentials') {
+                    sh '''
+                        echo "开始部署到S3..."
+                        aws s3 sync ${DOCUSAURUS_DIR}/build/ s3://web1156 --delete
+                        echo "部署完成: http://web1156.s3-website-ap-northeast-1.amazonaws.com"
+
+                        # 如果有CloudFront分配，可以刷新缓存
+                        # aws cloudfront create-invalidation --distribution-id YOUR_DISTRIBUTION_ID --paths "/*"
+                    '''
+                }
             }
         }
     }

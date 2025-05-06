@@ -46,8 +46,8 @@ const config = {
             navbar: {
                 title: 'MGBX API 文档',
                 logo: {
-                    alt: 'MGBX Logo',
-                    src: 'img/logo.svg',
+                    alt: 'MGBX',
+                    src: 'img/logo.png',
                 },
                 items: [
                     {
