@@ -148,6 +148,8 @@ title: MGBX API 文档中心
 
 欢迎使用 MGBX 交易平台 API。本文档提供了详细的接入指南。
 
+您可以在我们的 [GitHub 仓库](https://github.com/megabit-open/openapi-spot-docs) 中查看接入示例和最新的文档更新。
+
 ## 文档导航
 
 - [REST API](api/rest) - HTTP 接口，用于交易、账户管理等操作
