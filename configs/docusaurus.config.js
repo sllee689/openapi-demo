@@ -57,7 +57,7 @@ const config = {
                     {
                         href: 'https://github.com/megabit-open/openapi-spot-docs',
                         label: '官方GitHub',
-                        position: 'left',
+                        position: 'right',
                         className: 'github-link',
                     },
                 ],
