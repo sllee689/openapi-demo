@@ -54,6 +54,12 @@ const config = {
                         label: '官网',
                         position: 'right',
                     },
+                    {
+                        href: 'https://github.com/megabit-open/openapi-spot-docs',
+                        label: 'GitHub',
+                        position: 'right',
+                        className: 'github-link',
+                    },
                 ],
             },
 
@@ -61,16 +67,6 @@ const config = {
             footer: {
                 style: 'dark',
                 links: [
-                    {
-                        title: '社区',
-                        items: [
-                            {
-                                label: 'GitHub',
-                                href: 'https://github.com/megabit-open/openapi-spot-docs',
-                                className: 'github-link',
-                            },
-                        ],
-                    },
                 ],
                 copyright: `Copyright © ${new Date().getFullYear()} MGBX. All rights reserved.`,
             },
