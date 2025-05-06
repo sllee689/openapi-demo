@@ -50,15 +50,15 @@ const config = {
                 },
                 items: [
                     {
+                        href: 'https://github.com/megabit-open/openapi-spot-docs',
+                        label: 'GitHub',
+                        position: 'right',
+                        className: 'github-link',
+                    },
+                    {
                         href: 'https://www.mgbx.com',
                         label: '官网',
                         position: 'right',
-                    },
-                    {
-                        href: 'https://github.com/megabit-open/openapi-spot-docs',
-                        label: '官方GitHub',
-                        position: 'right',
-                        className: 'github-link',
                     },
                 ],
             },
