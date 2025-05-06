@@ -4,8 +4,7 @@ const config = {
     tagline: '接入 MGBX 交易平台 API',
     favicon: 'img/favicon.ico',
     url: 'https://api-docs.mgbx.com',
-    // 修改: 将baseUrl从'/'改为'/openapi/'
-    baseUrl: '/openapi/',
+    baseUrl: '/',
     onBrokenLinks: 'warn',
     onBrokenMarkdownLinks: 'warn',
     trailingSlash: false,
