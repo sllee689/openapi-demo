@@ -11,8 +11,18 @@ const config = {
 
     // 仅支持中文
     i18n: {
-        defaultLocale: 'zh-Hans',
-        locales: ['zh-Hans'],
+        defaultLocale: 'zh',
+        locales: ['zh', 'en'],
+        localeConfigs: {
+            zh: {
+                label: '中文',
+                direction: 'ltr',
+            },
+            en: {
+                label: 'English',
+                direction: 'ltr',
+            },
+        },
     },
 
     presets: [
@@ -58,6 +68,10 @@ const config = {
                     {
                         href: 'https://www.mgbx.com',
                         label: '官网',
+                        position: 'right',
+                    },
+                    {
+                        type: 'localeDropdown',
                         position: 'right',
                     },
                 ],
