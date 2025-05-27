@@ -12,41 +12,46 @@ pipeline {
         CONFIGS_DIR = "configs"
     }
 
+    parameters {
+        booleanParam(name: 'INVALIDATE_CACHE', defaultValue: false, description: '是否清除CDN缓存(部署后)')
+    }
+
     stages {
-       // 在"准备环境"阶段中添加或替换现有的图片目录创建代码
-       stage('准备环境') {
-           steps {
-               echo "准备构建环境"
-               sh 'node -v && npm -v'
+        // 准备环境阶段
+        stage('准备环境') {
+            steps {
+                echo "准备构建环境"
+                sh 'node -v && npm -v'
 
-               // 清理并重建目录
-               sh '''
-                   rm -rf ${DOCUSAURUS_DIR}
-                   mkdir -p ${API_DOCS_DIR}
-                   mkdir -p ${DOCUSAURUS_DIR}/src/css
-                   mkdir -p ${DOCUSAURUS_DIR}/static/img
-                   mkdir -p ${DOCUSAURUS_DIR}/static/icons
-               '''
+                // 清理并重建目录
+                sh '''
+                    rm -rf ${DOCUSAURUS_DIR}
+                    mkdir -p ${API_DOCS_DIR}
+                    mkdir -p ${DOCUSAURUS_DIR}/src/css
+                    mkdir -p ${DOCUSAURUS_DIR}/static/img
+                    mkdir -p ${DOCUSAURUS_DIR}/static/icons
+                '''
 
-               // 复制已有的图片资源
-               script {
-                   if (fileExists("${WORKSPACE}/static/img")) {
-                       sh '''
-                           echo "复制已有图片资源..."
-                           cp -rf ${WORKSPACE}/static/img/* ${DOCUSAURUS_DIR}/static/img/
-                           echo "图片资源已复制"
+                // 复制已有的图片资源
+                script {
+                    if (fileExists("${WORKSPACE}/static/img")) {
+                        sh '''
+                            echo "复制已有图片资源..."
+                            cp -rf ${WORKSPACE}/static/img/* ${DOCUSAURUS_DIR}/static/img/
+                            echo "图片资源已复制"
 
-                           # 显示已复制的图片列表
-                           echo "已复制的图片文件:"
-                           ls -la ${DOCUSAURUS_DIR}/static/img/
-                       '''
-                   } else {
-                       echo "警告: 未找到 static/img 目录，跳过图片复制"
-                   }
-               }
-           }
-       }
+                            # 显示已复制的图片列表
+                            echo "已复制的图片文件:"
+                            ls -la ${DOCUSAURUS_DIR}/static/img/
+                        '''
+                    } else {
+                        echo "警告: 未找到 static/img 目录，跳过图片复制"
+                    }
+                }
+            }
+        }
 
+        // 查找API文档阶段
         stage('查找API文档') {
             steps {
                 echo "查找API文档文件..."
@@ -111,23 +116,23 @@ pipeline {
                     for DIR in "${WORKSPACE}/docs" "${WORKSPACE}/src/docs" "${WORKSPACE}/src/main/resources/docs" "${WORKSPACE}/sdk/docs"; do
                         if [ -z "$REST_DOC_PATH" ] && [ -f "${DIR}/OPENAPI-SPOT-REST.md" ]; then
                             REST_DOC_PATH="${DIR}/OPENAPI-SPOT-REST.md"
-                            echo "在${DIR}找到REST API文档"
+                            echo "在 ${DIR} 目录找到REST API文档"
                         fi
 
                         if [ -z "$WEBSOCKET_DOC_PATH" ] && [ -f "${DIR}/OPENAPI-SPOT-WEBSOCKET.md" ]; then
                             WEBSOCKET_DOC_PATH="${DIR}/OPENAPI-SPOT-WEBSOCKET.md"
-                            echo "在${DIR}找到WebSocket API文档"
+                            echo "在 ${DIR} 目录找到WebSocket API文档"
                         fi
 
                         # 查找英文文档
                         if [ -z "$REST_EN_DOC_PATH" ] && [ -f "${DIR}/OPENAPI-SPOT-REST-EN.md" ]; then
                             REST_EN_DOC_PATH="${DIR}/OPENAPI-SPOT-REST-EN.md"
-                            echo "在${DIR}找到英文REST API文档"
+                            echo "在 ${DIR} 目录找到英文REST API文档"
                         fi
 
                         if [ -z "$WEBSOCKET_EN_DOC_PATH" ] && [ -f "${DIR}/OPENAPI-SPOT-WEBSOCKET-EN.md" ]; then
                             WEBSOCKET_EN_DOC_PATH="${DIR}/OPENAPI-SPOT-WEBSOCKET-EN.md"
-                            echo "在${DIR}找到英文WebSocket API文档"
+                            echo "在 ${DIR} 目录找到英文WebSocket API文档"
                         fi
                     done
 
@@ -145,6 +150,7 @@ pipeline {
             }
         }
 
+        // 处理API文档阶段
         stage('处理API文档') {
             steps {
                 sh '''
@@ -178,32 +184,31 @@ pipeline {
                         echo -e "---\\ntitle: WebSocket API\\ndescription: MGBX WebSocket API接入文档\\n---\\n\\n# WebSocket API\\n\\n文档正在更新中..." > "${API_DOCS_DIR}/websocket.md"
                     fi
 
-                    # 创建默认语言(中文)首页文档 - 这是关键修复
+                    # 创建默认语言(中文)首页文档
                     echo "创建中文版intro.md..."
                     cat > "${DOCUSAURUS_DIR}/docs/intro.md" << EOF
-        ---
-        id: intro
-        slug: /
-        title: MGBX API 文档中心
-        ---
+---
+id: intro
+slug: /
+title: MGBX API 文档中心
+---
 
-        # MGBX API 文档中心
+# MGBX API 文档中心
 
-        欢迎使用 MGBX 交易平台 API。本文档提供了详细的接入指南。
+欢迎使用 MGBX 交易平台 API。本文档提供了详细的接入指南。
 
-        您可以在我们的 [GitHub 仓库](https://github.com/megabit-open/openapi-spot-docs) 中查看接入示例和最新的文档更新。
+您可以在我们的 [GitHub 仓库](https://github.com/megabit-open/openapi-spot-docs) 中查看接入示例和最新的文档更新。
 
-        ## 文档导航
+## 文档导航
 
-        - [REST API](api/rest) - HTTP 接口，用于交易、账户管理等操作
-        - [WebSocket API](api/websocket) - 实时数据推送，用于行情订阅
+- [REST API](api/rest) - HTTP 接口，用于交易、账户管理等操作
+- [WebSocket API](api/websocket) - 实时数据推送，用于行情订阅
 
-        ## 快速开始
+## 快速开始
 
-        1. [了解签名算法](api/rest#签名算法)
-        2. [开始使用 API](api/rest#交易接口)
-
-        EOF
+1. [了解签名算法](api/rest#签名算法)
+2. [开始使用 API](api/rest#交易接口)
+EOF
 
                     # 创建i18n目录结构
                     echo "创建国际化目录结构..."
@@ -236,93 +241,93 @@ pipeline {
                     # 创建英文首页文档
                     echo "创建英文版intro.md..."
                     cat > "${DOCUSAURUS_DIR}/i18n/en/docusaurus-plugin-content-docs/current/intro.md" << EOF
-        ---
-        id: intro
-        slug: /
-        title: MGBX API Documentation
-        ---
+---
+id: intro
+slug: /
+title: MGBX API Documentation
+---
 
-        # MGBX API Documentation Center
+# MGBX API Documentation Center
 
-        Welcome to the MGBX Trading Platform API. This documentation provides detailed integration guides.
+Welcome to the MGBX Trading Platform API. This documentation provides detailed integration guides.
 
-        You can check our integration examples and the latest documentation updates in our [GitHub Repository](https://github.com/megabit-open/openapi-spot-docs).
+You can check our integration examples and the latest documentation updates in our [GitHub Repository](https://github.com/megabit-open/openapi-spot-docs).
 
-        ## Documentation Navigation
+## Documentation Navigation
 
-        - [REST API](api/rest) - HTTP interfaces for trading, account management, and other operations
-        - [WebSocket API](api/websocket) - Real-time data streaming for market data
+- [REST API](api/rest) - HTTP interfaces for trading, account management, and other operations
+- [WebSocket API](api/websocket) - Real-time data streaming for market data
 
-        ## Quick Start
+## Quick Start
 
-        1. [Understand the signature algorithm](api/rest#signature-algorithm)
-        2. [Start using the API](api/rest#trading-interfaces)
-
-        EOF
+1. [Understand the signature algorithm](api/rest#signature-algorithm)
+2. [Start using the API](api/rest#trading-interfaces)
+EOF
 
                     # 创建英文侧边栏翻译
                     echo "创建英文侧边栏翻译..."
                     mkdir -p ${DOCUSAURUS_DIR}/i18n/en/docusaurus-plugin-content-docs
-                    cp -f ${DOCUSAURUS_DIR}/sidebars.js ${DOCUSAURUS_DIR}/i18n/en/docusaurus-plugin-content-docs/
+                    cp -f ${DOCUSAURUS_DIR}/sidebars.js ${DOCUSAURUS_DIR}/i18n/en/docusaurus-plugin-content-docs/ || echo "无法复制侧边栏配置文件"
 
                     cat > "${DOCUSAURUS_DIR}/i18n/en/docusaurus-plugin-content-docs/current.json" << EOF
-        {
-          "version.label": {
-            "message": "Current",
-            "description": "The label for version current"
-          },
-          "sidebar.apiSidebar.category.现货": {
-            "message": "Spot",
-            "description": "The label for category 现货 in sidebar apiSidebar"
-          },
-          "sidebar.apiSidebar.category.REST API": {
-            "message": "REST API",
-            "description": "The label for category REST API in sidebar apiSidebar"
-          },
-          "sidebar.apiSidebar.category.WebSocket API": {
-            "message": "WebSocket API",
-            "description": "The label for category WebSocket API in sidebar apiSidebar"
-          },
-          "sidebar.apiSidebar.doc.概述": {
-            "message": "Overview",
-            "description": "The label for doc 概述 in sidebar apiSidebar"
-          }
-        }
-        EOF
+{
+  "version.label": {
+    "message": "Current",
+    "description": "The label for version current"
+  },
+  "sidebar.apiSidebar.category.现货": {
+    "message": "Spot",
+    "description": "The label for category 现货 in sidebar apiSidebar"
+  },
+  "sidebar.apiSidebar.category.REST API": {
+    "message": "REST API",
+    "description": "The label for category REST API in sidebar apiSidebar"
+  },
+  "sidebar.apiSidebar.category.WebSocket API": {
+    "message": "WebSocket API",
+    "description": "The label for category WebSocket API in sidebar apiSidebar"
+  },
+  "sidebar.apiSidebar.doc.概述": {
+    "message": "Overview",
+    "description": "The label for doc 概述 in sidebar apiSidebar"
+  }
+}
+EOF
 
                     # 创建英文版导航翻译
                     echo "创建英文导航翻译..."
                     mkdir -p ${DOCUSAURUS_DIR}/i18n/en/docusaurus-theme-classic
                     cat > "${DOCUSAURUS_DIR}/i18n/en/docusaurus-theme-classic/navbar.json" << EOF
-        {
-          "title": {
-            "message": "MGBX API Docs",
-            "description": "The title in the navbar"
-          },
-          "item.label.GitHub": {
-            "message": "GitHub",
-            "description": "Navbar item with label GitHub"
-          },
-          "item.label.官网": {
-            "message": "Official Website",
-            "description": "Navbar item with label 官网"
-          }
-        }
-        EOF
+{
+  "title": {
+    "message": "MGBX API Docs",
+    "description": "The title in the navbar"
+  },
+  "item.label.GitHub": {
+    "message": "GitHub",
+    "description": "Navbar item with label GitHub"
+  },
+  "item.label.官网": {
+    "message": "Official Website",
+    "description": "Navbar item with label 官网"
+  }
+}
+EOF
 
-                    # 创建英文版主题翻译
+                    # 创建英文版主题翻译 - 使用shell变量替代JavaScript表达式
                     echo "创建英文主题翻译..."
+                    CURRENT_YEAR=$(date +%Y)
                     cat > "${DOCUSAURUS_DIR}/i18n/en/docusaurus-theme-classic/footer.json" << EOF
-        {
-          "copyright": {
-            "message": "Copyright © ${new Date().getFullYear()} MGBX. All rights reserved.",
-            "description": "The footer copyright"
-          }
-        }
-        EOF
+{
+  "copyright": {
+    "message": "Copyright © ${CURRENT_YEAR} MGBX. All rights reserved.",
+    "description": "The footer copyright"
+  }
+}
+EOF
                 '''
 
-                // 复制配置文件（这部分不变）
+                // 复制配置文件
                 script {
                     // 确保配置文件存在后再复制
                     if (fileExists("${WORKSPACE}/${CONFIGS_DIR}/docusaurus.config.js")) {
@@ -349,92 +354,122 @@ pipeline {
 
                 // 创建简单logo和favicon
                 sh '''
+                    # 创建基本的logo和favicon
                     cat > "${DOCUSAURUS_DIR}/static/img/logo.svg" << EOF
 <svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-  <rect width="200" height="200" fill="#ffffff"/>
-  <text x="50%" y="50%" font-family="Arial" font-size="48" text-anchor="middle" fill="#2e8555">MGBX</text>
+  <rect x="50" y="50" width="100" height="100" fill="#2e8555" rx="10" ry="10" />
+  <text x="100" y="110" font-family="Arial" font-size="40" text-anchor="middle" fill="white">MGBX</text>
 </svg>
 EOF
-                    # 创建空favicon
-                    touch "${DOCUSAURUS_DIR}/static/img/favicon.ico"
+
+                    # 复制为PNG格式
+                    cat > "${DOCUSAURUS_DIR}/static/img/logo.png" << EOF
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <rect x="50" y="50" width="100" height="100" fill="#2e8555" rx="10" ry="10" />
+  <text x="100" y="110" font-family="Arial" font-size="40" text-anchor="middle" fill="white">MGBX</text>
+</svg>
+EOF
+
+                    # 创建favicon
+                    cp -f "${DOCUSAURUS_DIR}/static/img/logo.svg" "${DOCUSAURUS_DIR}/static/img/favicon.ico"
                 '''
             }
         }
 
-        stage('构建文档站') {
+        // 初始化Docusaurus
+        stage('初始化Docusaurus') {
             steps {
                 dir("${DOCUSAURUS_DIR}") {
-                    // 创建package.json
                     sh '''
-                        cat > package.json << EOF
-{
-  "name": "mgbx-api-docs",
-  "version": "1.0.0",
-  "private": true,
-  "scripts": {
-    "docusaurus": "docusaurus",
-    "start": "docusaurus start",
-    "build": "docusaurus build",
-    "serve": "docusaurus serve"
-  },
-  "dependencies": {
-    "@docusaurus/core": "2.4.3",
-    "@docusaurus/preset-classic": "2.4.3",
-    "@mdx-js/react": "^1.6.22",
-    "clsx": "^1.2.1",
-    "prism-react-renderer": "^1.3.5",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2"
-  },
-  "browserslist": {
-    "production": [">0.5%", "not dead", "not op_mini all"],
-    "development": ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
-  }
-}
-EOF
-                        # 安装依赖和构建
-                        echo "开始安装依赖..."
-                        npm install
-                        echo "开始构建文档站..."
-                        npm run build
+                        echo "初始化Docusaurus项目..."
+                        npm init -y
+                        npm install --save-dev @docusaurus/core @docusaurus/preset-classic
+                        npm install --save-dev react react-dom
                     '''
                 }
             }
         }
 
-        stage('归档和部署') {
+        // 构建文档站
+        stage('构建文档站') {
             steps {
-                echo "归档构建结果"
-                archiveArtifacts artifacts: "${DOCUSAURUS_DIR}/build/**", fingerprint: true
+                dir("${DOCUSAURUS_DIR}") {
+                    echo "开始构建文档站..."
+                    timeout(time: 5, unit: 'MINUTES') {
+                        sh 'npm install'
+                        sh 'npm run build'
+                    }
+                }
             }
         }
 
-        stage('部署到S3') {
+        // 验证文档
+        stage('验证文档') {
             steps {
-                withAWS(region: 'ap-northeast-1', credentials: 'aws-credentials') {
-                    sh '''
-                        echo "开始部署到S3..."
-                        aws s3 sync ${DOCUSAURUS_DIR}/build/ s3://web1156 --delete
-                        echo "部署完成: http://web1156.s3-website-ap-northeast-1.amazonaws.com"
+                sh '''
+                    echo "验证文档站构建结果..."
+                    if [ ! -d "${DOCUSAURUS_DIR}/build" ]; then
+                        echo "错误: 构建目录不存在!"
+                        exit 1
+                    fi
 
-                        # 如果有CloudFront分配，可以刷新缓存
-                        # aws cloudfront create-invalidation --distribution-id YOUR_DISTRIBUTION_ID --paths "/*"
-                    '''
+                    # 检查关键文件
+                    if [ ! -f "${DOCUSAURUS_DIR}/build/index.html" ]; then
+                        echo "错误: index.html 不存在!"
+                        exit 1
+                    fi
+
+                    # 检查API文档
+                    if [ ! -f "${DOCUSAURUS_DIR}/build/api/rest/index.html" ]; then
+                        echo "警告: REST API文档页面不存在!"
+                    fi
+
+                    if [ ! -f "${DOCUSAURUS_DIR}/build/api/websocket/index.html" ]; then
+                        echo "警告: WebSocket API文档页面不存在!"
+                    fi
+
+                    # 检查i18n构建结果
+                    if [ ! -d "${DOCUSAURUS_DIR}/build/en" ]; then
+                        echo "警告: 英文版构建结果不存在!"
+                    else
+                        echo "英文版构建成功!"
+                    fi
+
+                    echo "文档站验证完成"
+                '''
+            }
+        }
+
+        // 部署阶段(可选)
+        stage('部署文档') {
+            when {
+                expression { return params.DEPLOY_TO_PRODUCTION }
+            }
+            steps {
+                echo "开始部署文档..."
+                // 部署步骤(根据实际环境配置)
+
+                // 如果需要清除CDN缓存
+                script {
+                    if (params.INVALIDATE_CACHE) {
+                        echo "执行CDN缓存失效操作..."
+                        // 这里添加使CDN缓存失效的命令
+                    }
                 }
             }
         }
     }
 
-   post {
-       success {
-           echo "构建成功：文档站已生成，请部署 ${DOCUSAURUS_DIR}/build 目录"
-       }
-       failure {
-           echo "构建失败，请检查日志"
-       }
-       always {
-           // 清理临时文件
-           sh "rm -f rest_doc_path.txt websocket_doc_path.txt rest_en_doc_path.txt websocket_en_doc_path.txt || true"
-       }
-   }
+    post {
+        success {
+            echo "构建成功：文档站已生成，请部署 ${DOCUSAURUS_DIR}/build 目录"
+        }
+        failure {
+            echo "构建失败，请检查日志"
+        }
+        always {
+            // 清理临时文件
+            sh "rm -f rest_doc_path.txt websocket_doc_path.txt rest_en_doc_path.txt websocket_en_doc_path.txt || true"
+        }
+    }
 }
