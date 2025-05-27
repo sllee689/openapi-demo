@@ -238,12 +238,12 @@ EOF
                     if [ -n "$WEBSOCKET_EN_DOC_PATH" ] && [ -f "$WEBSOCKET_EN_DOC_PATH" ]; then
                         cp -f "${WEBSOCKET_EN_DOC_PATH}" "${DOCUSAURUS_DIR}/i18n/en/docusaurus-plugin-content-docs/current/api/websocket.md"
                         echo "已复制英文WebSocket API文档: ${WEBSOCKET_EN_DOC_PATH} -> ${DOCUSAURUS_DIR}/i18n/en/docusaurus-plugin-content-docs/current/api/websocket.md"
-                        # 添加前置元数据
-                        sed -i '1i ---\\ntitle: WebSocket API\\ndescription: MGBX WebSocket API Documentation\\n---\\n' "${DOCUSAURUS_DIR}/i18n/en/docusaurus-plugin-content-docs/current/api/websocket.md"
-                        echo "已添加英文WebSocket文档前置元数据"
+                        # 添加前置元数据，确保包含id和slug字段
+                        sed -i '1i ---\\nid: websocket\\nslug: /api/websocket\\ntitle: WebSocket API\\ndescription: MGBX WebSocket API Documentation\\n---\\n' "${DOCUSAURUS_DIR}/i18n/en/docusaurus-plugin-content-docs/current/api/websocket.md"
+                        echo "已添加英文WebSocket文档前置元数据（包含id和slug字段）"
                     else
                         echo "警告: 未找到英文WebSocket API文档，创建空文档"
-                        echo -e "---\\ntitle: WebSocket API\\ndescription: MGBX WebSocket API Documentation\\n---\\n\\n# WebSocket API\\n\\nDocumentation is being updated..." > "${DOCUSAURUS_DIR}/i18n/en/docusaurus-plugin-content-docs/current/api/websocket.md"
+                        echo -e "---\\nid: websocket\\nslug: /api/websocket\\ntitle: WebSocket API\\ndescription: MGBX WebSocket API Documentation\\n---\\n\\n# WebSocket API\\n\\nDocumentation is being updated..." > "${DOCUSAURUS_DIR}/i18n/en/docusaurus-plugin-content-docs/current/api/websocket.md"
                     fi
 
                     # 创建英文首页文档
