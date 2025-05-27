@@ -13,18 +13,16 @@ pipeline {
     }
 
     parameters {
-        booleanParam(name: 'INVALIDATE_CACHE', defaultValue: false, description: '是否清除CDN缓存(部署后)')
         booleanParam(name: 'DEPLOY_TO_S3', defaultValue: true, description: '是否部署到S3')
+        booleanParam(name: 'INVALIDATE_CACHE', defaultValue: false, description: '是否清除CDN缓存(部署后)')
     }
 
     stages {
-        // 准备环境阶段
         stage('准备环境') {
             steps {
                 echo "准备构建环境"
                 sh 'node -v && npm -v'
 
-                // 清理并重建目录
                 sh '''
                     rm -rf ${DOCUSAURUS_DIR}
                     mkdir -p ${API_DOCS_DIR}
@@ -33,49 +31,41 @@ pipeline {
                     mkdir -p ${DOCUSAURUS_DIR}/static/icons
                 '''
 
-                // 复制已有的图片资源
                 script {
                     if (fileExists("${WORKSPACE}/static/img")) {
                         sh '''
-                            echo "复制已有图片资源..."
                             cp -rf ${WORKSPACE}/static/img/* ${DOCUSAURUS_DIR}/static/img/
-                            echo "图片资源已复制"
-
-                            # 显示已复制的图片列表
-                            echo "已复制的图片文件:"
+                            echo "已复制静态图片资源"
                             ls -la ${DOCUSAURUS_DIR}/static/img/
                         '''
                     } else {
-                        echo "警告: 未找到 static/img 目录，跳过图片复制"
+                        echo "未找到静态图片目录，跳过复制"
                     }
                 }
             }
         }
 
-        // 查找API文档阶段
         stage('查找API文档') {
             steps {
                 echo "查找API文档文件..."
                 sh '''
-                    # 列出所有markdown文件便于调试
                     echo "所有Markdown文件列表:"
                     find ${WORKSPACE} -name "*.md" -type f | sort
 
                     # 初始化文档路径变量
                     REST_DOC_PATH=""
                     WEBSOCKET_DOC_PATH=""
-                    # 初始化英文文档路径变量
                     REST_EN_DOC_PATH=""
                     WEBSOCKET_EN_DOC_PATH=""
 
-                    # 从最可能到最不可能的位置查找文档
                     # 复制预先准备好的图片文件
                     if [ -d "${CONFIGS_DIR}/static/img" ]; then
                         mkdir -p ${DOCUSAURUS_DIR}/static/img/
                         cp -rf ${CONFIGS_DIR}/static/img/* ${DOCUSAURUS_DIR}/static/img/
-                        echo "已复制预先准备的图片资源"
-                        ls -la ${DOCUSAURUS_DIR}/static/img/
+                        echo "已复制预设图片资源"
                     fi
+
+                    # 按优先级查找文档
                     # 1. 首先查找configs目录
                     if [ -f "${WORKSPACE}/${CONFIGS_DIR}/OPENAPI-SPOT-REST.md" ]; then
                         REST_DOC_PATH="${WORKSPACE}/${CONFIGS_DIR}/OPENAPI-SPOT-REST.md"
@@ -87,7 +77,6 @@ pipeline {
                         echo "在configs目录找到WebSocket API文档"
                     fi
 
-                    # 查找英文文档
                     if [ -f "${WORKSPACE}/${CONFIGS_DIR}/OPENAPI-SPOT-REST-EN.md" ]; then
                         REST_EN_DOC_PATH="${WORKSPACE}/${CONFIGS_DIR}/OPENAPI-SPOT-REST-EN.md"
                         echo "在configs目录找到英文REST API文档"
@@ -109,7 +98,6 @@ pipeline {
                         echo "在根目录找到WebSocket API文档"
                     fi
 
-                    # 查找英文文档
                     if [ -z "$REST_EN_DOC_PATH" ] && [ -f "${WORKSPACE}/OPENAPI-SPOT-REST-EN.md" ]; then
                         REST_EN_DOC_PATH="${WORKSPACE}/OPENAPI-SPOT-REST-EN.md"
                         echo "在根目录找到英文REST API文档"
@@ -132,7 +120,6 @@ pipeline {
                             echo "在 ${DIR} 目录找到WebSocket API文档"
                         fi
 
-                        # 查找英文文档
                         if [ -z "$REST_EN_DOC_PATH" ] && [ -f "${DIR}/OPENAPI-SPOT-REST-EN.md" ]; then
                             REST_EN_DOC_PATH="${DIR}/OPENAPI-SPOT-REST-EN.md"
                             echo "在 ${DIR} 目录找到英文REST API文档"
@@ -144,7 +131,6 @@ pipeline {
                         fi
                     done
 
-                    # 文档路径存储到临时文件，供后续步骤使用
                     echo "${REST_DOC_PATH}" > rest_doc_path.txt
                     echo "${WEBSOCKET_DOC_PATH}" > websocket_doc_path.txt
                     echo "${REST_EN_DOC_PATH}" > rest_en_doc_path.txt
@@ -158,7 +144,6 @@ pipeline {
             }
         }
 
-        // 处理API文档阶段
         stage('处理API文档') {
             steps {
                 sh '''
@@ -168,31 +153,31 @@ pipeline {
                     REST_EN_DOC_PATH=$(cat rest_en_doc_path.txt)
                     WEBSOCKET_EN_DOC_PATH=$(cat websocket_en_doc_path.txt)
 
-                    # 处理REST API文档
+                    # 处理中文REST API文档
                     if [ -n "$REST_DOC_PATH" ] && [ -f "$REST_DOC_PATH" ]; then
                         cp -f "${REST_DOC_PATH}" "${API_DOCS_DIR}/rest.md"
                         echo "已复制REST API文档: ${REST_DOC_PATH} -> ${API_DOCS_DIR}/rest.md"
                         # 添加前置元数据
-                        sed -i '1i ---\\ntitle: REST API\\ndescription: MGBX REST API接入文档\\n---\\n' "${API_DOCS_DIR}/rest.md"
+                        sed -i '1i ---\\nid: rest\\nslug: api/rest\\ntitle: REST API\\ndescription: MGBX REST API接入文档\\n---\\n' "${API_DOCS_DIR}/rest.md"
                         echo "已添加REST文档前置元数据"
                     else
                         echo "警告: 未找到REST API文档，创建空文档"
-                        echo -e "---\\ntitle: REST API\\ndescription: MGBX REST API接入文档\\n---\\n\\n# REST API\\n\\n文档正在更新中..." > "${API_DOCS_DIR}/rest.md"
+                        echo -e "---\\nid: rest\\nslug: api/rest\\ntitle: REST API\\ndescription: MGBX REST API接入文档\\n---\\n\\n# REST API\\n\\n文档正在更新中..." > "${API_DOCS_DIR}/rest.md"
                     fi
 
-                    # 处理WebSocket API文档
+                    # 处理中文WebSocket API文档
                     if [ -n "$WEBSOCKET_DOC_PATH" ] && [ -f "$WEBSOCKET_DOC_PATH" ]; then
                         cp -f "${WEBSOCKET_DOC_PATH}" "${API_DOCS_DIR}/websocket.md"
                         echo "已复制WebSocket API文档: ${WEBSOCKET_DOC_PATH} -> ${API_DOCS_DIR}/websocket.md"
                         # 添加前置元数据
-                        sed -i '1i ---\\ntitle: WebSocket API\\ndescription: MGBX WebSocket API接入文档\\n---\\n' "${API_DOCS_DIR}/websocket.md"
+                        sed -i '1i ---\\nid: websocket\\nslug: api/websocket\\ntitle: WebSocket API\\ndescription: MGBX WebSocket API接入文档\\n---\\n' "${API_DOCS_DIR}/websocket.md"
                         echo "已添加WebSocket文档前置元数据"
                     else
                         echo "警告: 未找到WebSocket API文档，创建空文档"
-                        echo -e "---\\ntitle: WebSocket API\\ndescription: MGBX WebSocket API接入文档\\n---\\n\\n# WebSocket API\\n\\n文档正在更新中..." > "${API_DOCS_DIR}/websocket.md"
+                        echo -e "---\\nid: websocket\\nslug: api/websocket\\ntitle: WebSocket API\\ndescription: MGBX WebSocket API接入文档\\n---\\n\\n# WebSocket API\\n\\n文档正在更新中..." > "${API_DOCS_DIR}/websocket.md"
                     fi
 
-                    # 创建默认语言(中文)首页文档
+                    # 创建中文首页文档
                     echo "创建中文版intro.md..."
                     cat > "${DOCUSAURUS_DIR}/docs/intro.md" << EOF
 ---
@@ -221,29 +206,32 @@ EOF
                     # 创建i18n目录结构
                     echo "创建国际化目录结构..."
                     mkdir -p ${DOCUSAURUS_DIR}/i18n/en/docusaurus-plugin-content-docs/current/api
+                    mkdir -p ${DOCUSAURUS_DIR}/i18n/en/docusaurus-theme-classic
 
                     # 处理英文REST API文档
                     if [ -n "$REST_EN_DOC_PATH" ] && [ -f "$REST_EN_DOC_PATH" ]; then
                         cp -f "${REST_EN_DOC_PATH}" "${DOCUSAURUS_DIR}/i18n/en/docusaurus-plugin-content-docs/current/api/rest.md"
-                        echo "已复制英文REST API文档: ${REST_EN_DOC_PATH} -> ${DOCUSAURUS_DIR}/i18n/en/docusaurus-plugin-content-docs/current/api/rest.md"
-                        # 添加前置元数据
-                        sed -i '1i ---\\ntitle: REST API\\ndescription: MGBX REST API Documentation\\n---\\n' "${DOCUSAURUS_DIR}/i18n/en/docusaurus-plugin-content-docs/current/api/rest.md"
+                        echo "已复制英文REST API文档: ${REST_EN_DOC_PATH}"
+                        # 添加前置元数据（不以斜杠开头的slug）
+                        sed -i '1i ---\\nid: rest\\nslug: api/rest\\ntitle: REST API\\ndescription: MGBX REST API Documentation\\n---\\n' "${DOCUSAURUS_DIR}/i18n/en/docusaurus-plugin-content-docs/current/api/rest.md"
                         echo "已添加英文REST文档前置元数据"
                     else
                         echo "警告: 未找到英文REST API文档，创建空文档"
-                        echo -e "---\\ntitle: REST API\\ndescription: MGBX REST API Documentation\\n---\\n\\n# REST API\\n\\nDocumentation is being updated..." > "${DOCUSAURUS_DIR}/i18n/en/docusaurus-plugin-content-docs/current/api/rest.md"
+                        mkdir -p "${DOCUSAURUS_DIR}/i18n/en/docusaurus-plugin-content-docs/current/api"
+                        echo -e "---\\nid: rest\\nslug: api/rest\\ntitle: REST API\\ndescription: MGBX REST API Documentation\\n---\\n\\n# REST API\\n\\nDocumentation is being updated..." > "${DOCUSAURUS_DIR}/i18n/en/docusaurus-plugin-content-docs/current/api/rest.md"
                     fi
 
-                    # 处理英文WebSocket API文档
+                    # 处理英文WebSocket API文档 - 修复slug格式
                     if [ -n "$WEBSOCKET_EN_DOC_PATH" ] && [ -f "$WEBSOCKET_EN_DOC_PATH" ]; then
                         cp -f "${WEBSOCKET_EN_DOC_PATH}" "${DOCUSAURUS_DIR}/i18n/en/docusaurus-plugin-content-docs/current/api/websocket.md"
-                        echo "已复制英文WebSocket API文档: ${WEBSOCKET_EN_DOC_PATH} -> ${DOCUSAURUS_DIR}/i18n/en/docusaurus-plugin-content-docs/current/api/websocket.md"
-                        # 添加前置元数据，确保包含id和slug字段
-                        sed -i '1i ---\\nid: websocket\\nslug: /api/websocket\\ntitle: WebSocket API\\ndescription: MGBX WebSocket API Documentation\\n---\\n' "${DOCUSAURUS_DIR}/i18n/en/docusaurus-plugin-content-docs/current/api/websocket.md"
-                        echo "已添加英文WebSocket文档前置元数据（包含id和slug字段）"
+                        echo "已复制英文WebSocket API文档: ${WEBSOCKET_EN_DOC_PATH}"
+                        # 添加前置元数据 - 不以斜杠开头的slug
+                        sed -i '1i ---\\nid: websocket\\nslug: api/websocket\\ntitle: WebSocket API\\ndescription: MGBX WebSocket API Documentation\\n---\\n' "${DOCUSAURUS_DIR}/i18n/en/docusaurus-plugin-content-docs/current/api/websocket.md"
+                        echo "已添加英文WebSocket文档前置元数据（修正slug格式）"
                     else
                         echo "警告: 未找到英文WebSocket API文档，创建空文档"
-                        echo -e "---\\nid: websocket\\nslug: /api/websocket\\ntitle: WebSocket API\\ndescription: MGBX WebSocket API Documentation\\n---\\n\\n# WebSocket API\\n\\nDocumentation is being updated..." > "${DOCUSAURUS_DIR}/i18n/en/docusaurus-plugin-content-docs/current/api/websocket.md"
+                        mkdir -p "${DOCUSAURUS_DIR}/i18n/en/docusaurus-plugin-content-docs/current/api"
+                        echo -e "---\\nid: websocket\\nslug: api/websocket\\ntitle: WebSocket API\\ndescription: MGBX WebSocket API Documentation\\n---\\n\\n# WebSocket API\\n\\nDocumentation is being updated..." > "${DOCUSAURUS_DIR}/i18n/en/docusaurus-plugin-content-docs/current/api/websocket.md"
                     fi
 
                     # 创建英文首页文档
@@ -272,11 +260,8 @@ You can check our integration examples and the latest documentation updates in o
 2. [Start using the API](api/rest#trading-interfaces)
 EOF
 
-                    # 创建英文侧边栏翻译
+                    # 创建英文侧边栏翻译文件
                     echo "创建英文侧边栏翻译..."
-                    mkdir -p ${DOCUSAURUS_DIR}/i18n/en/docusaurus-plugin-content-docs
-                    cp -f ${DOCUSAURUS_DIR}/sidebars.js ${DOCUSAURUS_DIR}/i18n/en/docusaurus-plugin-content-docs/ || echo "无法复制侧边栏配置文件"
-
                     cat > "${DOCUSAURUS_DIR}/i18n/en/docusaurus-plugin-content-docs/current.json" << EOF
 {
   "version.label": {
@@ -302,9 +287,8 @@ EOF
 }
 EOF
 
-                    # 创建英文版导航翻译
+                    # 创建英文导航翻译
                     echo "创建英文导航翻译..."
-                    mkdir -p ${DOCUSAURUS_DIR}/i18n/en/docusaurus-theme-classic
                     cat > "${DOCUSAURUS_DIR}/i18n/en/docusaurus-theme-classic/navbar.json" << EOF
 {
   "title": {
@@ -322,8 +306,7 @@ EOF
 }
 EOF
 
-                    # 创建英文版主题翻译 - 使用shell变量替代JavaScript表达式
-                    echo "创建英文主题翻译..."
+                    # 创建英文页脚翻译
                     CURRENT_YEAR=$(date +%Y)
                     cat > "${DOCUSAURUS_DIR}/i18n/en/docusaurus-theme-classic/footer.json" << EOF
 {
@@ -337,7 +320,6 @@ EOF
 
                 // 复制配置文件
                 script {
-                    // 确保配置文件存在后再复制
                     if (fileExists("${WORKSPACE}/${CONFIGS_DIR}/docusaurus.config.js")) {
                         sh "cp -f ${WORKSPACE}/${CONFIGS_DIR}/docusaurus.config.js ${DOCUSAURUS_DIR}/"
                         echo "已复制docusaurus配置文件"
@@ -360,9 +342,9 @@ EOF
                     }
                 }
 
-                // 创建简单logo和favicon
+                // 创建简单logo
                 sh '''
-                    # 创建基本的logo和favicon
+                    # 创建基本的logo
                     cat > "${DOCUSAURUS_DIR}/static/img/logo.svg" << EOF
 <svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
   <rect x="50" y="50" width="100" height="100" fill="#2e8555" rx="10" ry="10" />
@@ -371,12 +353,7 @@ EOF
 EOF
 
                     # 复制为PNG格式
-                    cat > "${DOCUSAURUS_DIR}/static/img/logo.png" << EOF
-<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-  <rect x="50" y="50" width="100" height="100" fill="#2e8555" rx="10" ry="10" />
-  <text x="100" y="110" font-family="Arial" font-size="40" text-anchor="middle" fill="white">MGBX</text>
-</svg>
-EOF
+                    cp -f "${DOCUSAURUS_DIR}/static/img/logo.svg" "${DOCUSAURUS_DIR}/static/img/logo.png"
 
                     # 创建favicon
                     cp -f "${DOCUSAURUS_DIR}/static/img/logo.svg" "${DOCUSAURUS_DIR}/static/img/favicon.ico"
@@ -384,13 +361,12 @@ EOF
             }
         }
 
-        // 初始化Docusaurus - 修复构建脚本问题
         stage('初始化Docusaurus') {
             steps {
                 dir("${DOCUSAURUS_DIR}") {
                     sh '''
                         echo "初始化Docusaurus项目..."
-                        # 创建package.json并添加所需脚本
+                        # 创建稳定的package.json - 避免版本不兼容问题
                         cat > package.json << EOF
 {
   "name": "mgbx-api-docs",
@@ -405,21 +381,18 @@ EOF
     "clear": "docusaurus clear",
     "serve": "docusaurus serve",
     "write-translations": "docusaurus write-translations",
-    "write-heading-ids": "docusaurus write-heading-ids",
-    "typecheck": "tsc"
+    "write-heading-ids": "docusaurus write-heading-ids"
   },
   "dependencies": {
-    "@docusaurus/core": "^2.4.3",
-    "@docusaurus/preset-classic": "^2.4.3",
+    "@docusaurus/core": "2.4.3",
+    "@docusaurus/preset-classic": "2.4.3",
     "@mdx-js/react": "^1.6.22",
     "clsx": "^1.2.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
   },
   "devDependencies": {
-    "@docusaurus/module-type-aliases": "^2.4.3",
-    "@tsconfig/docusaurus": "^1.0.7",
-    "typescript": "^5.0.4"
+    "@docusaurus/module-type-aliases": "2.4.3"
   },
   "browserslist": {
     "production": [
@@ -438,9 +411,9 @@ EOF
   }
 }
 EOF
-                        echo "已创建package.json文件，添加了必要的构建脚本"
+                        echo "已创建package.json文件"
 
-                        # 安装依赖 - 确保使用正确的版本
+                        # 安装依赖
                         echo "安装Docusaurus依赖..."
                         npm install
                     '''
@@ -448,7 +421,6 @@ EOF
             }
         }
 
-        // 构建文档站
         stage('构建文档站') {
             steps {
                 dir("${DOCUSAURUS_DIR}") {
@@ -460,7 +432,6 @@ EOF
             }
         }
 
-        // 验证文档
         stage('验证文档') {
             steps {
                 sh '''
@@ -470,34 +441,57 @@ EOF
                         exit 1
                     fi
 
-                    # 检查关键文件
+                    # 检查核心文件
                     if [ ! -f "${DOCUSAURUS_DIR}/build/index.html" ]; then
-                        echo "错误: index.html 不存在!"
+                        echo "错误: 首页(index.html)不存在!"
                         exit 1
                     fi
 
-                    # 检查API文档
+                    # 检查中文API文档
+                    echo "检查中文API文档页面..."
                     if [ ! -f "${DOCUSAURUS_DIR}/build/api/rest/index.html" ]; then
-                        echo "警告: REST API文档页面不存在!"
+                        echo "警告: 中文REST API页面不存在!"
+                    else
+                        echo "中文REST API页面生成成功"
                     fi
 
                     if [ ! -f "${DOCUSAURUS_DIR}/build/api/websocket/index.html" ]; then
-                        echo "警告: WebSocket API文档页面不存在!"
+                        echo "警告: 中文WebSocket API页面不存在!"
+                    else
+                        echo "中文WebSocket API页面生成成功"
                     fi
 
-                    # 检查i18n构建结果
+                    # 检查英文版构建结果
+                    echo "检查英文版页面..."
                     if [ ! -d "${DOCUSAURUS_DIR}/build/en" ]; then
-                        echo "警告: 英文版构建结果不存在!"
+                        echo "警告: 英文版目录不存在!"
                     else
-                        echo "英文版构建成功!"
+                        echo "英文版目录生成成功"
+
+                        # 检查英文API文档
+                        if [ ! -f "${DOCUSAURUS_DIR}/build/en/api/rest/index.html" ]; then
+                            echo "警告: 英文REST API页面不存在!"
+                        else
+                            echo "英文REST API页面生成成功"
+                        fi
+
+                        if [ ! -f "${DOCUSAURUS_DIR}/build/en/api/websocket/index.html" ]; then
+                            echo "警告: 英文WebSocket API页面不存在! 查找可能的位置:"
+                            find "${DOCUSAURUS_DIR}/build/en" -type f -name "*.html" | grep -i websocket || echo "未找到相关页面"
+                        else
+                            echo "英文WebSocket API页面生成成功"
+                        fi
                     fi
+
+                    # 输出构建目录结构以便调试
+                    echo "构建目录结构:"
+                    find "${DOCUSAURUS_DIR}/build" -type d | sort | head -n 20
 
                     echo "文档站验证完成"
                 '''
             }
         }
 
-        // 部署到S3
         stage('部署到S3') {
             when {
                 expression { return params.DEPLOY_TO_S3 }
@@ -509,10 +503,9 @@ EOF
                         aws s3 sync ${DOCUSAURUS_DIR}/build/ s3://web1156 --delete
                         echo "部署完成: http://web1156.s3-website-ap-northeast-1.amazonaws.com"
 
-                        # 如果需要刷新CloudFront缓存
+                        # 刷新CloudFront缓存
                         if [ "${INVALIDATE_CACHE}" = "true" ]; then
                             echo "正在刷新CDN缓存..."
-                            # 取消注释下面的行并替换为您的CloudFront分配ID
                             # aws cloudfront create-invalidation --distribution-id YOUR_DISTRIBUTION_ID --paths "/*"
                             echo "缓存刷新请求已发送"
                         fi
@@ -524,13 +517,12 @@ EOF
 
     post {
         success {
-            echo "构建成功：文档站已生成并部署到 S3"
+            echo "构建成功: 文档站已生成并部署"
         }
         failure {
-            echo "构建失败，请检查日志"
+            echo "构建失败: 请检查日志"
         }
         always {
-            // 清理临时文件
             sh "rm -f rest_doc_path.txt websocket_doc_path.txt rest_en_doc_path.txt websocket_en_doc_path.txt || true"
         }
     }
