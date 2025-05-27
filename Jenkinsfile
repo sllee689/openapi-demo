@@ -411,7 +411,6 @@ EOF
             }
         }
 
-        // 初始化Docusaurus
  stage('初始化Docusaurus') {
      steps {
          dir("${DOCUSAURUS_DIR}") {
@@ -449,7 +448,6 @@ EOF
    }
  }
  EOF
-
                  # 安装依赖
                  npm install
              '''
