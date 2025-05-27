@@ -348,32 +348,23 @@ EOF
 
                     # 检查是否存在原始图片文件
                     if [ -f "${CONFIGS_DIR}/static/img/logo.png" ]; then
-                        # 使用原始的PNG logo
+                        # 使用原始的 PNG logo
                         cp -f "${CONFIGS_DIR}/static/img/logo.png" "${DOCUSAURUS_DIR}/static/img/logo.png"
-                        echo "已使用原始logo.png文件"
+                        echo "已使用原始 logo.png 文件"
                     else
-                        echo "警告: 未找到原始logo.png文件，创建默认logo"
-                        cat > "${DOCUSAURUS_DIR}/static/img/logo.svg" << EOF
-                <svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                  <rect x="50" y="50" width="100" height="100" fill="#2e8555" rx="10" ry="10" />
-                  <text x="100" y="110" font-family="Arial" font-size="40" text-anchor="middle" fill="white">MGBX</text>
-                </svg>
-                EOF
-                        # 转换为PNG格式
-                        cp -f "${DOCUSAURUS_DIR}/static/img/logo.svg" "${DOCUSAURUS_DIR}/static/img/logo.png"
+                        echo "警告: 未找到原始 logo.png 文件"
                     fi
 
-                    # 检查并使用原始favicon
+                    # 检查并使用原始 favicon
                     if [ -f "${CONFIGS_DIR}/static/img/favicon.ico" ]; then
                         cp -f "${CONFIGS_DIR}/static/img/favicon.ico" "${DOCUSAURUS_DIR}/static/img/favicon.ico"
-                        echo "已使用原始favicon.ico文件"
+                        echo "已使用原始 favicon.ico 文件"
                     elif [ -f "${CONFIGS_DIR}/static/img/logo.png" ]; then
-                        # 如果没有favicon但有logo，使用logo作为favicon
+                        # 如果没有 favicon 但有 logo，使用 logo 作为 favicon
                         cp -f "${CONFIGS_DIR}/static/img/logo.png" "${DOCUSAURUS_DIR}/static/img/favicon.ico"
-                        echo "已将原始logo.png复制为favicon.ico"
+                        echo "已将原始 logo.png 复制为 favicon.ico"
                     else
-                        echo "警告: 未找到原始favicon.ico文件，使用默认logo作为favicon"
-                        cp -f "${DOCUSAURUS_DIR}/static/img/logo.svg" "${DOCUSAURUS_DIR}/static/img/favicon.ico"
+                        echo "警告: 未找到原始 favicon.ico 文件"
                     fi
 
                     echo "图片文件信息:"
