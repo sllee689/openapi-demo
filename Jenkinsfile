@@ -25,30 +25,55 @@ pipeline {
                 sh 'node -v && npm -v'
 
                 // 清理并重建目录
-                sh '''
-                    rm -rf ${DOCUSAURUS_DIR}
-                    mkdir -p ${API_DOCS_DIR}
-                    mkdir -p ${DOCUSAURUS_DIR}/src/css
-                    mkdir -p ${DOCUSAURUS_DIR}/static/img
-                    mkdir -p ${DOCUSAURUS_DIR}/static/icons
-                '''
+              sh '''
+                         rm -rf ${DOCUSAURUS_DIR}
+                         mkdir -p ${API_DOCS_DIR}
+                         mkdir -p ${DOCUSAURUS_DIR}/src/css
+                         mkdir -p ${DOCUSAURUS_DIR}/static/img
+                         mkdir -p ${DOCUSAURUS_DIR}/static/icons
+                     '''
 
                 // 复制已有的图片资源
-                script {
-                    if (fileExists("${WORKSPACE}/static/img")) {
-                        sh '''
-                            echo "复制已有图片资源..."
-                            cp -rf ${WORKSPACE}/static/img/* ${DOCUSAURUS_DIR}/static/img/
-                            echo "图片资源已复制"
+                {
+                            // 检查工作区中的图片目录
+                            if (fileExists("${WORKSPACE}/static/img")) {
+                                sh '''
+                                    echo "找到图片资源目录，开始复制..."
+                                    # 确保目标目录存在
+                                    mkdir -p ${DOCUSAURUS_DIR}/static/img/
 
-                            # 显示已复制的图片列表
-                            echo "已复制的图片文件:"
-                            ls -la ${DOCUSAURUS_DIR}/static/img/
-                        '''
-                    } else {
-                        echo "警告: 未找到 static/img 目录，跳过图片复制"
-                    }
-                }
+                                    # 显示源目录内容
+                                    echo "源目录图片文件列表:"
+                                    ls -la ${WORKSPACE}/static/img/
+
+                                    # 复制所有图片文件
+                                    cp -f ${WORKSPACE}/static/img/logo.png ${DOCUSAURUS_DIR}/static/img/ || echo "logo.png 复制失败或不存在"
+                                    cp -f ${WORKSPACE}/static/img/favicon.ico ${DOCUSAURUS_DIR}/static/img/ || echo "favicon.ico 复制失败或不存在"
+                                    # 复制其他可能存在的图片文件
+                                    cp -rf ${WORKSPACE}/static/img/* ${DOCUSAURUS_DIR}/static/img/
+
+                                    # 显示复制后的目标目录内容
+                                    echo "已复制的图片文件列表:"
+                                    ls -la ${DOCUSAURUS_DIR}/static/img/
+                                '''
+                            } else {
+                                echo "未找到 ${WORKSPACE}/static/img 目录，将使用默认图片"
+
+                                // 在configs目录中寻找图片资源
+                                if (fileExists("${WORKSPACE}/${CONFIGS_DIR}/static/img")) {
+                                    sh '''
+                                        echo "在configs目录找到图片资源，开始复制..."
+                                        mkdir -p ${DOCUSAURUS_DIR}/static/img/
+                                        cp -rf ${CONFIGS_DIR}/static/img/* ${DOCUSAURUS_DIR}/static/img/
+                                        echo "已复制configs中的图片资源:"
+                                        ls -la ${DOCUSAURUS_DIR}/static/img/
+                                    '''
+                                } else {
+                                    echo "在配置目录中也未找到图片资源，将创建默认图片"
+                                    // 稍后会在"处理API文档"阶段创建默认图片
+                                }
+                            }
+                        }
             }
         }
 
