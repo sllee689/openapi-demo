@@ -412,18 +412,50 @@ EOF
         }
 
         // 初始化Docusaurus
-        stage('初始化Docusaurus') {
-            steps {
-                dir("${DOCUSAURUS_DIR}") {
-                    sh '''
-                        echo "初始化Docusaurus项目..."
-                        npm init -y
-                        npm install --save-dev @docusaurus/core @docusaurus/preset-classic
-                        npm install --save-dev react react-dom
-                    '''
-                }
-            }
-        }
+       stage('初始化Docusaurus') {
+           steps {
+               dir("${DOCUSAURUS_DIR}") {
+                   sh '''
+                       echo "初始化Docusaurus项目..."
+                       # 创建包含构建脚本的 package.json
+                       cat > package.json << EOF
+       {
+         "name": "mgbx-api-docs",
+         "version": "1.0.0",
+         "private": true,
+         "scripts": {
+           "docusaurus": "docusaurus",
+           "start": "docusaurus start",
+           "build": "docusaurus build",
+           "swizzle": "docusaurus swizzle",
+           "deploy": "docusaurus deploy",
+           "clear": "docusaurus clear",
+           "serve": "docusaurus serve",
+           "write-translations": "docusaurus write-translations",
+           "write-heading-ids": "docusaurus write-heading-ids"
+         },
+         "dependencies": {
+           "@docusaurus/core": "^3.7.0",
+           "@docusaurus/preset-classic": "^3.7.0",
+           "@mdx-js/react": "^3.0.0",
+           "clsx": "^2.0.0",
+           "prism-react-renderer": "^2.3.0",
+           "react": "^19.1.0",
+           "react-dom": "^19.1.0"
+         },
+         "browserslist": {
+           "production": [">0.5%", "not dead", "not op_mini all"],
+           "development": ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
+         }
+       }
+       EOF
+
+                       # 安装依赖
+                       npm install
+                   '''
+               }
+           }
+       }
 
         // 构建文档站
         stage('构建文档站') {
@@ -431,7 +463,6 @@ EOF
                 dir("${DOCUSAURUS_DIR}") {
                     echo "开始构建文档站..."
                     timeout(time: 5, unit: 'MINUTES') {
-                        sh 'npm install'
                         sh 'npm run build'
                     }
                 }
