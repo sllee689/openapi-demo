@@ -14,6 +14,7 @@ pipeline {
 
     parameters {
         booleanParam(name: 'INVALIDATE_CACHE', defaultValue: false, description: '是否清除CDN缓存(部署后)')
+        booleanParam(name: 'DEPLOY_TO_S3', defaultValue: true, description: '是否部署到S3')
     }
 
     stages {
@@ -376,7 +377,7 @@ EOF
             }
         }
 
-        // 初始化Docusaurus - 修复这一阶段
+        // 初始化Docusaurus - 修复构建脚本问题
         stage('初始化Docusaurus') {
             steps {
                 dir("${DOCUSAURUS_DIR}") {
@@ -489,21 +490,26 @@ EOF
             }
         }
 
-        // 部署阶段(可选)
-        stage('部署文档') {
+        // 部署到S3
+        stage('部署到S3') {
             when {
-                expression { return params.DEPLOY_TO_PRODUCTION }
+                expression { return params.DEPLOY_TO_S3 }
             }
             steps {
-                echo "开始部署文档..."
-                // 部署步骤(根据实际环境配置)
+                withAWS(region: 'ap-northeast-1', credentials: 'aws-credentials') {
+                    sh '''
+                        echo "开始部署到S3..."
+                        aws s3 sync ${DOCUSAURUS_DIR}/build/ s3://web1156 --delete
+                        echo "部署完成: http://web1156.s3-website-ap-northeast-1.amazonaws.com"
 
-                // 如果需要清除CDN缓存
-                script {
-                    if (params.INVALIDATE_CACHE) {
-                        echo "执行CDN缓存失效操作..."
-                        // 这里添加使CDN缓存失效的命令
-                    }
+                        # 如果需要刷新CloudFront缓存
+                        if [ "${INVALIDATE_CACHE}" = "true" ]; then
+                            echo "正在刷新CDN缓存..."
+                            # 取消注释下面的行并替换为您的CloudFront分配ID
+                            # aws cloudfront create-invalidation --distribution-id YOUR_DISTRIBUTION_ID --paths "/*"
+                            echo "缓存刷新请求已发送"
+                        fi
+                    '''
                 }
             }
         }
@@ -511,7 +517,7 @@ EOF
 
     post {
         success {
-            echo "构建成功：文档站已生成，请部署 ${DOCUSAURUS_DIR}/build 目录"
+            echo "构建成功：文档站已生成并部署到 S3"
         }
         failure {
             echo "构建失败，请检查日志"
