@@ -376,15 +376,65 @@ EOF
             }
         }
 
-        // 初始化Docusaurus
+        // 初始化Docusaurus - 修复这一阶段
         stage('初始化Docusaurus') {
             steps {
                 dir("${DOCUSAURUS_DIR}") {
                     sh '''
                         echo "初始化Docusaurus项目..."
-                        npm init -y
-                        npm install --save-dev @docusaurus/core @docusaurus/preset-classic
-                        npm install --save-dev react react-dom
+                        # 创建package.json并添加所需脚本
+                        cat > package.json << EOF
+{
+  "name": "mgbx-api-docs",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "docusaurus": "docusaurus",
+    "start": "docusaurus start",
+    "build": "docusaurus build",
+    "swizzle": "docusaurus swizzle",
+    "deploy": "docusaurus deploy",
+    "clear": "docusaurus clear",
+    "serve": "docusaurus serve",
+    "write-translations": "docusaurus write-translations",
+    "write-heading-ids": "docusaurus write-heading-ids",
+    "typecheck": "tsc"
+  },
+  "dependencies": {
+    "@docusaurus/core": "^2.4.3",
+    "@docusaurus/preset-classic": "^2.4.3",
+    "@mdx-js/react": "^1.6.22",
+    "clsx": "^1.2.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  },
+  "devDependencies": {
+    "@docusaurus/module-type-aliases": "^2.4.3",
+    "@tsconfig/docusaurus": "^1.0.7",
+    "typescript": "^5.0.4"
+  },
+  "browserslist": {
+    "production": [
+      ">0.5%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "engines": {
+    "node": ">=16.14"
+  }
+}
+EOF
+                        echo "已创建package.json文件，添加了必要的构建脚本"
+
+                        # 安装依赖 - 确保使用正确的版本
+                        echo "安装Docusaurus依赖..."
+                        npm install
                     '''
                 }
             }
@@ -396,7 +446,6 @@ EOF
                 dir("${DOCUSAURUS_DIR}") {
                     echo "开始构建文档站..."
                     timeout(time: 5, unit: 'MINUTES') {
-                        sh 'npm install'
                         sh 'npm run build'
                     }
                 }
