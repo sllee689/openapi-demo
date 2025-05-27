@@ -69,6 +69,13 @@ pipeline {
                     WEBSOCKET_EN_DOC_PATH=""
 
                     # 从最可能到最不可能的位置查找文档
+                    # 复制预先准备好的图片文件
+                    if [ -d "${CONFIGS_DIR}/static/img" ]; then
+                        mkdir -p ${DOCUSAURUS_DIR}/static/img/
+                        cp -rf ${CONFIGS_DIR}/static/img/* ${DOCUSAURUS_DIR}/static/img/
+                        echo "已复制预先准备的图片资源"
+                        ls -la ${DOCUSAURUS_DIR}/static/img/
+                    fi
                     # 1. 首先查找configs目录
                     if [ -f "${WORKSPACE}/${CONFIGS_DIR}/OPENAPI-SPOT-REST.md" ]; then
                         REST_DOC_PATH="${WORKSPACE}/${CONFIGS_DIR}/OPENAPI-SPOT-REST.md"
