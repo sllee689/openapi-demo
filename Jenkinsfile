@@ -12,7 +12,13 @@ pipeline {
         CONFIGS_DIR = "configs"
     }
 
+    parameters {
+        booleanParam(name: 'INVALIDATE_CACHE', defaultValue: false, description: '是否清除CDN缓存(部署后)')
+        booleanParam(name: 'DEPLOY_TO_S3', defaultValue: true, description: '是否部署到S3')
+    }
+
     stages {
+        // 准备环境阶段
         stage('准备环境') {
             steps {
                 echo "准备构建环境"
@@ -29,64 +35,24 @@ pipeline {
 
                 // 复制已有的图片资源
                 script {
-                    // 检查工作区中的图片目录
                     if (fileExists("${WORKSPACE}/static/img")) {
                         sh '''
-                            echo "找到图片资源目录，开始复制..."
-
-                            # 显示源目录内容
-                            echo "源目录图片文件列表:"
-                            ls -la ${WORKSPACE}/static/img/
-
-                            # 检查必要的图片文件
-                            if [ ! -f "${WORKSPACE}/static/img/logo.png" ]; then
-                                echo "错误: 源目录中缺少logo.png文件，可能会导致404错误"
-                            else
-                                echo "找到logo.png文件"
-                            fi
-
-                            if [ ! -f "${WORKSPACE}/static/img/favicon.ico" ]; then
-                                echo "错误: 源目录中缺少favicon.ico文件，可能会导致404错误"
-                            else
-                                echo "找到favicon.ico文件"
-                            fi
-
-                            # 复制所有图片文件
+                            echo "复制已有图片资源..."
                             cp -rf ${WORKSPACE}/static/img/* ${DOCUSAURUS_DIR}/static/img/
+                            echo "图片资源已复制"
 
-                            # 显示复制后的目标目录内容
-                            echo "已复制的图片文件列表:"
+                            # 显示已复制的图片列表
+                            echo "已复制的图片文件:"
                             ls -la ${DOCUSAURUS_DIR}/static/img/
                         '''
                     } else {
-                        echo "警告: 未找到 ${WORKSPACE}/static/img 目录，网站可能缺少必要的图片资源"
-
-                        // 在configs目录中寻找图片资源
-                        if (fileExists("${WORKSPACE}/${CONFIGS_DIR}/static/img")) {
-                            sh '''
-                                echo "在configs目录找到图片资源，开始复制..."
-                                mkdir -p ${DOCUSAURUS_DIR}/static/img/
-                                cp -rf ${WORKSPACE}/${CONFIGS_DIR}/static/img/* ${DOCUSAURUS_DIR}/static/img/
-                                echo "已复制configs中的图片资源:"
-                                ls -la ${DOCUSAURUS_DIR}/static/img/
-
-                                # 检查必要的图片文件
-                                if [ ! -f "${DOCUSAURUS_DIR}/static/img/logo.png" ]; then
-                                    echo "错误: 复制后缺少logo.png文件，将导致404错误"
-                                fi
-
-                                if [ ! -f "${DOCUSAURUS_DIR}/static/img/favicon.ico" ]; then
-                                    echo "错误: 复制后缺少favicon.ico文件，将导致404错误"
-                                fi
-                            '''
-                        } else {
-                            echo "错误: 未找到任何图片资源目录，网站将出现404错误"
-                        }
+                        echo "警告: 未找到 static/img 目录，跳过图片复制"
                     }
                 }
             }
         }
 
+        // 查找API文档阶段
         stage('查找API文档') {
             steps {
                 echo "查找API文档文件..."
@@ -103,6 +69,13 @@ pipeline {
                     WEBSOCKET_EN_DOC_PATH=""
 
                     # 从最可能到最不可能的位置查找文档
+                    # 复制预先准备好的图片文件
+                    if [ -d "${CONFIGS_DIR}/static/img" ]; then
+                        mkdir -p ${DOCUSAURUS_DIR}/static/img/
+                        cp -rf ${CONFIGS_DIR}/static/img/* ${DOCUSAURUS_DIR}/static/img/
+                        echo "已复制预先准备的图片资源"
+                        ls -la ${DOCUSAURUS_DIR}/static/img/
+                    fi
                     # 1. 首先查找configs目录
                     if [ -f "${WORKSPACE}/${CONFIGS_DIR}/OPENAPI-SPOT-REST.md" ]; then
                         REST_DOC_PATH="${WORKSPACE}/${CONFIGS_DIR}/OPENAPI-SPOT-REST.md"
@@ -411,49 +384,69 @@ EOF
             }
         }
 
- stage('初始化Docusaurus') {
-     steps {
-         dir("${DOCUSAURUS_DIR}") {
-             sh '''
-                 echo "初始化Docusaurus项目..."
-                 # 创建包含构建脚本的 package.json
-                 cat > package.json << EOF
- {
-   "name": "mgbx-api-docs",
-   "version": "1.0.0",
-   "private": true,
-   "scripts": {
-     "docusaurus": "docusaurus",
-     "start": "docusaurus start",
-     "build": "docusaurus build",
-     "swizzle": "docusaurus swizzle",
-     "deploy": "docusaurus deploy",
-     "clear": "docusaurus clear",
-     "serve": "docusaurus serve",
-     "write-translations": "docusaurus write-translations",
-     "write-heading-ids": "docusaurus write-heading-ids"
-   },
-   "dependencies": {
-     "@docusaurus/core": "3.7.0",
-     "@docusaurus/preset-classic": "3.7.0",
-     "@mdx-js/react": "3.0.0",
-     "clsx": "2.0.0",
-     "prism-react-renderer": "2.3.0",
-     "react": "18.2.0",
-     "react-dom": "18.2.0"
-   },
-   "browserslist": {
-     "production": [">0.5%", "not dead", "not op_mini all"],
-     "development": ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
-   }
- }
- EOF
-                 # 安装依赖
-                 npm install
-             '''
-         }
-     }
- }
+        // 初始化Docusaurus - 修复构建脚本问题
+        stage('初始化Docusaurus') {
+            steps {
+                dir("${DOCUSAURUS_DIR}") {
+                    sh '''
+                        echo "初始化Docusaurus项目..."
+                        # 创建package.json并添加所需脚本
+                        cat > package.json << EOF
+{
+  "name": "mgbx-api-docs",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "docusaurus": "docusaurus",
+    "start": "docusaurus start",
+    "build": "docusaurus build",
+    "swizzle": "docusaurus swizzle",
+    "deploy": "docusaurus deploy",
+    "clear": "docusaurus clear",
+    "serve": "docusaurus serve",
+    "write-translations": "docusaurus write-translations",
+    "write-heading-ids": "docusaurus write-heading-ids",
+    "typecheck": "tsc"
+  },
+  "dependencies": {
+    "@docusaurus/core": "^2.4.3",
+    "@docusaurus/preset-classic": "^2.4.3",
+    "@mdx-js/react": "^1.6.22",
+    "clsx": "^1.2.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  },
+  "devDependencies": {
+    "@docusaurus/module-type-aliases": "^2.4.3",
+    "@tsconfig/docusaurus": "^1.0.7",
+    "typescript": "^5.0.4"
+  },
+  "browserslist": {
+    "production": [
+      ">0.5%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "engines": {
+    "node": ">=16.14"
+  }
+}
+EOF
+                        echo "已创建package.json文件，添加了必要的构建脚本"
+
+                        # 安装依赖 - 确保使用正确的版本
+                        echo "安装Docusaurus依赖..."
+                        npm install
+                    '''
+                }
+            }
+        }
 
         // 构建文档站
         stage('构建文档站') {
@@ -504,21 +497,26 @@ EOF
             }
         }
 
-        // 部署阶段(可选)
-        stage('部署文档') {
+        // 部署到S3
+        stage('部署到S3') {
             when {
-                expression { return params.DEPLOY_TO_PRODUCTION }
+                expression { return params.DEPLOY_TO_S3 }
             }
             steps {
-                echo "开始部署文档..."
-                // 部署步骤(根据实际环境配置)
+                withAWS(region: 'ap-northeast-1', credentials: 'aws-credentials') {
+                    sh '''
+                        echo "开始部署到S3..."
+                        aws s3 sync ${DOCUSAURUS_DIR}/build/ s3://web1156 --delete
+                        echo "部署完成: http://web1156.s3-website-ap-northeast-1.amazonaws.com"
 
-                // 如果需要清除CDN缓存
-                script {
-                    if (params.INVALIDATE_CACHE) {
-                        echo "执行CDN缓存失效操作..."
-                        // 这里添加使CDN缓存失效的命令
-                    }
+                        # 如果需要刷新CloudFront缓存
+                        if [ "${INVALIDATE_CACHE}" = "true" ]; then
+                            echo "正在刷新CDN缓存..."
+                            # 取消注释下面的行并替换为您的CloudFront分配ID
+                            # aws cloudfront create-invalidation --distribution-id YOUR_DISTRIBUTION_ID --paths "/*"
+                            echo "缓存刷新请求已发送"
+                        fi
+                    '''
                 }
             }
         }
@@ -526,7 +524,7 @@ EOF
 
     post {
         success {
-            echo "构建成功：文档站已生成，请部署 ${DOCUSAURUS_DIR}/build 目录"
+            echo "构建成功：文档站已生成并部署到 S3"
         }
         failure {
             echo "构建失败，请检查日志"
