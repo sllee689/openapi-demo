@@ -1,15 +1,20 @@
-/** @type {import('@docusaurus/types').Config} */
 const config = {
     title: 'MGBX API 文档中心',
     tagline: '接入 MGBX 交易平台 API',
     favicon: 'img/favicon.ico',
-    url: 'https://api-docs.mgbx.com',
+    url: 'https://apidocs.mgbx.com',
     baseUrl: '/',
     onBrokenLinks: 'warn',
     onBrokenMarkdownLinks: 'warn',
-    trailingSlash: false,
+    // 修改为 true，强制添加尾部斜杠
+    trailingSlash: true,
 
-    // 仅支持中文
+    // 添加构建时配置，生成 .html 后缀
+    staticDirectories: ['static'],
+
+    // 启用 noIndex 减少干扰
+    noIndex: false,
+
     i18n: {
         defaultLocale: 'zh',
         locales: ['zh', 'en'],
@@ -42,8 +47,44 @@ const config = {
         ],
     ],
 
-    // 禁用自动生成的页面以减少多余链接
-    plugins: [],
+    // 添加自定义插件处理 URL 格式
+    plugins: [
+        function htmlSuffixPlugin() {
+            return {
+                name: 'html-suffix-plugin',
+                configureWebpack() {
+                    return {};
+                },
+                // 添加客户端代码修复路径问题
+                injectHtmlTags() {
+                    return {
+                        headTags: [
+                            {
+                                tagName: 'script',
+                                innerHTML: `
+                                  // 修复语言切换 URL 问题
+                                  document.addEventListener('DOMContentLoaded', function() {
+                                    // 获取所有语言切换链接
+                                    const localeLinks = document.querySelectorAll('.navbar__item.dropdown__link');
+                                    localeLinks.forEach(link => {
+                                      link.addEventListener('click', function(e) {
+                                        const href = this.getAttribute('href');
+                                        if (href && !href.endsWith('/') && !href.includes('.html')) {
+                                          // 确保添加 .html 后缀或尾部斜杠
+                                          e.preventDefault();
+                                          window.location.href = href + '/';
+                                        }
+                                      });
+                                    });
+                                  });
+                                `
+                            }
+                        ]
+                    };
+                }
+            };
+        }
+    ],
 
     themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
