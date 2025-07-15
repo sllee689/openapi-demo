@@ -62,6 +62,7 @@ The following endpoints are public and **do not require any authentication**. Th
 | totalAmount | String | Yes | Order quantity |
 | price | String | Conditional | Order price, required for limit orders |
 | clientOrderId | String | No | Custom order ID |
+| timeInForce | String | No | Time-in-force, e.g., "GTC" (default), "GTX" (post only) |
 
 **Response Parameters**:
 
@@ -935,6 +936,72 @@ This endpoint provides market depth (order book) data for a specified trading pa
       ["30600.00", "1.0"]
     ]
   }
+}
+```
+
+### 5.7 Get All Trading Pair Configuration Information
+
+**Request Method**: GET
+**Endpoint**: `/spot/v1/p/symbol/configs`
+**Signature Required**: No
+**API Type**: Public Endpoint
+
+**Description**:
+This endpoint provides configuration information for all trading pairs on the platform, including trading pair names, base assets, quote assets, precision configurations, fee settings, and other important parameters. It is suitable for scenarios that require understanding the detailed configuration of trading pairs.
+
+**Request Parameters**: No parameters required
+
+**Response Parameters**:
+
+| Parameter Name | Type | Description |
+|-------|-----|------|
+| code | Integer | Status code, 0 indicates success |
+| msg | String | Response message |
+| data | Array | Trading pair configuration information list |
+
+**Fields for Each Object in the Data Array**:
+
+| Parameter Name | Type | Description |
+|-------|-----|------|
+| symbol | String | Trading pair name, e.g., "BTC_USDT" |
+| baseAsset | String | Base asset, e.g., "BTC" |
+| baseAssetPrecision | Integer | Base asset precision (decimal places) |
+| quoteAsset | String | Quote asset, e.g., "USDT" |
+| quoteAssetPrecision | Integer | Quote asset precision (decimal places) |
+| pricePrecision | Integer | Price precision (decimal places) |
+| quantityPrecision | Integer | Quantity precision (decimal places) |
+| makerFee | String | Maker fee rate |
+| takerFee | String | Taker fee rate |
+
+**Response Format**:
+```json
+{
+   "code": 0,
+   "msg": "success",
+   "data": [
+      {
+         "symbol": "BTC_USDT",
+         "baseAsset": "BTC",
+         "baseAssetPrecision": 5,
+         "quoteAsset": "USDT",
+         "quoteAssetPrecision": 4,
+         "pricePrecision": 2,
+         "quantityPrecision": 5,
+         "makerFee": "0.001",
+         "takerFee": "0.001"
+      },
+      {
+         "symbol": "ETH_USDT",
+         "baseAsset": "ETH",
+         "baseAssetPrecision": 4,
+         "quoteAsset": "USDT",
+         "quoteAssetPrecision": 4,
+         "pricePrecision": 2,
+         "quantityPrecision": 4,
+         "makerFee": "0.001",
+         "takerFee": "0.001"
+      }
+   ]
 }
 ```
 

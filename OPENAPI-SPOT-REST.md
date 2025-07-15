@@ -54,14 +54,15 @@ MGBX 交易平台 API 提供了程序化交易的能力，允许开发者通过 
 
 **请求参数**:
 
-| 参数名 | 类型 | 必填 | 说明 |
-|-------|-----|-----|------|
-| symbol | String | 是 | 交易对，如 "BTC_USDT" |
-| direction | String | 是 | 交易方向："BUY"买入，"SELL"卖出 |
-| tradeType | String | 是 | 订单类型："LIMIT"限价单，"MARKET"市价单 |
-| totalAmount | String | 是 | 委托数量 |
-| price | String | 条件必填 | 委托价格，限价单必填 |
-| clientOrderId | String | 否 | 客户自定义订单ID |
+| 参数名 | 类型 | 必填 | 说明                                 |
+|-------|-----|-----|------------------------------------|
+| symbol | String | 是 | 交易对，如 "BTC_USDT"                   |
+| direction | String | 是 | 交易方向："BUY"买入，"SELL"卖出              |
+| tradeType | String | 是 | 订单类型："LIMIT"限价单，"MARKET"市价单        |
+| totalAmount | String | 是 | 委托数量                               |
+| price | String | 条件必填 | 委托价格，限价单必填                         |
+| clientOrderId | String | 否 | 客户自定义订单ID                          |
+| timeInForce | String | 否 | 订单有效方式，如 "GTC"（默认）"GTX"(post only) |
 
 **响应参数**:
 
@@ -283,7 +284,7 @@ MGBX 交易平台 API 提供了程序化交易的能力，允许开发者通过 
 | hasNext | Boolean | 是否有下一页   |
 | items   | Array   | 历史订单列表   |
 
-**items数组中每个对象的字段**:  
+**items数组中每个对象的字段**:
 
 | 参数名       | 类型   | 说明                 |
 |-------------|--------|--------------------|
@@ -935,6 +936,71 @@ MGBX 交易平台 API 提供了程序化交易的能力，允许开发者通过 
       ["30600.00", "1.0"]
     ]
   }
+}
+```
+### 5.7 获取所有交易对配置信息
+
+**请求方法**: GET
+**接口路径**: `/spot/v1/p/symbol/configs`
+**是否签名**: 否
+**接口类型**: 公开接口
+
+**接口说明**:
+此接口提供平台上所有交易对的配置信息，包括交易对名称、基础资产、计价资产、精度配置、手续费设置等重要参数。适用于需要了解交易对详细配置的场景。
+
+**请求参数**: 无需任何请求参数
+
+**响应参数**:
+
+| 参数名 | 类型 | 说明 |
+|-------|-----|------|
+| code | Integer | 状态码，0表示成功 |
+| msg | String | 响应信息 |
+| data | Array | 交易对配置信息列表 |
+
+**data数组中每个对象的字段**:
+
+| 参数名 | 类型 | 说明 |
+|-------|-----|------|
+| symbol | String | 交易对名称，如"BTC_USDT" |
+| baseAsset | String | 基础资产，如"BTC" |
+| baseAssetPrecision | Integer | 基础资产精度（小数位数） |
+| quoteAsset | String | 计价资产，如"USDT" |
+| quoteAssetPrecision | Integer | 计价资产精度（小数位数） |
+| pricePrecision | Integer | 价格精度（小数位数） |
+| quantityPrecision | Integer | 数量精度（小数位数） |
+| makerFee | String | 挂单手续费率 |
+| takerFee | String | 吃单手续费率 |
+
+**响应格式**:
+```json
+{
+   "code": 0,
+   "msg": "success",
+   "data": [
+      {
+         "symbol": "BTC_USDT",
+         "baseAsset": "BTC",
+         "baseAssetPrecision": 5,
+         "quoteAsset": "USDT",
+         "quoteAssetPrecision": 4,
+         "pricePrecision": 2,
+         "quantityPrecision": 5,
+         "makerFee": "0.001",
+         "takerFee": "0.001"
+      },
+      {
+         "symbol": "ETH_USDT",
+         "baseAsset": "ETH",
+         "baseAssetPrecision": 4,
+         "quoteAsset": "USDT",
+         "quoteAssetPrecision": 4,
+         "pricePrecision": 2,
+         "quantityPrecision": 4,
+         "makerFee": "0.001",
+         "takerFee": "0.001"
+      }
+   ]
 }
 ```
 
