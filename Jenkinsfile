@@ -194,13 +194,13 @@ title: MGBX API 文档中心
 
 ## 文档导航
 
-- [REST API](api/rest) - HTTP 接口，用于交易、账户管理等操作
-- [WebSocket API](api/websocket) - 实时数据推送，用于行情订阅
+- [REST API](api/api/rest) - HTTP 接口，用于交易、账户管理等操作
+- [WebSocket API](api/api/websocket) - 实时数据推送，用于行情订阅
 
 ## 快速开始
 
-1. [了解签名算法](api/rest#签名算法)
-2. [开始使用 API](api/rest#交易接口)
+1. [了解签名算法](api/api/rest#签名算法)
+2. [开始使用 API](api/api/rest#交易接口)
 EOF
 
                     # 创建i18n目录结构
