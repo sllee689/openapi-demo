@@ -251,13 +251,13 @@ You can check our integration examples and the latest documentation updates in o
 
 ## Documentation Navigation
 
-- [REST API](api/rest) - HTTP interfaces for trading, account management, and other operations
-- [WebSocket API](api/websocket) - Real-time data streaming for market data
+- [REST API](api/api/rest) - HTTP interfaces for trading, account management, and other operations
+- [WebSocket API](api/api/websocket) - Real-time data streaming for market data
 
 ## Quick Start
 
-1. [Understand the signature algorithm](api/rest#signature-algorithm)
-2. [Start using the API](api/rest#trading-interfaces)
+1. [Understand the signature algorithm](api/api/rest#signature-algorithm)
+2. [Start using the API](api/api/rest#trading-interfaces)
 EOF
 
                     # 创建英文侧边栏翻译文件
