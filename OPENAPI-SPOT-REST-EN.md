@@ -48,8 +48,8 @@ The following endpoints are public and **do not require any authentication**. Th
 
 ### 4.1 Create Order
 
-**Request Method**: POST  
-**Endpoint**: `/spot/v1/u/trade/order/create`  
+**Request Method**: POST
+**Endpoint**: `/spot/v1/u/trade/order/create`
 **Signature Required**: Yes
 
 **Request Parameters**:
@@ -72,6 +72,7 @@ The following endpoints are public and **do not require any authentication**. Th
 | data | String | Order ID |
 
 **Response Format**:
+
 ```json
 {
   "code": 0,
@@ -79,14 +80,15 @@ The following endpoints are public and **do not require any authentication**. Th
   "data": "123456789012345678"
 }
 ```
+
 **Order Creation Notes**:
 
 1. Order creation is processed asynchronously. The returned order ID may not be visible in the system until a later time.
 
 ### 4.2 Query Order Details
 
-**Request Method**: GET  
-**Endpoint**: `/spot/v1/u/trade/order/detail`  
+**Request Method**: GET
+**Endpoint**: `/spot/v1/u/trade/order/detail`
 **Signature Required**: Yes
 
 **Request Parameters**:
@@ -108,7 +110,6 @@ The following endpoints are public and **do not require any authentication**. Th
 | Parameter Name | Type | Description |
 |-------|-----|------|
 | orderId | String | Order ID |
-| clientOrderId | String | Client order ID |
 | symbol | String | Trading pair |
 | orderType | String | Order type: LIMIT or MARKET |
 | orderSide | String | Buy or sell direction: BUY or SELL |
@@ -137,13 +138,13 @@ The following endpoints are public and **do not require any authentication**. Th
 | `EXPIRED` | Expired |
 
 **Response Format**:
+
 ```json
 {
   "code": 0,
   "msg": "success",
   "data": {
     "orderId": "475533479170587712",
-    "clientOrderId": "LIMIT_BUY_1684896521234",
     "symbol": "BTC_USDT",
     "orderType": "LIMIT",
     "orderSide": "BUY",
@@ -164,8 +165,8 @@ The following endpoints are public and **do not require any authentication**. Th
 
 ### 4.3 Query Open Orders
 
-**Request Method**: GET  
-**Endpoint**: `/spot/v1/u/trade/order/list`  
+**Request Method**: GET
+**Endpoint**: `/spot/v1/u/trade/order/list`
 **Signature Required**: Yes
 
 **Request Parameters**:
@@ -201,7 +202,6 @@ The following endpoints are public and **do not require any authentication**. Th
 | Parameter Name | Type | Description |
 |-------|-----|------|
 | orderId | String | Order ID |
-| clientOrderId | String | Client order ID |
 | symbol | String | Trading pair |
 | orderType | String | Order type: LIMIT or MARKET |
 | orderSide | String | Buy or sell direction: BUY or SELL |
@@ -218,6 +218,7 @@ The following endpoints are public and **do not require any authentication**. Th
 | createdTime | Long | Creation timestamp |
 
 **Response Format**:
+
 ```json
 {
    "code": 0,
@@ -229,7 +230,6 @@ The following endpoints are public and **do not require any authentication**. Th
       "items": [
          {
             "orderId": "480897844870833664",
-            "clientOrderId": "LIMIT_BUY_1744356980647",
             "symbol": "BTC_USDT",
             "orderType": "LIMIT",
             "orderSide": "BUY",
@@ -250,8 +250,8 @@ The following endpoints are public and **do not require any authentication**. Th
 
 ### 4.4 Query Historical Orders
 
-**Request Method**: GET  
-**Endpoint**: `/spot/v1/u/trade/order/history`  
+**Request Method**: GET
+**Endpoint**: `/spot/v1/u/trade/order/history`
 **Signature Required**: Yes
 
 **Request Parameters**:
@@ -287,7 +287,6 @@ The following endpoints are public and **do not require any authentication**. Th
 | Parameter Name | Type | Description |
 |-------------|--------|--------------------|
 | orderId | String | Order ID |
-| clientOrderId | String | Client order ID |
 | symbol | String | Trading pair |
 | orderType | String | Order type: LIMIT or MARKET |
 | orderSide | String | Buy or sell direction: BUY or SELL |
@@ -304,6 +303,7 @@ The following endpoints are public and **do not require any authentication**. Th
 | createdTime | Long | Creation timestamp |
 
 **Response Example**:
+
 ```json
 {
    "code": 0,
@@ -314,7 +314,6 @@ The following endpoints are public and **do not require any authentication**. Th
       "items": [
          {
             "orderId": "477292215853414656",
-            "clientOrderId": "BATCH_LIMIT_SELL_1743497331250",
             "symbol": "BTC_USDT",
             "orderType": "LIMIT",
             "orderSide": "SELL",
@@ -337,8 +336,8 @@ The following endpoints are public and **do not require any authentication**. Th
 
 ### 4.5 Query Order Trade Details
 
-**Request Method**: GET  
-**Endpoint**: `/spot/v1/u/trade/order/deal`  
+**Request Method**: GET
+**Endpoint**: `/spot/v1/u/trade/order/deal`
 **Signature Required**: Yes
 
 **Request Parameters**:
@@ -382,6 +381,7 @@ The following endpoints are public and **do not require any authentication**. Th
 | timestamp | Long | Execution timestamp |
 
 **Response Format**:
+
 ```json
 {
   "code": 0,
@@ -408,8 +408,8 @@ The following endpoints are public and **do not require any authentication**. Th
 
 ### 4.6 Batch Create Orders
 
-**Request Method**: POST  
-**Endpoint**: `/spot/v1/u/trade/order/batch/create`  
+**Request Method**: POST
+**Endpoint**: `/spot/v1/u/trade/order/batch/create`
 **Signature Required**: Yes
 
 **Request Parameters**:
@@ -429,6 +429,7 @@ The following endpoints are public and **do not require any authentication**. Th
 | price | String | Conditional | Order price, required for limit orders |
 
 **Request Example**:
+
 ```json
 {
   "ordersJsonStr": "[{\"symbol\":\"BTC_USDT\",\"direction\":\"BUY\",\"tradeType\":\"LIMIT\",\"totalAmount\":\"0.001\",\"price\":\"80000\"},{\"symbol\":\"BTC_USDT\",\"direction\":\"SELL\",\"tradeType\":\"LIMIT\",\"totalAmount\":\"0.001\",\"price\":\"90000\"}]"
@@ -436,6 +437,7 @@ The following endpoints are public and **do not require any authentication**. Th
 ```
 
 **Response Parameters**:
+
 | Parameter Name | Type | Description |
 |-------|-----|------|
 | code | Integer | Status code, 0 indicates success |
@@ -451,6 +453,7 @@ The following endpoints are public and **do not require any authentication**. Th
 | data | String | Order ID |
 
 **Response Format**:
+
 ```json
 {
    "code": 0,
@@ -479,8 +482,8 @@ The following endpoints are public and **do not require any authentication**. Th
 
 ### 4.7 Batch Cancel Orders
 
-**Request Method**: POST  
-**Endpoint**: `/spot/v1/u/trade/order/batch/cancel`  
+**Request Method**: POST
+**Endpoint**: `/spot/v1/u/trade/order/batch/cancel`
 **Signature Required**: Yes
 
 **Request Parameters**:
@@ -490,6 +493,7 @@ The following endpoints are public and **do not require any authentication**. Th
 | orderIdsJson | String | Yes | JSON string of order IDs |
 
 **Request Example**:
+
 ```json
 {
   "orderIdsJson": "[\"475534805480815680\",\"475534266177207360\"]"
@@ -505,6 +509,7 @@ The following endpoints are public and **do not require any authentication**. Th
 | data | Boolean | Cancellation success information |
 
 **Response Example**:
+
 ```json
 {"code":0,"msg":"success","data":[{"code":0,"msg":"success","data":"477292986250590464"},{"code":0,"msg":"success","data":"477292986254784768"}]}
 ```
@@ -519,8 +524,8 @@ The following endpoints are public and **do not require any authentication**. Th
 
 ### 4.8 Cancel Order
 
-**Request Method**: POST  
-**Endpoint**: `/spot/v1/u/trade/order/cancel`  
+**Request Method**: POST
+**Endpoint**: `/spot/v1/u/trade/order/cancel`
 **Signature Required**: Yes
 
 **Request Parameters**:
@@ -538,6 +543,7 @@ The following endpoints are public and **do not require any authentication**. Th
 | data | String | Canceled order ID |
 
 **Response Format**:
+
 ```json
 {
   "code": 0,
@@ -548,8 +554,8 @@ The following endpoints are public and **do not require any authentication**. Th
 
 ### 4.9 Query Spot Account Balance
 
-**Request Method**: GET  
-**Endpoint**: `/spot/v1/u/balance/spot`  
+**Request Method**: GET
+**Endpoint**: `/spot/v1/u/balance/spot`
 **Signature Required**: Yes
 
 **Request Parameters**:
@@ -581,6 +587,7 @@ The following endpoints are public and **do not require any authentication**. Th
 | estimatedCoinType | String | Currency used for estimation |
 
 **Response Format**:
+
 ```json
 {
    "code": 0,
@@ -605,9 +612,9 @@ The following endpoints are public and **do not require any authentication**. Th
 
 ### 5.1 Get System Time
 
-**Request Method**: GET  
-**Endpoint**: `/spot/v1/p/time`  
-**Signature Required**: No  
+**Request Method**: GET
+**Endpoint**: `/spot/v1/p/time`
+**Signature Required**: No
 **API Type**: Public Endpoint
 
 **Description**:
@@ -624,6 +631,7 @@ This endpoint is used to obtain the current system timestamp from the trading pl
 | data | Long | Server timestamp (milliseconds) |
 
 **Response Format**:
+
 ```json
 {
   "code": 0,
@@ -634,9 +642,9 @@ This endpoint is used to obtain the current system timestamp from the trading pl
 
 ### 5.2 Get K-Line Data
 
-**Request Method**: GET  
-**Endpoint**: `/spot/v1/p/quotation/kline`  
-**Signature Required**: No  
+**Request Method**: GET
+**Endpoint**: `/spot/v1/p/quotation/kline`
+**Signature Required**: No
 **API Type**: Public Endpoint
 
 **Description**:
@@ -674,6 +682,7 @@ This endpoint is used to retrieve candlestick (K-line) data for a specified trad
 | v | String | Turnover |
 
 **Response Format**:
+
 ```json
 {
   "code": 0,
@@ -695,9 +704,9 @@ This endpoint is used to retrieve candlestick (K-line) data for a specified trad
 
 ### 5.3 Get 24h Ticker (Single Trading Pair)
 
-**Request Method**: GET  
-**Endpoint**: `/spot/v1/p/quotation/trend/ticker`  
-**Signature Required**: No  
+**Request Method**: GET
+**Endpoint**: `/spot/v1/p/quotation/trend/ticker`
+**Signature Required**: No
 **API Type**: Public Endpoint
 
 **Description**:
@@ -748,6 +757,7 @@ This endpoint provides 24-hour price change statistics for a specified trading p
 | time | Long | Timestamp |
 
 **Response Format**:
+
 ```json
 {
    "code": 0,
@@ -775,9 +785,9 @@ This endpoint provides 24-hour price change statistics for a specified trading p
 
 ### 5.4 Get All Trading Pairs Tickers
 
-**Request Method**: GET  
-**Endpoint**: `/spot/v1/p/quotation/tickers`  
-**Signature Required**: No  
+**Request Method**: GET
+**Endpoint**: `/spot/v1/p/quotation/tickers`
+**Signature Required**: No
 **API Type**: Public Endpoint
 
 **Description**:
@@ -808,6 +818,7 @@ This endpoint provides 24-hour price statistics for all trading pairs on the pla
 | r | String | 24-hour price change percentage |
 
 **Response Format**:
+
 ```json
 {
    "code": 0,
@@ -830,9 +841,9 @@ This endpoint provides 24-hour price statistics for all trading pairs on the pla
 
 ### 5.5 Get Latest Trade Records
 
-**Request Method**: GET  
-**Endpoint**: `/spot/v1/p/quotation/deal`  
-**Signature Required**: No  
+**Request Method**: GET
+**Endpoint**: `/spot/v1/p/quotation/deal`
+**Signature Required**: No
 **API Type**: Public Endpoint
 
 **Description**:
@@ -864,6 +875,7 @@ This endpoint provides the latest trade records for a specified trading pair, in
 | m | String | Trade direction: BID-buy, ASK-sell |
 
 **Response Format**:
+
 ```json
 {
    "code": 0,
@@ -882,9 +894,9 @@ This endpoint provides the latest trade records for a specified trading pair, in
 
 ### 5.6 Get Market Depth
 
-**Request Method**: GET  
-**Endpoint**: `/spot/v1/p/quotation/depth`  
-**Signature Required**: No  
+**Request Method**: GET
+**Endpoint**: `/spot/v1/p/quotation/depth`
+**Signature Required**: No
 **API Type**: Public Endpoint
 
 **Description**:
@@ -916,6 +928,7 @@ This endpoint provides market depth (order book) data for a specified trading pa
 | a | Array | Sell orders [price, quantity] |
 
 **Response Format**:
+
 ```json
 {
   "code": 0,
@@ -971,6 +984,7 @@ This endpoint provides configuration information for all trading pairs on the pl
 | takerFee | String | Taker fee rate |
 
 **Response Format**:
+
 ```json
 {
    "code": 0,
@@ -1021,3 +1035,4 @@ This endpoint provides configuration information for all trading pairs on the pl
 | 1011 | Invalid signature information |
 | 1012 | Invalid request source IP |
 | 1013 | Invalid access URL |
+
