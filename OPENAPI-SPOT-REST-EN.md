@@ -61,7 +61,6 @@ The following endpoints are public and **do not require any authentication**. Th
 | tradeType | String | Yes | Order type: "LIMIT" for limit orders, "MARKET" for market orders |
 | totalAmount | String | Yes | Order quantity |
 | price | String | Conditional | Order price, required for limit orders |
-| clientOrderId | String | No | Custom order ID |
 | timeInForce | String | No | Time-in-force, e.g., "GTC" (default), "GTX" (post only) |
 
 **Response Parameters**:
@@ -174,7 +173,6 @@ The following endpoints are public and **do not require any authentication**. Th
 | Parameter Name | Type | Required | Description |
 |-------|-----|-----|------|
 | symbol | String | No | Trading pair, e.g., "BTC_USDT" |
-| clientOrderId | String | No | Custom order ID |
 | startTime | Long | No | Start timestamp for the query (milliseconds) |
 | endTime | Long | No | End timestamp for the query (milliseconds) | 
 | state | Integer | No | Order status filter: 1-New order(unfilled), 2-Partially filled, 3-Completely filled, 4-Canceled, 5-Order failed, 6-Expired, 9-Open orders, 10-Historical orders |
@@ -429,12 +427,11 @@ The following endpoints are public and **do not require any authentication**. Th
 | tradeType | String | Yes | Order type: "LIMIT" for limit orders, "MARKET" for market orders |
 | totalAmount | String | Yes | Order quantity |
 | price | String | Conditional | Order price, required for limit orders |
-| clientOrderId | String | No | Custom order ID |
 
 **Request Example**:
 ```json
 {
-  "ordersJsonStr": "[{\"symbol\":\"BTC_USDT\",\"direction\":\"BUY\",\"tradeType\":\"LIMIT\",\"totalAmount\":\"0.001\",\"price\":\"80000\",\"clientOrderId\":\"BATCH_LIMIT_BUY_123456789\"},{\"symbol\":\"BTC_USDT\",\"direction\":\"SELL\",\"tradeType\":\"LIMIT\",\"totalAmount\":\"0.001\",\"price\":\"90000\",\"clientOrderId\":\"BATCH_LIMIT_SELL_123456789\"}]"
+  "ordersJsonStr": "[{\"symbol\":\"BTC_USDT\",\"direction\":\"BUY\",\"tradeType\":\"LIMIT\",\"totalAmount\":\"0.001\",\"price\":\"80000\"},{\"symbol\":\"BTC_USDT\",\"direction\":\"SELL\",\"tradeType\":\"LIMIT\",\"totalAmount\":\"0.001\",\"price\":\"90000\"}]"
 }
 ```
 
