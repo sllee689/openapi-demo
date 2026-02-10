@@ -5,12 +5,13 @@ import cn.hutool.json.JSONUtil;
 import com.example.openapi.client.ApiClient;
 import com.example.openapi.client.HashExApiException;
 import com.example.openapi.test.ApiResponse;
-import com.example.openapi.test.future.query.ServerTimeTest.*;
-import com.example.openapi.test.future.symbol.SymbolDetailTest;
+import com.example.openapi.test.future.FutureTestConfig;
+import com.example.openapi.test.future.query.SymbolDetailTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.TreeMap;
 
 public class OrderCreateTest {
@@ -22,7 +23,7 @@ public class OrderCreateTest {
         // 默认构造函数
     }
     public OrderCreateTest(ApiClient apiClient) {
-        this.apiClient = apiClient;
+        OrderCreateTest.apiClient = apiClient;
     }
 
     /**
@@ -79,7 +80,7 @@ public class OrderCreateTest {
             BigDecimal contractSize = new BigDecimal(symbolDetail.getContractSize());
 
             // 计算实际下单数量，除以合约面值并确保整数
-            BigDecimal actualQty = orderRequest.getOrigQty().divide(contractSize, 0, BigDecimal.ROUND_DOWN);
+            BigDecimal actualQty = orderRequest.getOrigQty().divide(contractSize, 0, RoundingMode.DOWN);
 
             // 如果计算结果为0，提示错误
             if (actualQty.compareTo(BigDecimal.ZERO) <= 0) {
@@ -158,6 +159,7 @@ public class OrderCreateTest {
     /**
      * 测试创建限价单
      */
+    @SuppressWarnings("unused")
     private void testCreateLimitOrder() throws HashExApiException {
         log.info("===== 创建限价单测试 =====");
 
@@ -213,6 +215,7 @@ public class OrderCreateTest {
     /**
      * 测试创建止盈止损单
      */
+    @SuppressWarnings("unused")
     private void testCreateOrderWithTP_SL() throws HashExApiException {
         log.info("===== 创建带止盈止损的订单测试 =====");
 
@@ -242,9 +245,9 @@ public class OrderCreateTest {
 
     public static void main(String[] args) throws HashExApiException {
         apiClient = new ApiClient(
-                "https://open.hashex.vip",
-                "0a9970e8986247d6e6d5deadc886a4e558c0a1c4f2047c2a00bc96e2efd24499",
-                "dd89a125f1ebaa52e4dd0cff848424eb49e51526e2d585bfedfbc8d055a2b01a");
+                FutureTestConfig.BASE_URL,
+                FutureTestConfig.ACCESS_KEY,
+                FutureTestConfig.SECRET_KEY);
         OrderCreateTest orderTest = new OrderCreateTest();
 
         // 选择一个测试方法执行

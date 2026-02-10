@@ -149,9 +149,9 @@ public class OrderCreateTest {
 
     public static void main(String[] args) throws HashExApiException {
         //替换自己的 accessKey 和 secretKey
-        apiClient = new ApiClient("https://open.mgbx.com",
-                "0a9970e8986247d6e6d5deadc886a4e558c0a1c4f2047c2a00bc96e2efd24499",
-                "dd89a125f1ebaa52e4dd0cff848424eb49e51526e2d585bfedfbc8d055a2b01a");
+        apiClient = new ApiClient("https://open.hashex.vip",
+                "45d2c30821759de1a5e0118a71e4892ea7ac4718fd73d8c400a24b374f5285fe",
+                "bc4f959ac242685fdc61f9ef84e23145c259402972c9ec749b77984985f62947");
         OrderCreateTest orderCreateTest = new OrderCreateTest();
 
         orderCreateTest.testSellBtcOrder();

@@ -4,6 +4,7 @@ import cn.hutool.core.lang.Console;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.example.openapi.test.future.FutureTestConfig;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
@@ -15,7 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * 合约交易市场数据WebSocket客户端
  */
 public class FutureMarketWebSocketTest {
-    private static final String WS_HOST = "wss://open.hashex.vip";
+    private static final String WS_HOST = FutureTestConfig.WS_BASE_URL;
     private static final AtomicInteger reconnectAttempts = new AtomicInteger(0);
     private static final int MAX_RECONNECT_ATTEMPTS = 5;
     private static final int RECONNECT_INTERVAL = 5000;
@@ -33,7 +34,8 @@ public class FutureMarketWebSocketTest {
             client.connect();
 
             // 保持程序运行
-            Thread.sleep(600000); // 10分钟
+            long runMillis = getRunMillis(args, 60000);
+            Thread.sleep(runMillis);
 
             // 关闭连接
             client.close();
@@ -41,6 +43,26 @@ public class FutureMarketWebSocketTest {
             Console.error("合约市场WebSocket连接失败: {}", e.getMessage());
         }
     }
+
+    private static long getRunMillis(String[] args, long defaultMillis) {
+        if (args != null && args.length > 0) {
+            try {
+                return Long.parseLong(args[0]);
+            } catch (NumberFormatException ignored) {
+                // fall through
+            }
+        }
+        String env = System.getenv("HASHEX_WS_RUN_MS");
+        if (env != null && !env.trim().isEmpty()) {
+            try {
+                return Long.parseLong(env.trim());
+            } catch (NumberFormatException ignored) {
+                // fall through
+            }
+        }
+        return defaultMillis;
+    }
+
 
     private static class FutureMarketWSClient extends WebSocketClient {
         private Timer heartbeatTimer;
@@ -107,6 +129,7 @@ public class FutureMarketWebSocketTest {
         }
 
         // 取消订阅交易对
+        @SuppressWarnings("unused")
         private void unsubscribeSymbol() {
             try {
                 JSONObject unsubscribeMsg = JSONUtil.createObj();
@@ -135,6 +158,7 @@ public class FutureMarketWebSocketTest {
         }
 
         // 取消订阅标记价格
+        @SuppressWarnings("unused")
         private void unsubscribeMarkPrice() {
             try {
                 JSONObject unsubscribeMsg = JSONUtil.createObj();
@@ -163,6 +187,7 @@ public class FutureMarketWebSocketTest {
         }
 
         // 取消订阅行情
+        @SuppressWarnings("unused")
         private void unsubscribeTicker() {
             try {
                 JSONObject unsubscribeMsg = JSONUtil.createObj();
@@ -193,6 +218,7 @@ public class FutureMarketWebSocketTest {
         }
 
         // 取消订阅K线
+        @SuppressWarnings("unused")
         private void unsubscribeKline() {
             try {
                 JSONObject unsubscribeMsg = JSONUtil.createObj();
@@ -402,8 +428,8 @@ public class FutureMarketWebSocketTest {
                 ratePercent = "+" + rate;
             }
 
-            Console.log("收到{}聚合行情推送: 最新价:{}, 指数价:{}, 标记价:{}, 最优买价:{}, 最优卖价:{}, 涨跌幅:{}%, 时间:{}",
-                    symbol, close, indexPrice, markPrice, bestBidPrice, bestAskPrice, ratePercent,
+                Console.log("收到{}聚合行情推送: 开:{}, 收:{}, 高:{}, 低:{}, 量:{}, 额:{}, 指数价:{}, 标记价:{}, 最优买价:{}, 最优卖价:{}, 涨跌幅:{}%, 时间:{}",
+                    symbol, open, close, high, low, amount, volume, indexPrice, markPrice, bestBidPrice, bestAskPrice, ratePercent,
                     new Date(timestamp));
         }
 

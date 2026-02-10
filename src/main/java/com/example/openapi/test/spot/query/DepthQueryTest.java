@@ -16,6 +16,10 @@ public class DepthQueryTest {
     private static final Logger log = LoggerFactory.getLogger(DepthQueryTest.class);
     private static ApiClient apiClient;
 
+
+    public static void setApiClient(ApiClient client) {
+        apiClient = client;
+    }
     /**
      * 获取交易对的深度信息
      *
@@ -105,7 +109,7 @@ public class DepthQueryTest {
     }
 
     public static void main(String[] args) throws HashExApiException {
-        apiClient = new ApiClient("https://open.mgbx.com");
+        apiClient = new ApiClient("https://open.hashex.vip");
         DepthQueryTest depthQueryTest = new DepthQueryTest();
 
         depthQueryTest.testGetDepthData();

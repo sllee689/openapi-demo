@@ -1,7 +1,6 @@
 # HashEx 合约OpenAPI 接入文档
 
 ## 1. API 概述
-
 HashEx 合约交易平台 API 提供了程序化交易的能力，允许开发者通过 HTTP 请求创建订单、查询市场数据等功能。
 
 ## 2. 服务地址
@@ -36,7 +35,7 @@ HashEx 合约交易平台 API 提供了程序化交易的能力，允许开发�
 
 ```
 /fut/v1/public/time        // 系统时间
-/fut/v1/public/symbols     // 交易对信息
+/fut/v1/public/symbol/detail // 交易对详情
 /fut/v1/public/q/ticker    // 单一交易对24小时行情
 /fut/v1/public/q/tickers   // 所有交易对行情
 /fut/v1/public/q/kline     // K线数据
@@ -153,7 +152,7 @@ HashEx 合约交易平台 API 提供了程序化交易的能力，允许开发�
       "makerFee": "0.0005",
       "takerFee": "0.0003",
       "liquidationFee": "0.015",
-      "marketTakeBound": "0",
+      "marketTakeBound": "0.0003",
       "depthPrecisionMerge": 3,
       "labels": ["HOT"],
       "onboardDate": 1651528801000,
@@ -479,7 +478,6 @@ HashEx 合约交易平台 API 提供了程序化交易的能力，允许开发�
 | positionSide | String | 是 | 仓位方向：LONG;SHORT |
 | origQty | String | 是 | 原始数量（实际交易量） |
 | price | String | 否 | 价格，市价单不需要传 |
-| clientOrderId | String | 否 | 自定义订单ID |
 | leverage | Integer | 否 | 杠杆倍数 |
 | timeInForce | String | 否 | 有效方式：GTC;IOC;FOK;GTX |
 | marketOrderLevel | Integer | 否 | 市价最优档：1(对手价)；5,10,15档 |
@@ -533,7 +531,6 @@ HashEx 合约交易平台 API 提供了程序化交易的能力，允许开发�
 | 参数名 | 类型 | 说明 |
 |-------|-----|------|
 | orderId | String | 订单ID |
-| clientOrderId | String | 客户端订单ID |
 | symbol | String | 交易对名称 |
 | contractType | String | 合约类型 |
 | orderType | String | 订单类型 |
@@ -564,7 +561,6 @@ HashEx 合约交易平台 API 提供了程序化交易的能力，允许开发�
    "msg": "success",
    "data": {
       "orderId": "481561679331962752",
-      "clientOrderId": null,
       "symbol": "btc_usdt",
       "contractType": "PERPETUAL",
       "orderType": "LIMIT",
@@ -608,7 +604,6 @@ HashEx 合约交易平台 API 提供了程序化交易的能力，允许开发�
 | startTime | Long | 否 | 开始时间 |
 | endTime | Long | 否 | 结束时间 |
 | contractType | String | 否 | 合约类型 |
-| clientOrderId | String | 否 | 自定义订单ID |
 | forceClose | Boolean | 否 | 是否强平 |
 
 **响应参数**:
@@ -633,7 +628,6 @@ HashEx 合约交易平台 API 提供了程序化交易的能力，允许开发�
 | 参数名 | 类型 | 说明 |
 |-------|-----|------|
 | orderId | String | 订单ID |
-| clientOrderId | String | 客户端订单ID |
 | symbol | String | 交易对 |
 | contractType | String | 合约类型 |
 | orderType | String | 订单类型 |
@@ -669,7 +663,6 @@ HashEx 合约交易平台 API 提供了程序化交易的能力，允许开发�
       "items": [
          {
             "orderId": "481561679331962752",
-            "clientOrderId": null,
             "symbol": "btc_usdt",
             "contractType": "PERPETUAL",
             "orderType": "LIMIT",

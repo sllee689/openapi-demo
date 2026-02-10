@@ -4,6 +4,7 @@ import cn.hutool.core.lang.Console;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.example.openapi.test.future.FutureTestConfig;
 import com.example.openapi.utils.HashexApiUtils;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
@@ -17,11 +18,11 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class FutureUserWebSocketTest {
     // 服务器地址
-    private static final String HOST = "https://open.hashex.vip";
-    private static final String WS_HOST = "wss://open.hashex.vip";
+    private static final String HOST = FutureTestConfig.BASE_URL;
+    private static final String WS_HOST = FutureTestConfig.WS_BASE_URL;
     // API凭证
-    private static final String API_KEY = "0a9970e8986247d6e6d5deadc886a4e558c0a1c4f2047c2a00bc96e2efd24499";
-    private static final String SECRET_KEY = "dd89a125f1ebaa52e4dd0cff848424eb49e51526e2d585bfedfbc8d055a2b01a";
+    private static final String API_KEY = FutureTestConfig.ACCESS_KEY;
+    private static final String SECRET_KEY = FutureTestConfig.SECRET_KEY;
 
     private static final AtomicInteger reconnectAttempts = new AtomicInteger(0);
     private static final int MAX_RECONNECT_ATTEMPTS = 5;
@@ -47,7 +48,8 @@ public class FutureUserWebSocketTest {
             client.connect();
 
             // 保持程序运行
-            Thread.sleep(600000); // 10分钟
+            long runMillis = getRunMillis(args, 60000);
+            Thread.sleep(runMillis);
 
             // 关闭连接
             client.close();
@@ -397,5 +399,24 @@ public class FutureUserWebSocketTest {
         public void onError(Exception ex) {
             Console.error("合约用户WebSocket错误: {}", ex.getMessage());
         }
+    }
+
+    private static long getRunMillis(String[] args, long defaultMillis) {
+        if (args != null && args.length > 0) {
+            try {
+                return Long.parseLong(args[0]);
+            } catch (NumberFormatException ignored) {
+                // fall through
+            }
+        }
+        String env = System.getenv("HASHEX_WS_RUN_MS");
+        if (env != null && !env.trim().isEmpty()) {
+            try {
+                return Long.parseLong(env.trim());
+            } catch (NumberFormatException ignored) {
+                // fall through
+            }
+        }
+        return defaultMillis;
     }
 }

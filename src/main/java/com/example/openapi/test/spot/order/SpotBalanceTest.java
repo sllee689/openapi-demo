@@ -26,8 +26,12 @@ public class SpotBalanceTest {
     private static final ObjectMapper objectMapper = new ObjectMapper();
     // //替换自己的 accessKey 和 secretKey
     private static final String BASE_URL = "https://open.mgbx.com";
-    private static final String ACCESS_KEY = "0a9970e8986247d6e6d5deadc886a4e558c0a1c4f2047c2a00bc96e2efd24499";
-    private static final String SECRET_KEY = "dd89a125f1ebaa52e4dd0cff848424eb49e51526e2d585bfedfbc8d055a2b01a";
+    private static final String ACCESS_KEY = "e7579248d6edd162cc573524f56ce2c5c6e93980aa1e7b2fed6405c9dd06d87a";
+    private static final String SECRET_KEY = "5fefe4c332c14ae19f33223fefa65de0dad0ae8786d486a1ca5e9221673a2d22";
+
+   //private static final String BASE_URL = "https://api.hashex.vip";
+   // private static final String ACCESS_KEY = "42106772bfbc981b2439a0840eef5342d4f3ff86d1d75c8e77ea9ad1f4b2b725";
+  //  private static final String SECRET_KEY = "e4cf1a747f2644698828cf96e68b57505dc50790317903017ec29b741471d461";
 
     // 接口端点
     private static final String BALANCE_ENDPOINT = "/spot/v1/u/balance/spot";

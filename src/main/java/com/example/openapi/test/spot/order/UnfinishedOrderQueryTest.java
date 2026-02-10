@@ -177,7 +177,7 @@ public class UnfinishedOrderQueryTest {
         Integer balanceType = 1; // 现货账户
         Integer state = 9; // 9表示未完成订单
         Integer page = 1;
-        Integer size = 10;
+        Integer size = 1000;
 
         log.info("查询币对 {} 账户类型 {} 的未完成订单，第 {} 页，每页 {} 条",
                 symbol, balanceType, page, size);
@@ -283,8 +283,8 @@ public class UnfinishedOrderQueryTest {
     public static void main(String[] args) throws HashExApiException {
         //替换自己的 accessKey 和 secretKey
         apiClient = new ApiClient("https://open.mgbx.com",
-                "0a9970e8986247d6e6d5deadc886a4e558c0a1c4f2047c2a00bc96e2efd24499",
-                "dd89a125f1ebaa52e4dd0cff848424eb49e51526e2d585bfedfbc8d055a2b01a");
+                "a4d91d508e98fbcdd2b8d0cd3bc2dfcfb3b611020fe44d119ccb221464271d39",
+                "3b3fbb99a5a3543d7b94471afe8dfac0ee151b7bb7f7c7797d4d6a7213cbea28");
         UnfinishedOrderQueryTest orderTest = new UnfinishedOrderQueryTest();
 
         // 测试查询未完成订单

@@ -5,6 +5,7 @@ import cn.hutool.json.JSONUtil;
 import com.example.openapi.client.ApiClient;
 import com.example.openapi.client.HashExApiException;
 import com.example.openapi.test.ApiResponse;
+import com.example.openapi.test.future.FutureTestConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -129,9 +130,9 @@ public class OrderDetailTest {
 
     public static void main(String[] args) throws HashExApiException {
         ApiClient client = new ApiClient(
-                "https://open.hashex.vip",
-                "0a9970e8986247d6e6d5deadc886a4e558c0a1c4f2047c2a00bc96e2efd24499",
-                "dd89a125f1ebaa52e4dd0cff848424eb49e51526e2d585bfedfbc8d055a2b01a");
+                FutureTestConfig.BASE_URL,
+                FutureTestConfig.ACCESS_KEY,
+                FutureTestConfig.SECRET_KEY);
 
         OrderDetailTest orderDetailTest = new OrderDetailTest(client);
         orderDetailTest.testGetOrderDetail();

@@ -152,9 +152,9 @@ public class OrderQueryTest {
 
     public static void main(String[] args) throws HashExApiException {
         //替换自己的 accessKey 和 secretKey
-        apiClient = new ApiClient("https://open.mgbx.com",
-                "0a9970e8986247d6e6d5deadc886a4e558c0a1c4f2047c2a00bc96e2efd24499",
-                "dd89a125f1ebaa52e4dd0cff848424eb49e51526e2d585bfedfbc8d055a2b01a");
+        apiClient = new ApiClient("https://open.hashex.vip",
+                "3b6e558b3351545c33665d6a2aceba5d4ca212b36f81991ac503e71d3f392132",
+                "7caaacc62496bbd8bc85c60a984db7e2e3650f5a4bb38e19a661e4037b82e992");
         OrderQueryTest queryTest = new OrderQueryTest();
 
         // 测试查询订单详情
