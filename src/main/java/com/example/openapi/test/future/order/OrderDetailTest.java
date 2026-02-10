@@ -10,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.TreeMap;
 
 /**
@@ -20,10 +22,6 @@ public class OrderDetailTest {
     private static final Logger log = LoggerFactory.getLogger(OrderDetailTest.class);
     private static ApiClient apiClient;
 
-    public OrderDetailTest(ApiClient apiClient) {
-        OrderDetailTest.apiClient = apiClient;
-    }
-
     /**
      * 根据订单ID查询订单详情
      *
@@ -31,16 +29,16 @@ public class OrderDetailTest {
      * @return 订单详情
      * @throws HashExApiException 如果API调用失败
      */
-    public OrderVO getOrderDetail(Long orderId) throws HashExApiException {
+    public OrderVO getOrderDetail(String orderId) throws HashExApiException {
         try {
             // 验证参数
-            if (orderId == null || orderId <= 0) {
+            if (orderId == null || orderId.isEmpty()) {
                 throw new IllegalArgumentException("订单ID无效");
             }
 
             // 创建参数Map
             TreeMap<String, String> queryParams = new TreeMap<>();
-            queryParams.put("orderId", orderId.toString());
+            queryParams.put("orderId", orderId);
 
             // 调用API
             String responseJson = apiClient.sendGetRequest("/fut/v1/order/detail", queryParams, true);
@@ -85,7 +83,7 @@ public class OrderDetailTest {
         log.info("限价订单创建结果: {}", createResult);
 
         // 提取订单ID
-        Long orderId = extractOrderId(createResult);
+        String orderId = extractOrderId(createResult);
         log.info("获取到订单ID: {}", orderId);
 
         // 等待1秒，确保订单已处理
@@ -111,17 +109,12 @@ public class OrderDetailTest {
     /**
      * 从创建订单结果中提取订单ID
      */
-    private Long extractOrderId(Object createResult) {
-        if (createResult instanceof JSONObject) {
+    private String extractOrderId(Object createResult) {
+        if (createResult instanceof String) {
+            return createResult.toString();
+        } else if (createResult instanceof JSONObject) {
             JSONObject json = (JSONObject) createResult;
-            return json.getLong("orderId");
-        } else if (createResult instanceof String) {
-            try {
-                return Long.parseLong(createResult.toString());
-            } catch (NumberFormatException e) {
-                log.error("无法解析订单ID: {}", createResult);
-                throw new RuntimeException("无法从创建订单结果中提取订单ID");
-            }
+            return json.getStr("orderId");
         } else {
             log.error("未知的创建订单返回格式: {}", createResult);
             throw new RuntimeException("未知的创建订单返回格式");
@@ -129,12 +122,11 @@ public class OrderDetailTest {
     }
 
     public static void main(String[] args) throws HashExApiException {
-        ApiClient client = new ApiClient(
+        apiClient = new ApiClient(
                 FutureTestConfig.BASE_URL,
                 FutureTestConfig.ACCESS_KEY,
                 FutureTestConfig.SECRET_KEY);
-
-        OrderDetailTest orderDetailTest = new OrderDetailTest(client);
+        OrderDetailTest orderDetailTest = new OrderDetailTest();
         orderDetailTest.testGetOrderDetail();
     }
 
@@ -142,27 +134,36 @@ public class OrderDetailTest {
      * 订单详情VO
      */
     public static class OrderVO {
-        private Long orderId;              // 订单ID
+        private String orderId;              // 订单ID
         private String symbol;             // 交易对
+        private String contractType;       // 合约类型
         private String orderSide;          // 买卖方向
         private String orderType;          // 订单类型
         private String positionSide;       // 仓位方向
-        private BigDecimal price;          // 价格
-        private BigDecimal origQty;        // 原始数量
-        private BigDecimal executedQty;    // 已成交数量
-        private BigDecimal avgPrice;  // 成交均价
-        private String state;             // 订单状态
         private String timeInForce;        // 有效方式
+        private Boolean closePosition;     // 是否平仓
+        private String price;              // 价格
+        private String origQty;            // 原始数量
+        private String avgPrice;           // 成交均价
+        private String executedQty;        // 已成交数量
+        private String marginFrozen;       // 冻结保证金
+        private String triggerProfitPrice; // 止盈价格
+        private String triggerStopPrice;   // 止损价格
+        private String sourceId;           // 来源ID
+        private Boolean forceClose;        // 是否强平
+        private String tradeFee;           // 交易费用
+        private String closeProfit;        // 平仓盈亏
+        private String state;             // 订单状态
         private Long createdTime;           // 创建时间
         private Long updatedTime;           // 更新时间
         private Integer leverage;          // 杠杆倍数
 
         // Getters and Setters
-        public Long getOrderId() {
+        public String getOrderId() {
             return orderId;
         }
 
-        public void setOrderId(Long orderId) {
+        public void setOrderId(String orderId) {
             this.orderId = orderId;
         }
 
@@ -172,6 +173,14 @@ public class OrderDetailTest {
 
         public void setSymbol(String symbol) {
             this.symbol = symbol;
+        }
+
+        public String getContractType() {
+            return contractType;
+        }
+
+        public void setContractType(String contractType) {
+            this.contractType = contractType;
         }
 
         public String getOrderSide() {
@@ -198,36 +207,108 @@ public class OrderDetailTest {
             this.positionSide = positionSide;
         }
 
-        public BigDecimal getPrice() {
+        public String getTimeInForce() {
+            return timeInForce;
+        }
+
+        public void setTimeInForce(String timeInForce) {
+            this.timeInForce = timeInForce;
+        }
+
+        public Boolean getClosePosition() {
+            return closePosition;
+        }
+
+        public void setClosePosition(Boolean closePosition) {
+            this.closePosition = closePosition;
+        }
+
+        public String getPrice() {
             return price;
         }
 
-        public void setPrice(BigDecimal price) {
+        public void setPrice(String price) {
             this.price = price;
         }
 
-        public BigDecimal getOrigQty() {
+        public String getOrigQty() {
             return origQty;
         }
 
-        public void setOrigQty(BigDecimal origQty) {
+        public void setOrigQty(String origQty) {
             this.origQty = origQty;
         }
 
-        public BigDecimal getExecutedQty() {
-            return executedQty;
-        }
-
-        public void setExecutedQty(BigDecimal executedQty) {
-            this.executedQty = executedQty;
-        }
-
-        public BigDecimal getAvgPrice() {
+        public String getAvgPrice() {
             return avgPrice;
         }
 
-        public void setAvgPrice(BigDecimal avgPrice) {
+        public void setAvgPrice(String avgPrice) {
             this.avgPrice = avgPrice;
+        }
+
+        public String getExecutedQty() {
+            return executedQty;
+        }
+
+        public void setExecutedQty(String executedQty) {
+            this.executedQty = executedQty;
+        }
+
+        public String getMarginFrozen() {
+            return marginFrozen;
+        }
+
+        public void setMarginFrozen(String marginFrozen) {
+            this.marginFrozen = marginFrozen;
+        }
+
+        public String getTriggerProfitPrice() {
+            return triggerProfitPrice;
+        }
+
+        public void setTriggerProfitPrice(String triggerProfitPrice) {
+            this.triggerProfitPrice = triggerProfitPrice;
+        }
+
+        public String getTriggerStopPrice() {
+            return triggerStopPrice;
+        }
+
+        public void setTriggerStopPrice(String triggerStopPrice) {
+            this.triggerStopPrice = triggerStopPrice;
+        }
+
+        public String getSourceId() {
+            return sourceId;
+        }
+
+        public void setSourceId(String sourceId) {
+            this.sourceId = sourceId;
+        }
+
+        public Boolean getForceClose() {
+            return forceClose;
+        }
+
+        public void setForceClose(Boolean forceClose) {
+            this.forceClose = forceClose;
+        }
+
+        public String getTradeFee() {
+            return tradeFee;
+        }
+
+        public void setTradeFee(String tradeFee) {
+            this.tradeFee = tradeFee;
+        }
+
+        public String getCloseProfit() {
+            return closeProfit;
+        }
+
+        public void setCloseProfit(String closeProfit) {
+            this.closeProfit = closeProfit;
         }
 
         public String getState() {
@@ -236,14 +317,6 @@ public class OrderDetailTest {
 
         public void setState(String state) {
             this.state = state;
-        }
-
-        public String getTimeInForce() {
-            return timeInForce;
-        }
-
-        public void setTimeInForce(String timeInForce) {
-            this.timeInForce = timeInForce;
         }
 
         public Long getCreatedTime() {
@@ -272,21 +345,30 @@ public class OrderDetailTest {
 
         @Override
         public String toString() {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             return "订单详情 {\n" +
                     "  订单ID: " + orderId + "\n" +
                     "  交易对: " + symbol + "\n" +
+                    "  合约类型: " + contractType + "\n" +
                     "  买卖方向: " + orderSide + "\n" +
                     "  订单类型: " + orderType + "\n" +
                     "  仓位方向: " + positionSide + "\n" +
-                    "  价格: " + price + "\n" +
+                    "  价格: " + ("0".equals(price) ? "市价" : price) + "\n" +
                     "  数量: " + origQty + "\n" +
                     "  已成交数量: " + (executedQty != null ? executedQty : "0") + "\n" +
-                    "  成交均价: " + (avgPrice == null ? "未成交" : avgPrice) + "\n" +
-                    "  订单状态: " + (state == null || "null".equals(state) ? "未知" : state) + "\n" +
+                    "  成交均价: " + ("0".equals(avgPrice) ? "未成交" : avgPrice) + "\n" +
+                    "  冻结保证金: " + marginFrozen + "\n" +
+                    "  订单状态: " + state + "\n" +
                     "  有效方式: " + timeInForce + "\n" +
-                    "  创建时间: " + (createdTime == null ? "未知" : createdTime) + "\n" +
-                    "  更新时间: " + (updatedTime == null ? "未知" : updatedTime) + "\n" +
                     "  杠杆倍数: " + leverage + "\n" +
+                    "  交易费: " + tradeFee + "\n" +
+                    "  平仓盈亏: " + (closeProfit == null ? "无" : closeProfit) + "\n" +
+                    "  止盈价: " + (triggerProfitPrice == null ? "未设置" : triggerProfitPrice) + "\n" +
+                    "  止损价: " + (triggerStopPrice == null ? "未设置" : triggerStopPrice) + "\n" +
+                    "  是否强平: " + (forceClose != null && forceClose ? "是" : "否") + "\n" +
+                    "  是否平仓: " + (closePosition != null && closePosition ? "是" : "否") + "\n" +
+                    "  创建时间: " + (createdTime == null ? "未知" : sdf.format(new Date(createdTime))) + "\n" +
+                    "  更新时间: " + (updatedTime == null ? "未知" : sdf.format(new Date(updatedTime))) + "\n" +
                     "}";
         }
     }

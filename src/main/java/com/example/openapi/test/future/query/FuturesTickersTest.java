@@ -96,7 +96,7 @@ public class FuturesTickersTest {
         private String a;      // 24小时成交量(文档中为v)
         private String v;      // 24小时成交额(文档中为q)
         private String r;      // 24小时涨跌幅(%)(文档中为p)
-        private String t;      // 时间戳
+        private Long t;        // 时间戳
         private TickerTrendVO tickerTrendVo; // 价格趋势数据
 
         // Getters and Setters
@@ -164,11 +164,11 @@ public class FuturesTickersTest {
             this.r = r;
         }
 
-        public String getT() {
+        public Long getT() {
             return t;
         }
 
-        public void setT(String t) {
+        public void setT(Long t) {
             this.t = t;
         }
 
@@ -182,7 +182,7 @@ public class FuturesTickersTest {
         @Override
         public String toString() {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            String timeStr = t != null ? sdf.format(new Date(Long.parseLong(t))) : "未知";
+            String timeStr = t != null ? sdf.format(new Date(t)) : "未知";
 
             StringBuilder sb = new StringBuilder();
             sb.append(String.format("交易对: %s, 最新价: %s, 最高价: %s, 最低价: %s\n", s, c, h, l));

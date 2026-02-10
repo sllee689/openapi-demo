@@ -82,9 +82,9 @@ public class UserBalanceTest {
 
     public static void main(String[] args) throws HashExApiException {
         apiClient = new ApiClient(
-            FutureTestConfig.BASE_URL,
-            FutureTestConfig.ACCESS_KEY,
-            FutureTestConfig.SECRET_KEY);
+                FutureTestConfig.BASE_URL,
+                FutureTestConfig.ACCESS_KEY,
+                FutureTestConfig.SECRET_KEY);
         UserBalanceTest balanceTest = new UserBalanceTest();
 
         balanceTest.testGetUserBalance();

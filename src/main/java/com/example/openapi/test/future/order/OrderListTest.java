@@ -24,10 +24,6 @@ public class OrderListTest {
     private static final Logger log = LoggerFactory.getLogger(OrderListTest.class);
     private static ApiClient apiClient;
 
-    public OrderListTest(ApiClient apiClient) {
-        OrderListTest.apiClient = apiClient;
-    }
-
     /**
      * 查询订单列表
      *
@@ -62,9 +58,6 @@ public class OrderListTest {
             if (request.getContractType() != null) {
                 queryParams.put("contractType", request.getContractType());
             }
-            if (request.getClientOrderId() != null) {
-                queryParams.put("clientOrderId", request.getClientOrderId());
-            }
             if (request.getForceClose() != null) {
                 queryParams.put("forceClose", request.getForceClose().toString());
             }
@@ -98,7 +91,6 @@ public class OrderListTest {
                     JSONObject item = itemsArray.getJSONObject(i);
                     FutureOrderVO order = new FutureOrderVO();
                     order.setOrderId(item.getStr("orderId"));
-                    order.setClientOrderId(item.getStr("clientOrderId"));
                     order.setSymbol(item.getStr("symbol"));
                     order.setContractType(item.getStr("contractType"));
                     order.setOrderType(item.getStr("orderType"));
@@ -261,12 +253,11 @@ public class OrderListTest {
     }
 
     public static void main(String[] args) throws HashExApiException {
-        ApiClient client = new ApiClient(
+        apiClient = new ApiClient(
                 FutureTestConfig.BASE_URL,
                 FutureTestConfig.ACCESS_KEY,
                 FutureTestConfig.SECRET_KEY);
-
-        OrderListTest orderListTest = new OrderListTest(client);
+        OrderListTest orderListTest = new OrderListTest();
 
         // 执行测试
         orderListTest.testQueryUnfinishedOrders();
@@ -280,7 +271,6 @@ public class OrderListTest {
      */
     public static class FutureOrderVO {
         private String orderId;             // 订单ID
-        private String clientOrderId;       // 客户端订单ID
         private String symbol;              // 交易对
         private String contractType;        // 合约类型
         private String orderType;           // 订单类型
@@ -311,14 +301,6 @@ public class OrderListTest {
 
         public void setOrderId(String orderId) {
             this.orderId = orderId;
-        }
-
-        public String getClientOrderId() {
-            return clientOrderId;
-        }
-
-        public void setClientOrderId(String clientOrderId) {
-            this.clientOrderId = clientOrderId;
         }
 
         public String getSymbol() {
@@ -539,7 +521,6 @@ public class OrderListTest {
         private Long startTime;         // 开始时间
         private Long endTime;           // 结束时间
         private String contractType;    // 合约类型
-        private String clientOrderId;   // 自定义订单ID
         private Boolean forceClose;     // 是否强平
 
         // Getters and Setters
@@ -597,14 +578,6 @@ public class OrderListTest {
 
         public void setContractType(String contractType) {
             this.contractType = contractType;
-        }
-
-        public String getClientOrderId() {
-            return clientOrderId;
-        }
-
-        public void setClientOrderId(String clientOrderId) {
-            this.clientOrderId = clientOrderId;
         }
 
         public Boolean getForceClose() {

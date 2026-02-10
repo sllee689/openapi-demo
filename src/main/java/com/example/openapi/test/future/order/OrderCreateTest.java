@@ -99,9 +99,6 @@ public class OrderCreateTest {
             queryParams.put("origQty", actualQty.toString()); // 使用计算后的数量
 
             // 添加可选参数
-            if (orderRequest.getClientOrderId() != null) {
-                queryParams.put("clientOrderId", orderRequest.getClientOrderId());
-            }
             if (orderRequest.getPrice() != null) {
                 queryParams.put("price", orderRequest.getPrice().toString());
             }
@@ -252,7 +249,7 @@ public class OrderCreateTest {
 
         // 选择一个测试方法执行
         //orderTest.testCreateLimitOrder();
-         orderTest.testCreateMarketOrder();
+        orderTest.testCreateMarketOrder();
         // orderTest.testCreateOrderWithTP_SL();
     }
 
@@ -266,7 +263,6 @@ public class OrderCreateTest {
         private String positionSide;       // 仓位方向：LONG;SHORT
         private BigDecimal origQty;        // 原始数量（实际交易量）
         private BigDecimal price;          // 价格
-        private String clientOrderId;      // 自定义orderId
         private Integer leverage;          // 杠杆倍数
         private String timeInForce;        // 有效方式：GTC;IOC;FOK;GTX
         private Integer marketOrderLevel;  // 市价最优档：1(对手价)；5,10,15档
@@ -323,14 +319,6 @@ public class OrderCreateTest {
 
         public void setPrice(BigDecimal price) {
             this.price = price;
-        }
-
-        public String getClientOrderId() {
-            return clientOrderId;
-        }
-
-        public void setClientOrderId(String clientOrderId) {
-            this.clientOrderId = clientOrderId;
         }
 
         public Integer getLeverage() {

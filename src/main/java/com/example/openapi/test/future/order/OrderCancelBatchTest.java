@@ -36,8 +36,7 @@ public class OrderCancelBatchTest {
                 throw new IllegalArgumentException("订单ID列表不能为空");
             }
 
-
-            String orderIdsStr =  JSONUtil.toJsonStr(orderIds);
+            String orderIdsStr = JSONUtil.toJsonStr(orderIds);
             if (orderIdsStr.isEmpty()) {
                 throw new IllegalArgumentException("没有有效的订单ID");
             }
@@ -145,18 +144,14 @@ public class OrderCancelBatchTest {
         }
     }
 
-
-
     public static void main(String[] args) throws HashExApiException {
         apiClient = new ApiClient(
                 FutureTestConfig.BASE_URL,
                 FutureTestConfig.ACCESS_KEY,
                 FutureTestConfig.SECRET_KEY);
-
         OrderCancelBatchTest cancelBatchTest = new OrderCancelBatchTest();
 
         // 测试批量撤销限价单
         cancelBatchTest.testCancelBatchLimitOrders();
-
     }
 }

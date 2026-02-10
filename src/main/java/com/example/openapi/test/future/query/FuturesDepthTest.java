@@ -106,6 +106,7 @@ public class FuturesDepthTest {
     public static class FuturesDepthVO {
         private String s;               // 交易对
         private Long t;                 // 时间戳
+        private Long u;                 // 深度更新序列号
         private List<List<String>> b;   // 买单列表 [价格, 数量]
         private List<List<String>> a;   // 卖单列表 [价格, 数量]
 
@@ -124,6 +125,14 @@ public class FuturesDepthTest {
 
         public void setT(Long t) {
             this.t = t;
+        }
+
+        public Long getU() {
+            return u;
+        }
+
+        public void setU(Long u) {
+            this.u = u;
         }
 
         public List<List<String>> getB() {

@@ -66,7 +66,7 @@ public class OrderCancelTest {
         log.info("===== 测试撤销合约限价单 =====");
 
         // 创建订单测试对象
-        OrderCreateTest orderCreateTest = new OrderCreateTest();
+        OrderCreateTest orderCreateTest = new OrderCreateTest(apiClient);
 
         // 1. 创建一个限价买单（价格设置较低以确保不会立即成交）
         log.info("步骤1: 创建限价买单");
