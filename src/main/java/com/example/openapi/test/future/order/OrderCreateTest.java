@@ -203,7 +203,7 @@ public class OrderCreateTest {
         request.setPositionSide("LONG");
         request.setOrigQty(origAmount); // 设置原始数量，系统会自动转换
         request.setMarketOrderLevel(1); // 对手价
-        request.setLeverage(100);
+        request.setLeverage(20);
 
         Object result = createOrder(request);
         log.info("市价单创建结果: {}", result);
