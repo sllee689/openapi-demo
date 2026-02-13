@@ -9,39 +9,40 @@ import org.slf4j.LoggerFactory;
 import java.util.TreeMap;
 
 /**
- * 单接口测试：change-type
+ * 单接口测试：adjust-leverage
  */
-public class ChangeTypeTest {
+public class AdjustLeverageTest {
 
-    private static final Logger log = LoggerFactory.getLogger(ChangeTypeTest.class);
+    private static final Logger log = LoggerFactory.getLogger(AdjustLeverageTest.class);
 
     private final PositionOperationSupport support;
     private PositionListTest.PositionVO activePosition;
 
-    private ChangeTypeTest(ApiClient apiClient) {
+    private AdjustLeverageTest(ApiClient apiClient) {
         this.support = new PositionOperationSupport(apiClient, log);
     }
 
     /**
-     * 单接口测试：修改仓位类型
+     * 单接口测试：调整杠杆倍数
      */
-    private void testChangePositionType() {
+    private void testAdjustLeverage() {
         if (activePosition == null) {
-            log.warn("当前账户无持仓，无法测试 change-type");
+            log.warn("当前账户无持仓，无法测试 adjust-leverage");
             return;
         }
 
-        log.info("===== 开始测试 change-type 接口 =====");
         TreeMap<String, String> params = new TreeMap<>();
         params.put("symbol", activePosition.getSymbol());
+        if (activePosition.getPositionSide() != null && !activePosition.getPositionSide().isEmpty()) {
+            params.put("positionSide", activePosition.getPositionSide());
+        }
 
-        // 按照文档/抓包截图方式：仅传 symbol + positionModel + positionType
-        params.put("positionType", activePosition.getPositionType());
-        String positionModel = activePosition.getPositionModel();
-        params.put("positionModel", positionModel == null || positionModel.isEmpty() ? "AGGREGATION" : positionModel);
+        int leverage = activePosition.getLeverage() != null ? activePosition.getLeverage() : 20;
+        params.put("leverage", String.valueOf(leverage));
 
-        if (support.invokePost("/fut/v1/position/change-type", params, "修改仓位类型(change-type)")) {
-            log.info("✅ change-type 请求已发送，请根据返回内容确认业务结果");
+        log.info("===== 开始测试 adjust-leverage 接口 =====");
+        if (support.invokePost("/fut/v1/position/adjust-leverage", params, "调整杠杆倍数(adjust-leverage)")) {
+            log.info("✅ adjust-leverage 请求已发送，请根据返回内容确认业务结果");
         }
     }
 
@@ -50,7 +51,7 @@ public class ChangeTypeTest {
                 FutureTestConfig.BASE_URL,
                 FutureTestConfig.ACCESS_KEY,
                 FutureTestConfig.SECRET_KEY)) {
-            ChangeTypeTest test = new ChangeTypeTest(client);
+            AdjustLeverageTest test = new AdjustLeverageTest(client);
 
             try {
                 test.activePosition = test.support.loadActivePosition();
@@ -60,10 +61,10 @@ public class ChangeTypeTest {
             } catch (HashExApiException e) {
                 log.error("加载持仓信息失败: {}", e.getMessage(), e);
             }
-            
-            test.testChangePositionType();
+
+            test.testAdjustLeverage();
         } catch (Exception e) {
-            log.error("执行 change-type 测试发生异常: {}", e.getMessage(), e);
+            log.error("执行 adjust-leverage 测试发生异常: {}", e.getMessage(), e);
         }
     }
 }

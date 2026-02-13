@@ -399,10 +399,10 @@ public class FutureMarketWebSocketTest {
             double closeValue = Double.parseDouble(close);
             double changeRate = ((closeValue - openValue) / openValue) * 100;
 
-            Console.log("收到{}K线数据 [{}]: 时间:{}, 开:{}, 收:{}, 高:{}, 低:{}, 量:{}, 额:{}, 涨跌:{:.2f}%",
+            Console.log("收到{}K线数据 [{}]: 时间:{}, 开:{}, 收:{}, 高:{}, 低:{}, 量:{}, 额:{}, 涨跌:{}%",
                     symbol, interval, new Date(timestamp),
                     open, close, high, low,
-                    amount, volume, changeRate);
+                    amount, volume, String.format("%.2f", changeRate));
         }
 
         // 处理聚合行情推送数据

@@ -105,26 +105,14 @@ public class OrderCreateTest {
             if (orderRequest.getLeverage() != null) {
                 queryParams.put("leverage", orderRequest.getLeverage().toString());
             }
-            if (orderRequest.getTimeInForce() != null) {
-                queryParams.put("timeInForce", orderRequest.getTimeInForce());
-            }
-            if (orderRequest.getMarketOrderLevel() != null) {
-                queryParams.put("marketOrderLevel", orderRequest.getMarketOrderLevel().toString());
-            }
             if (orderRequest.getPositionId() != null) {
                 queryParams.put("positionId", orderRequest.getPositionId().toString());
-            }
-            if (orderRequest.getReduceOnly() != null) {
-                queryParams.put("reduceOnly", orderRequest.getReduceOnly().toString());
             }
             if (orderRequest.getTriggerProfitPrice() != null) {
                 queryParams.put("triggerProfitPrice", orderRequest.getTriggerProfitPrice().toString());
             }
             if (orderRequest.getTriggerStopPrice() != null) {
                 queryParams.put("triggerStopPrice", orderRequest.getTriggerStopPrice().toString());
-            }
-            if (orderRequest.getCopyTrade() != null) {
-                queryParams.put("copyTrade", orderRequest.getCopyTrade().toString());
             }
             if (orderRequest.getSourceType() != null) {
                 queryParams.put("sourceType", orderRequest.getSourceType().toString());
@@ -174,9 +162,8 @@ public class OrderCreateTest {
         request.setOrderType("LIMIT");
         request.setPositionSide("LONG");
         request.setOrigQty(origAmount); // 设置原始数量，系统会自动根据合约面值转换
-        request.setPrice(new BigDecimal("85000"));
-        request.setTimeInForce("GTC");
-        request.setLeverage(100);
+        request.setPrice(new BigDecimal("60000"));
+        request.setLeverage(20);
 
         Object result = createOrder(request);
         log.info("限价单创建结果: {}", result);
@@ -202,7 +189,6 @@ public class OrderCreateTest {
         request.setOrderType("MARKET");
         request.setPositionSide("LONG");
         request.setOrigQty(origAmount); // 设置原始数量，系统会自动转换
-        request.setMarketOrderLevel(1); // 对手价
         request.setLeverage(20);
 
         Object result = createOrder(request);
@@ -230,11 +216,10 @@ public class OrderCreateTest {
         request.setOrderType("LIMIT");
         request.setPositionSide("LONG");
         request.setOrigQty(origAmount); // 设置原始数量，系统会自动转换
-        request.setPrice(new BigDecimal("85000"));
-        request.setTimeInForce("GTC");
-        request.setLeverage(100);
-        request.setTriggerProfitPrice(new BigDecimal("89000")); // 止盈价
-        request.setTriggerStopPrice(new BigDecimal("82000"));   // 止损价
+        request.setPrice(new BigDecimal("60000"));
+        request.setLeverage(20);
+        request.setTriggerProfitPrice(new BigDecimal("70000")); // 止盈价
+        request.setTriggerStopPrice(new BigDecimal("55000"));   // 止损价
 
         Object result = createOrder(request);
         log.info("带止盈止损的订单创建结果: {}", result);
@@ -264,13 +249,9 @@ public class OrderCreateTest {
         private BigDecimal origQty;        // 原始数量（实际交易量）
         private BigDecimal price;          // 价格
         private Integer leverage;          // 杠杆倍数
-        private String timeInForce;        // 有效方式：GTC;IOC;FOK;GTX
-        private Integer marketOrderLevel;  // 市价最优档：1(对手价)；5,10,15档
         private Long positionId;           // 平仓Id
-        private Boolean reduceOnly;        // 只减仓
         private BigDecimal triggerProfitPrice; // 止盈价
         private BigDecimal triggerStopPrice;   // 止损价
-        private Boolean copyTrade;         // 是否复制交易
         private Integer sourceType;        // 来源类型
 
         public String getSymbol() {
@@ -329,36 +310,12 @@ public class OrderCreateTest {
             this.leverage = leverage;
         }
 
-        public String getTimeInForce() {
-            return timeInForce;
-        }
-
-        public void setTimeInForce(String timeInForce) {
-            this.timeInForce = timeInForce;
-        }
-
-        public Integer getMarketOrderLevel() {
-            return marketOrderLevel;
-        }
-
-        public void setMarketOrderLevel(Integer marketOrderLevel) {
-            this.marketOrderLevel = marketOrderLevel;
-        }
-
         public Long getPositionId() {
             return positionId;
         }
 
         public void setPositionId(Long positionId) {
             this.positionId = positionId;
-        }
-
-        public Boolean getReduceOnly() {
-            return reduceOnly;
-        }
-
-        public void setReduceOnly(Boolean reduceOnly) {
-            this.reduceOnly = reduceOnly;
         }
 
         public BigDecimal getTriggerProfitPrice() {
@@ -375,14 +332,6 @@ public class OrderCreateTest {
 
         public void setTriggerStopPrice(BigDecimal triggerStopPrice) {
             this.triggerStopPrice = triggerStopPrice;
-        }
-
-        public Boolean getCopyTrade() {
-            return copyTrade;
-        }
-
-        public void setCopyTrade(Boolean copyTrade) {
-            this.copyTrade = copyTrade;
         }
 
         public Integer getSourceType() {

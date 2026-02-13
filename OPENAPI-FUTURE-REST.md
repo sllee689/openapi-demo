@@ -479,13 +479,9 @@ HashEx 合约交易平台 API 提供了程序化交易的能力，允许开发�
 | origQty | String | 是 | 原始数量（实际交易量） |
 | price | String | 否 | 价格，市价单不需要传 |
 | leverage | Integer | 否 | 杠杆倍数 |
-| timeInForce | String | 否 | 有效方式：GTC;IOC;FOK;GTX |
-| marketOrderLevel | Integer | 否 | 市价最优档：1(对手价)；5,10,15档 |
 | positionId | Long | 否 | 平仓ID |
-| reduceOnly | Boolean | 否 | 只减仓 |
 | triggerProfitPrice | String | 否 | 止盈价 |
 | triggerStopPrice | String | 否 | 止损价 |
-| copyTrade | Boolean | 否 | 是否复制交易 |
 | sourceType | Integer | 否 | 来源类型 |
 
 **响应参数**:
@@ -537,7 +533,6 @@ HashEx 合约交易平台 API 提供了程序化交易的能力，允许开发�
 | orderSide | String | 买卖方向 |
 | leverage | Integer | 杠杆倍数 |
 | positionSide | String | 仓位方向 |
-| timeInForce | String | 有效方式 |
 | closePosition | Boolean | 是否平仓 |
 | price | String | 价格 |
 | origQty | String | 原始数量 |
@@ -567,7 +562,6 @@ HashEx 合约交易平台 API 提供了程序化交易的能力，允许开发�
       "orderSide": "BUY",
       "leverage": 100,
       "positionSide": "LONG",
-      "timeInForce": "GTC",
       "closePosition": false,
       "price": "70000",
       "origQty": "10000",
@@ -634,7 +628,6 @@ HashEx 合约交易平台 API 提供了程序化交易的能力，允许开发�
 | orderSide | String | 买卖方向 |
 | leverage | Integer | 杠杆倍数 |
 | positionSide | String | 仓位方向 |
-| timeInForce | String | 有效方式 |
 | closePosition | Boolean | 是否平仓 |
 | price | String | 价格 |
 | origQty | String | 原始数量 |
@@ -669,7 +662,6 @@ HashEx 合约交易平台 API 提供了程序化交易的能力，允许开发�
             "orderSide": "BUY",
             "leverage": 100,
             "positionSide": "LONG",
-            "timeInForce": "GTC",
             "closePosition": false,
             "price": "70000",
             "origQty": "10000",
@@ -941,12 +933,11 @@ curl --location --request GET 'https://open.hashex.vip/fut/v1/position/list' \
 | symbol | String | 是 | 交易对，例如："btc_usdt" |
 | positionType | String | 是 | 仓位类型：`CROSSED`(全仓)、`ISOLATED`(逐仓) |
 | positionModel | String | 是 | 仓位模式：`AGGREGATION`(合仓)、`DISAGGREGATION`(分仓) |
-| positionSide | String | 否 | 指定仓位方向：`LONG`(多)、`SHORT`(空)。不传则按账号默认方向处理 |
-| contractType | String | 否 | 合约类型，例如：`PERPETUAL`。建议与签名串保持一致以避免网关校验异常 |
 
 **说明**:
-- 必须保证签名串中参与计算的参数与请求体完全一致；缺失字段容易触发 `code=1005 Signature parameter error`。
-- 若账户当前没有持仓，接口会直接返回成功但不会改变配置。
+- 按当前网关行为，推荐仅传 `symbol + positionType + positionModel` 三个参数。
+- 签名串中参与计算的参数必须与实际请求参数完全一致。
+- 若当前账户存在持仓，可能返回业务失败：`code=-1`，`msg=There are positions currently, and the margin mode cannot be switched`。
 
 **请求示例**:
 ```bash
@@ -957,8 +948,7 @@ curl --location --request POST 'https://open.hashex.vip/fut/v1/position/change-t
   --header 'X-Signature: ${SIGNATURE}' \
   --data-urlencode 'symbol=btc_usdt' \
   --data-urlencode 'positionType=CROSSED' \
-  --data-urlencode 'positionModel=AGGREGATION' \
-  --data-urlencode 'positionSide=LONG'
+  --data-urlencode 'positionModel=AGGREGATION'
 ```
 
 **响应格式**:
@@ -969,7 +959,14 @@ curl --location --request POST 'https://open.hashex.vip/fut/v1/position/change-t
 }
 ```
 
-> ⚠️ 当网关返回 `code=1005` 时，请确认签名参数与请求携带字段完全一致；该问题已在测试环境跟踪。
+**常见业务响应示例（存在持仓时）**:
+```json
+{
+  "code": -1,
+  "msg": "There are positions currently, and the margin mode cannot be switched",
+  "data": null
+}
+```
 
 ### 5.8 调整杠杆倍数
 
@@ -983,7 +980,10 @@ curl --location --request POST 'https://open.hashex.vip/fut/v1/position/change-t
 |-------|-----|---------|------|
 | symbol | String | 是 | 交易对，例如："btc_usdt" |
 | leverage | Integer | 是 | 新的杠杆倍数 |
-| positionSide | String | 否 | 指定仓位方向：`LONG` 或 `SHORT`。不传默认调整多头仓位 |
+| positionSide | String | 否 | 指定仓位方向：`LONG` 或 `SHORT`。单向持仓可不传，双向持仓建议显式传值 |
+
+**说明**:
+- 演示测试代码会优先使用当前持仓杠杆；若持仓未返回杠杆，则默认传 `20`。
 
 **请求示例**:
 ```bash
@@ -993,7 +993,7 @@ curl --location --request POST 'https://open.hashex.vip/fut/v1/position/adjust-l
   --header 'X-Request-Timestamp: 1717132800000' \
   --header 'X-Signature: ${SIGNATURE}' \
   --data-urlencode 'symbol=btc_usdt' \
-  --data-urlencode 'leverage=100' \
+  --data-urlencode 'leverage=20' \
   --data-urlencode 'positionSide=LONG'
 ```
 
@@ -1019,6 +1019,8 @@ curl --location --request POST 'https://open.hashex.vip/fut/v1/position/adjust-l
 | contractType | String | 否 | 合约类型，示例：`PERPETUAL` |
 
 > ⚠️ 操作会触发实际平仓，请谨慎调用。
+>
+> 演示测试代码使用 `symbol=eth_usdt` + `contractType=PERPETUAL` 作为示例参数，避免误平真实持仓。
 
 **请求示例**:
 ```bash
@@ -1058,6 +1060,7 @@ curl --location --request POST 'https://open.hashex.vip/fut/v1/position/close-al
 
 **说明**:
 - 仅逐仓 (`ISOLATED`) 仓位支持保证金调整；若传入全仓仓位，会返回 `code = -1` 并提示无法调整。
+- 演示测试代码采用“`ADD` 后 `SUB` 回滚”的方式，降低对账户净保证金的影响。
 
 **请求示例**:
 ```bash
@@ -1078,6 +1081,15 @@ curl --location --request POST 'https://open.hashex.vip/fut/v1/position/margin' 
 {
   "code": 0,
   "msg": "success"
+}
+```
+
+**常见业务失败示例（非逐仓仓位）**:
+```json
+{
+  "code": -1,
+  "msg": "Only isolated position supports margin adjustment",
+  "data": null
 }
 ```
 

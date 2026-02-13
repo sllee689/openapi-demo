@@ -25,13 +25,13 @@ public class SpotBalanceTest {
     private static final Logger log = LoggerFactory.getLogger(SpotBalanceTest.class);
     private static final ObjectMapper objectMapper = new ObjectMapper();
     // //替换自己的 accessKey 和 secretKey
-    private static final String BASE_URL = "https://open.mgbx.com";
-    private static final String ACCESS_KEY = "e7579248d6edd162cc573524f56ce2c5c6e93980aa1e7b2fed6405c9dd06d87a";
-    private static final String SECRET_KEY = "5fefe4c332c14ae19f33223fefa65de0dad0ae8786d486a1ca5e9221673a2d22";
+//    private static final String BASE_URL = "https://open.mgbx.com";
+//    private static final String ACCESS_KEY = "e7579248d6edd162cc573524f56ce2c5c6e93980aa1e7b2fed6405c9dd06d87a";
+//    private static final String SECRET_KEY = "5fefe4c332c14ae19f33223fefa65de0dad0ae8786d486a1ca5e9221673a2d22";
 
-   //private static final String BASE_URL = "https://api.hashex.vip";
-   // private static final String ACCESS_KEY = "42106772bfbc981b2439a0840eef5342d4f3ff86d1d75c8e77ea9ad1f4b2b725";
-  //  private static final String SECRET_KEY = "e4cf1a747f2644698828cf96e68b57505dc50790317903017ec29b741471d461";
+   private static final String BASE_URL = "https://open.hashex.vip";
+    private static final String ACCESS_KEY = "3b6e558b3351545c33665d6a2aceba5d4ca212b36f81991ac503e71d3f392132";
+    private static final String SECRET_KEY = "7caaacc62496bbd8bc85c60a984db7e2e3650f5a4bb38e19a661e4037b82e992";
 
     // 接口端点
     private static final String BALANCE_ENDPOINT = "/spot/v1/u/balance/spot";
@@ -49,7 +49,6 @@ public class SpotBalanceTest {
             if (allBalancesResponse.getCode() == 0) {
                 List<BalanceInfo> balances = allBalancesResponse.getData();
                 log.info("查询到 {} 个币种的余额信息", balances.size());
-
                 for (BalanceInfo balance : balances) {
                     log.info("币种: {}, 可用余额: {}, 总余额: {}, 估值(USDT): {}, 估值(CNY): {}",
                             balance.getCoin(),
@@ -59,9 +58,16 @@ public class SpotBalanceTest {
                             balance.getEstimatedCynAmount());
                 }
             } else {
-                log.error("查询所有币种余额失败: code={}, msg={}",
-                        allBalancesResponse.getCode(),
-                        allBalancesResponse.getMsg());
+                String msg = allBalancesResponse.getMsg() == null ? "" : allBalancesResponse.getMsg();
+                if (msg.contains("无权限") || msg.toLowerCase().contains("permission")) {
+                    log.error("【权限提示】现货余额接口不受合约权限影响，请检查用户现货权限配置。接口返回: code={}, msg={}",
+                            allBalancesResponse.getCode(),
+                            allBalancesResponse.getMsg());
+                } else {
+                    log.error("查询所有币种余额失败: code={}, msg={}",
+                            allBalancesResponse.getCode(),
+                            allBalancesResponse.getMsg());
+                }
             }
 
             // 查询指定币种余额
@@ -77,9 +83,16 @@ public class SpotBalanceTest {
                 log.info("  估值(USDT): {}", btcBalance.getEstimatedTotalAmount());
                 log.info("  估值(CNY): {}", btcBalance.getEstimatedCynAmount());
             } else {
-                log.error("查询BTC余额失败: code={}, msg={}",
-                        btcBalanceResponse.getCode(),
-                        btcBalanceResponse.getMsg());
+                String msg = btcBalanceResponse.getMsg() == null ? "" : btcBalanceResponse.getMsg();
+                if (msg.contains("无权限") || msg.toLowerCase().contains("permission")) {
+                    log.error("【权限提示】现货余额接口不受合约权限影响，请检查用户现货权限配置。接口返回: code={}, msg={}",
+                            btcBalanceResponse.getCode(),
+                            btcBalanceResponse.getMsg());
+                } else {
+                    log.error("查询BTC余额失败: code={}, msg={}",
+                            btcBalanceResponse.getCode(),
+                            btcBalanceResponse.getMsg());
+                }
             }
 
         } catch (Exception e) {

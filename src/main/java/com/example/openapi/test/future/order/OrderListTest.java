@@ -97,7 +97,6 @@ public class OrderListTest {
                     order.setOrderSide(item.getStr("orderSide"));
                     order.setLeverage(item.getInt("leverage"));
                     order.setPositionSide(item.getStr("positionSide"));
-                    order.setTimeInForce(item.getStr("timeInForce"));
                     order.setClosePosition(item.getBool("closePosition"));
                     order.setPrice(item.getStr("price"));
                     order.setOrigQty(item.getStr("origQty"));
@@ -277,7 +276,6 @@ public class OrderListTest {
         private String orderSide;           // 买卖方向
         private Integer leverage;           // 杠杆倍数
         private String positionSide;        // 仓位方向
-        private String timeInForce;         // 有效方式
         private Boolean closePosition;      // 是否平仓
         private String price;               // 价格
         private String origQty;             // 原始数量
@@ -349,14 +347,6 @@ public class OrderListTest {
 
         public void setPositionSide(String positionSide) {
             this.positionSide = positionSide;
-        }
-
-        public String getTimeInForce() {
-            return timeInForce;
-        }
-
-        public void setTimeInForce(String timeInForce) {
-            this.timeInForce = timeInForce;
         }
 
         public Boolean getClosePosition() {
@@ -505,8 +495,8 @@ public class OrderListTest {
                     updatedTime == null ? "未知" : sdf.format(new Date(updatedTime)),
                     triggerProfitPrice == null ? "未设置" : triggerProfitPrice,
                     triggerStopPrice == null ? "未设置" : triggerStopPrice,
-                    forceClose ? "是" : "否",
-                    closePosition ? "是" : "否");
+                    (forceClose != null && forceClose) ? "是" : "否",
+                    (closePosition != null && closePosition) ? "是" : "否");
         }
     }
 

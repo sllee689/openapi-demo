@@ -76,9 +76,8 @@ public class OrderCancelTest {
         request.setOrderType("LIMIT");
         request.setPositionSide("LONG");
         request.setOrigQty(new BigDecimal("0.01"));
-        request.setPrice(new BigDecimal("75000")); // 设置较低价格确保不会成交
-        request.setTimeInForce("GTC");
-        request.setLeverage(100);
+        request.setPrice(new BigDecimal("60000")); // 设置较低价格确保不会成交
+        request.setLeverage(20);
 
         Object createResult = orderCreateTest.createOrder(request);
         log.info("限价买单创建结果: {}", createResult);

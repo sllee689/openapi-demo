@@ -75,9 +75,8 @@ public class OrderDetailTest {
         request.setOrderType("LIMIT");
         request.setPositionSide("LONG");
         request.setOrigQty(new BigDecimal("1"));
-        request.setPrice(new BigDecimal("70000")); // 设置较低价格确保不会成交
-        request.setTimeInForce("GTC");
-        request.setLeverage(100);
+        request.setPrice(new BigDecimal("60000")); // 设置较低价格确保不会成交
+        request.setLeverage(20);
 
         Object createResult = orderCreateTest.createOrder(request);
         log.info("限价订单创建结果: {}", createResult);
@@ -140,7 +139,6 @@ public class OrderDetailTest {
         private String orderSide;          // 买卖方向
         private String orderType;          // 订单类型
         private String positionSide;       // 仓位方向
-        private String timeInForce;        // 有效方式
         private Boolean closePosition;     // 是否平仓
         private String price;              // 价格
         private String origQty;            // 原始数量
@@ -205,14 +203,6 @@ public class OrderDetailTest {
 
         public void setPositionSide(String positionSide) {
             this.positionSide = positionSide;
-        }
-
-        public String getTimeInForce() {
-            return timeInForce;
-        }
-
-        public void setTimeInForce(String timeInForce) {
-            this.timeInForce = timeInForce;
         }
 
         public Boolean getClosePosition() {
@@ -359,7 +349,6 @@ public class OrderDetailTest {
                     "  成交均价: " + ("0".equals(avgPrice) ? "未成交" : avgPrice) + "\n" +
                     "  冻结保证金: " + marginFrozen + "\n" +
                     "  订单状态: " + state + "\n" +
-                    "  有效方式: " + timeInForce + "\n" +
                     "  杠杆倍数: " + leverage + "\n" +
                     "  交易费: " + tradeFee + "\n" +
                     "  平仓盈亏: " + (closeProfit == null ? "无" : closeProfit) + "\n" +

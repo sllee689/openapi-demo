@@ -86,9 +86,8 @@ public class OrderCancelBatchTest {
         request1.setOrderType("LIMIT");
         request1.setPositionSide("LONG");
         request1.setOrigQty(new BigDecimal("1"));
-        request1.setPrice(new BigDecimal("75000"));
-        request1.setTimeInForce("GTC");
-        request1.setLeverage(100);
+        request1.setPrice(new BigDecimal("60000"));
+        request1.setLeverage(20);
 
         Object createResult1 = orderCreateTest.createOrder(request1);
         log.info("限价买单1创建结果: {}", createResult1);
@@ -102,9 +101,8 @@ public class OrderCancelBatchTest {
         request2.setOrderType("LIMIT");
         request2.setPositionSide("LONG");
         request2.setOrigQty(new BigDecimal("1"));
-        request2.setPrice(new BigDecimal("74000"));
-        request2.setTimeInForce("GTC");
-        request2.setLeverage(100);
+        request2.setPrice(new BigDecimal("59000"));
+        request2.setLeverage(20);
 
         Object createResult2 = orderCreateTest.createOrder(request2);
         log.info("限价买单2创建结果: {}", createResult2);
