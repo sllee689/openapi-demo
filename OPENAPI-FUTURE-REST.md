@@ -482,7 +482,20 @@ HashEx 合约交易平台 API 提供了程序化交易的能力，允许开发�
 | positionId | Long | 否 | 平仓ID |
 | triggerProfitPrice | String | 否 | 止盈价 |
 | triggerStopPrice | String | 否 | 止损价 |
-| sourceType | Integer | 否 | 来源类型 |
+| sourceType | Integer | 否 | 来源类型（不传默认 `0`） |
+
+**sourceType 参数说明**:
+
+| 值 | 场景说明 |
+|---|---|
+| 0 | 普通下单 |
+| 1 | 计划委托触发下单 |
+| 2 | 止盈止损触发下单 |
+| 4 | 反手下单 |
+
+**使用说明**:
+- 仅支持上述取值；未传时默认按 `0` 处理。
+- `sourceType` 表示订单来源类型（整型）。
 
 **响应参数**:
 
@@ -592,7 +605,7 @@ HashEx 合约交易平台 API 提供了程序化交易的能力，允许开发�
 | 参数名 | 类型 | 是否必须 | 说明 |
 |-------|-----|---------|------|
 | symbol | String | 否 | 交易对 |
-| state | String | 否 | 订单状态筛选（当前环境有数据）：UNFINISHED(未完成)、OPEN(未完成别名)、HISTORY(历史)、NEW(新建)、FILLED(全部成交)、CANCELED(已撤销) |
+| state | String | 否 | 订单状态筛选：UNFINISHED(未完成)、OPEN(未完成别名)、HISTORY(历史)、NEW(新建)、FILLED(全部成交)、CANCELED(已撤销) |
 | page | Integer | 否 | 页码，默认1 |
 | size | Integer | 否 | 每页大小，默认10 |
 | startTime | Long | 否 | 开始时间 |
@@ -604,7 +617,7 @@ HashEx 合约交易平台 API 提供了程序化交易的能力，允许开发�
 - `UNFINISHED` 与 `OPEN` 均表示“未完成订单”聚合筛选。
 - `HISTORY` 表示“历史订单”聚合筛选。
 - 其余值为精确状态筛选（`NEW`、`FILLED`、`CANCELED`）。
-- 状态值区分大小写，建议严格使用上述大写枚举。
+- 状态值区分大小写，建议严格使用上述大写状态字符串。
 - 响应中的 `state` 在特定场景可能出现 `PARTIALLY_CANCELED`（仅返回值），该值不作为查询入参。
 
 **响应参数**:
@@ -831,24 +844,12 @@ HashEx 合约交易平台 API 提供了程序化交易的能力，允许开发�
 | 参数名 | 类型 | 是否必须 | 说明 |
 |-------|-----|---------|------|
 | symbol | String | 否 | 交易对，例如："btc_usdt" |
-| contractType | String | 否 | 合约类型：PERPETUAL(永续)、SUPER(超级合约)（服务端也可能返回交割/事件合约类型） |
+| contractType | String | 否 | 合约类型：PERPETUAL(永续) |
 | balanceType | String | 否 | 余额类型：CONTRACT(合约)、COPY(跟单) |
 
 **参数说明**:
-- `contractType` 常用值为 `PERPETUAL`(永续) 和 `SUPER`(超级合约)，服务端也可能返回 `CURRENT_MONTH`、`NEXT_MONTH`、`CURRENT_QUARTER`、`NEXT_QUARTER`、`EVENT`。
+- `contractType` 当前仅支持 `PERPETUAL`。
 - `balanceType` 支持 `CONTRACT`(合约账户) 和 `COPY`(跟单账户)，默认为合约账户。
-
-**请求示例**:
-```bash
-curl --location --request GET 'https://open.hashex.vip/fut/v1/position/list' \
-  --header 'X-Access-Key: ${ACCESS_KEY}' \
-  --header 'X-Request-Nonce: 1234567890' \
-  --header 'X-Request-Timestamp: 1717132800000' \
-  --header 'X-Signature: ${SIGNATURE}' \
-  --data-urlencode 'symbol=btc_usdt' \
-  --data-urlencode 'contractType=PERPETUAL' \
-  --data-urlencode 'balanceType=CONTRACT'
-```
 
 **响应参数**:
 
@@ -864,7 +865,7 @@ curl --location --request GET 'https://open.hashex.vip/fut/v1/position/list' \
 |-------|-----|------|
 | symbol | String | 交易对 |
 | positionId | String | 持仓ID |
-| contractType | String | 合约类型：PERPETUAL(永续)、SUPER(超级合约) |
+| contractType | String | 合约类型：PERPETUAL(永续) |
 | balanceType | String | 余额类型：CONTRACT(合约)、COPY(跟单) |
 | positionType | String | 仓位类型：CROSSED(全仓)、ISOLATED(逐仓) |
 | positionSide | String | 持仓方向：LONG(多)、SHORT(空) |
@@ -946,22 +947,6 @@ curl --location --request GET 'https://open.hashex.vip/fut/v1/position/list' \
 | positionType | String | 是 | 仓位类型：`CROSSED`(全仓)、`ISOLATED`(逐仓) |
 | positionModel | String | 是 | 仓位模式：`AGGREGATION`(合仓)、`DISAGGREGATION`(分仓) |
 
-**说明**:
-- 按当前网关行为，推荐仅传 `symbol + positionType + positionModel` 三个参数。
-- 签名串中参与计算的参数必须与实际请求参数完全一致。
-- 若当前账户存在持仓，可能返回业务失败：`code=-1`，`msg=There are positions currently, and the margin mode cannot be switched`。
-
-**请求示例**:
-```bash
-curl --location --request POST 'https://open.hashex.vip/fut/v1/position/change-type' \
-  --header 'X-Access-Key: ${ACCESS_KEY}' \
-  --header 'X-Request-Nonce: 1234567890' \
-  --header 'X-Request-Timestamp: 1717132800000' \
-  --header 'X-Signature: ${SIGNATURE}' \
-  --data-urlencode 'symbol=btc_usdt' \
-  --data-urlencode 'positionType=CROSSED' \
-  --data-urlencode 'positionModel=AGGREGATION'
-```
 
 **响应格式**:
 ```json
@@ -995,19 +980,7 @@ curl --location --request POST 'https://open.hashex.vip/fut/v1/position/change-t
 | positionSide | String | 否 | 指定仓位方向：`LONG` 或 `SHORT`。单向持仓可不传，双向持仓建议显式传值 |
 
 **说明**:
-- 演示测试代码会优先使用当前持仓杠杆；若持仓未返回杠杆，则默认传 `20`。
-
-**请求示例**:
-```bash
-curl --location --request POST 'https://open.hashex.vip/fut/v1/position/adjust-leverage' \
-  --header 'X-Access-Key: ${ACCESS_KEY}' \
-  --header 'X-Request-Nonce: 1234567890' \
-  --header 'X-Request-Timestamp: 1717132800000' \
-  --header 'X-Signature: ${SIGNATURE}' \
-  --data-urlencode 'symbol=btc_usdt' \
-  --data-urlencode 'leverage=20' \
-  --data-urlencode 'positionSide=LONG'
-```
+- 建议根据当前持仓与风险策略设置杠杆；若无明确策略，可从较低杠杆开始。
 
 **响应格式**:
 ```json
@@ -1032,18 +1005,7 @@ curl --location --request POST 'https://open.hashex.vip/fut/v1/position/adjust-l
 
 > ⚠️ 操作会触发实际平仓，请谨慎调用。
 >
-> 演示测试代码使用 `symbol=eth_usdt` + `contractType=PERPETUAL` 作为示例参数，避免误平真实持仓。
-
-**请求示例**:
-```bash
-curl --location --request POST 'https://open.hashex.vip/fut/v1/position/close-all' \
-  --header 'X-Access-Key: ${ACCESS_KEY}' \
-  --header 'X-Request-Nonce: 1234567890' \
-  --header 'X-Request-Timestamp: 1717132800000' \
-  --header 'X-Signature: ${SIGNATURE}' \
-  --data-urlencode 'symbol=btc_usdt' \
-  --data-urlencode 'contractType=PERPETUAL'
-```
+> 示例参数仅用于演示，请按实际业务场景替换。
 
 **响应格式**:
 ```json
@@ -1072,21 +1034,7 @@ curl --location --request POST 'https://open.hashex.vip/fut/v1/position/close-al
 
 **说明**:
 - 仅逐仓 (`ISOLATED`) 仓位支持保证金调整；若传入全仓仓位，会返回 `code = -1` 并提示无法调整。
-- 演示测试代码采用“`ADD` 后 `SUB` 回滚”的方式，降低对账户净保证金的影响。
-
-**请求示例**:
-```bash
-curl --location --request POST 'https://open.hashex.vip/fut/v1/position/margin' \
-  --header 'X-Access-Key: ${ACCESS_KEY}' \
-  --header 'X-Request-Nonce: 1234567890' \
-  --header 'X-Request-Timestamp: 1717132800000' \
-  --header 'X-Signature: ${SIGNATURE}' \
-  --data-urlencode 'symbol=btc_usdt' \
-  --data-urlencode 'positionSide=LONG' \
-  --data-urlencode 'positionId=591808623311601920' \
-  --data-urlencode 'margin=1' \
-  --data-urlencode 'type=ADD'
-```
+- 建议先小额验证，再按实际风控策略调整保证金。
 
 **响应格式**:
 ```json
