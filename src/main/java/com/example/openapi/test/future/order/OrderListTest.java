@@ -5,15 +5,18 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.example.openapi.client.ApiClient;
 import com.example.openapi.client.HashExApiException;
-import com.example.openapi.test.ApiResponse;
 import com.example.openapi.test.future.FutureTestConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 import java.util.TreeMap;
 
 /**
@@ -23,6 +26,28 @@ public class OrderListTest {
 
     private static final Logger log = LoggerFactory.getLogger(OrderListTest.class);
     private static ApiClient apiClient;
+
+    private static final String STATE_UNFINISHED = "UNFINISHED";
+    private static final String STATE_OPEN = "OPEN";
+    private static final String STATE_HISTORY = "HISTORY";
+    private static final String STATE_NEW = "NEW";
+    private static final String STATE_PARTIALLY_FILLED = "PARTIALLY_FILLED";
+    private static final String STATE_FILLED = "FILLED";
+    private static final String STATE_CANCELED = "CANCELED";
+    private static final String STATE_REJECTED = "REJECTED";
+    private static final String STATE_EXPIRED = "EXPIRED";
+
+    private static final Set<String> VALID_STATES = new HashSet<>(Arrays.asList(
+            STATE_UNFINISHED,
+            STATE_OPEN,
+            STATE_HISTORY,
+            STATE_NEW,
+            STATE_PARTIALLY_FILLED,
+            STATE_FILLED,
+            STATE_CANCELED,
+            STATE_REJECTED,
+            STATE_EXPIRED
+    ));
 
     /**
      * 查询订单列表
@@ -133,26 +158,15 @@ public class OrderListTest {
     private void testQueryUnfinishedOrders() throws HashExApiException {
         log.info("===== 测试查询所有未完成订单 =====");
 
-        OrderListRequest request = new OrderListRequest();
-        request.setSymbol("btc_usdt");
-        request.setState("UNFINISHED"); // 未完成订单
-        request.setPage(1);
-        request.setSize(10);
+        queryAndPrint("btc_usdt", STATE_UNFINISHED, "未完成订单");
+    }
 
-        PageResult<FutureOrderVO> result = getOrderList(request);
-        log.info("查询结果 - 总条数: {}, 总页数: {}, 当前页: {}, 每页大小: {}",
-                result.getTotal(), result.getPages(), result.getPage(), result.getSize());
-
-        List<FutureOrderVO> orders = result.getList();
-        if (orders != null && !orders.isEmpty()) {
-            log.info("未完成订单列表 ({} 条记录):", orders.size());
-            int index = 1;
-            for (FutureOrderVO order : orders) {
-                log.info("订单 #{}: {}", index++, order);
-            }
-        } else {
-            log.info("没有未完成的订单");
-        }
+    /**
+     * 测试 OPEN 别名查询（与 UNFINISHED 语义一致）
+     */
+    private void testQueryOpenOrders() throws HashExApiException {
+        log.info("===== 测试 OPEN 别名查询 =====");
+        queryAndPrint("btc_usdt", STATE_OPEN, "OPEN别名未完成订单");
     }
 
     /**
@@ -163,7 +177,7 @@ public class OrderListTest {
 
         OrderListRequest request = new OrderListRequest();
         request.setSymbol("btc_usdt");
-        request.setState("HISTORY"); // 历史订单
+        request.setState(STATE_HISTORY); // 历史订单
         request.setPage(1);
         request.setSize(10);
 
@@ -195,26 +209,73 @@ public class OrderListTest {
     private void testQueryOrdersByStatus() throws HashExApiException {
         log.info("===== 测试按特定状态查询订单 =====");
 
-        // 查询已取消的订单
+        queryAndPrint("btc_usdt", STATE_CANCELED, "已取消订单");
+    }
+
+    /**
+     * 测试按精确枚举状态查询（示例：NEW）
+     */
+    private void testQueryOrdersByExactState() throws HashExApiException {
+        log.info("===== 测试按精确枚举状态查询 =====");
+        queryAndPrint("btc_usdt", STATE_NEW, "NEW状态订单");
+    }
+
+    /**
+     * 全状态覆盖测试：逐个验证状态筛选是否可用，并统计是否存在数据
+     */
+    private void testAllStateCoverage() throws HashExApiException {
+        log.info("===== 全状态覆盖测试（用于文档收敛） =====");
+        List<String> states = Arrays.asList(
+                STATE_UNFINISHED,
+                STATE_OPEN,
+                STATE_HISTORY,
+                STATE_NEW,
+                STATE_PARTIALLY_FILLED,
+                STATE_FILLED,
+                STATE_CANCELED,
+                STATE_REJECTED,
+                STATE_EXPIRED
+        );
+
+        List<String> statesWithData = new ArrayList<>();
+        for (String state : states) {
+            OrderListRequest request = new OrderListRequest();
+            request.setSymbol("btc_usdt");
+            request.setState(state);
+            request.setPage(1);
+            request.setSize(10);
+
+            PageResult<FutureOrderVO> result = getOrderList(request);
+            long total = result.getTotal() == null ? 0 : result.getTotal();
+            if (total > 0) {
+                statesWithData.add(state);
+            }
+            log.info("STATE_CHECK | state={} | total={}", state, total);
+        }
+
+        log.info("STATE_WITH_DATA | {}", String.join(",", statesWithData));
+    }
+
+    private void queryAndPrint(String symbol, String state, String sceneName) throws HashExApiException {
         OrderListRequest request = new OrderListRequest();
-        request.setSymbol("btc_usdt");
-        request.setState("CANCELED"); // 已取消的订单
+        request.setSymbol(symbol);
+        request.setState(state);
         request.setPage(1);
         request.setSize(10);
 
         PageResult<FutureOrderVO> result = getOrderList(request);
-        log.info("已取消订单查询结果 - 总条数: {}, 总页数: {}, 当前页: {}, 每页大小: {}",
-                result.getTotal(), result.getPages(), result.getPage(), result.getSize());
+        log.info("{} 查询结果 - 总条数: {}, 总页数: {}, 当前页: {}, 每页大小: {}",
+                sceneName, result.getTotal(), result.getPages(), result.getPage(), result.getSize());
 
         List<FutureOrderVO> orders = result.getList();
         if (orders != null && !orders.isEmpty()) {
-            log.info("已取消订单列表 ({} 条记录):", orders.size());
+            log.info("{} 列表 ({} 条记录):", sceneName, orders.size());
             int index = 1;
             for (FutureOrderVO order : orders) {
                 log.info("订单 #{}: {}", index++, order);
             }
         } else {
-            log.info("没有已取消的订单");
+            log.info("{} 查询结果为空", sceneName);
         }
     }
 
@@ -259,9 +320,12 @@ public class OrderListTest {
         OrderListTest orderListTest = new OrderListTest();
 
         // 执行测试
+        orderListTest.testAllStateCoverage();
         orderListTest.testQueryUnfinishedOrders();
+        orderListTest.testQueryOpenOrders();
         orderListTest.testQueryHistoryOrders();
         orderListTest.testQueryOrdersByStatus();
+        orderListTest.testQueryOrdersByExactState();
         orderListTest.testQueryOrdersByTimeRange();
     }
 
@@ -450,7 +514,15 @@ public class OrderListTest {
         }
 
         public void setState(String state) {
-            this.state = state;
+            if (state == null) {
+                this.state = null;
+                return;
+            }
+            String normalized = state.trim().toUpperCase(Locale.ROOT);
+            if (!VALID_STATES.contains(normalized)) {
+                throw new IllegalArgumentException("invalid state: " + state + ", allowed: " + VALID_STATES);
+            }
+            this.state = normalized;
         }
 
         public Long getCreatedTime() {

@@ -592,13 +592,20 @@ HashEx 合约交易平台 API 提供了程序化交易的能力，允许开发�
 | 参数名 | 类型 | 是否必须 | 说明 |
 |-------|-----|---------|------|
 | symbol | String | 否 | 交易对 |
-| state | String | 否 | 订单状态：UNFINISHED(未完成)、HISTORY(历史)、CANCELED(已取消)等 |
+| state | String | 否 | 订单状态筛选（当前环境有数据）：UNFINISHED(未完成)、OPEN(未完成别名)、HISTORY(历史)、NEW(新建)、FILLED(全部成交)、CANCELED(已撤销) |
 | page | Integer | 否 | 页码，默认1 |
 | size | Integer | 否 | 每页大小，默认10 |
 | startTime | Long | 否 | 开始时间 |
 | endTime | Long | 否 | 结束时间 |
 | contractType | String | 否 | 合约类型 |
 | forceClose | Boolean | 否 | 是否强平 |
+
+**state 参数说明**:
+- `UNFINISHED` 与 `OPEN` 均表示“未完成订单”聚合筛选。
+- `HISTORY` 表示“历史订单”聚合筛选。
+- 其余值为精确状态筛选（`NEW`、`FILLED`、`CANCELED`）。
+- 状态值区分大小写，建议严格使用上述大写枚举。
+- 响应中的 `state` 在特定场景可能出现 `PARTIALLY_CANCELED`（仅返回值），该值不作为查询入参。
 
 **响应参数**:
 
@@ -695,6 +702,7 @@ HashEx 合约交易平台 API 提供了程序化交易的能力，允许开发�
 |-------|-----|---------|-----------|
 | symbol | String | 否 | 交易对       |
 | orderId | String | 否 | 订单ID      |
+| orderSide | String | 否 | 订单方向：BUY 或 SELL |
 | startTime | Long | 否 | 开始时间      |
 | endTime | Long | 否 | 结束时间      |
 | page | Integer | 否 | 页码，默认1    |
@@ -724,6 +732,8 @@ HashEx 合约交易平台 API 提供了程序化交易的能力，允许开发�
 | orderId | String | 订单ID  |
 | execId | String | 成交ID  |
 | symbol | String | 交易对   |
+| orderSide | String | 订单方向 |
+| positionSide | String | 持仓方向 |
 | quantity | String | 成交数量  |
 | price | String | 成交价格  |
 | fee | String | 手续费   |
@@ -744,6 +754,8 @@ HashEx 合约交易平台 API 提供了程序化交易的能力，允许开发�
             "orderId": "481556897766682496",
             "execId": "481556897976025155",
             "symbol": "btc_usdt",
+          "orderSide": "BUY",
+          "positionSide": "LONG",
             "quantity": "100",
             "price": "85360.2",
             "fee": "0.0426",

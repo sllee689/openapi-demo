@@ -43,6 +43,9 @@ public class OrderTradeListTest {
             if (request.getOrderId() != null) {
                 queryParams.put("orderId", request.getOrderId().toString());
             }
+            if (request.getOrderSide() != null) {
+                queryParams.put("orderSide", request.getOrderSide());
+            }
             if (request.getStartTime() != null) {
                 queryParams.put("startTime", request.getStartTime().toString());
             }
@@ -96,6 +99,8 @@ public class OrderTradeListTest {
                     tradeVO.setOrderId(item.getStr("orderId"));
                     tradeVO.setExecId(item.getStr("execId"));
                     tradeVO.setSymbol(item.getStr("symbol"));
+                    tradeVO.setOrderSide(item.getStr("orderSide"));
+                    tradeVO.setPositionSide(item.getStr("positionSide"));
                     tradeVO.setQuantity(item.getStr("quantity"));
                     tradeVO.setPrice(item.getStr("price"));
                     tradeVO.setFee(item.getStr("fee"));
@@ -224,6 +229,8 @@ public class OrderTradeListTest {
         private String orderId;       // 订单ID
         private String execId;        // 成交ID
         private String symbol;        // 交易对
+        private String orderSide;     // 订单方向
+        private String positionSide;  // 持仓方向
         private String quantity;      // 成交数量
         private String price;         // 成交价格
         private String fee;           // 手续费
@@ -257,6 +264,22 @@ public class OrderTradeListTest {
 
         public String getQuantity() {
             return quantity;
+        }
+
+        public String getOrderSide() {
+            return orderSide;
+        }
+
+        public void setOrderSide(String orderSide) {
+            this.orderSide = orderSide;
+        }
+
+        public String getPositionSide() {
+            return positionSide;
+        }
+
+        public void setPositionSide(String positionSide) {
+            this.positionSide = positionSide;
         }
 
         public void setQuantity(String quantity) {
@@ -300,10 +323,12 @@ public class OrderTradeListTest {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             String timeStr = timestamp != null ? sdf.format(new Date(timestamp)) : "未知";
 
-            return String.format("成交ID: %s | 订单ID: %s | 交易对: %s | 数量: %s | 价格: %s | 手续费: %s %s | 时间: %s",
+                return String.format("成交ID: %s | 订单ID: %s | 交易对: %s | 订单方向: %s | 持仓方向: %s | 数量: %s | 价格: %s | 手续费: %s %s | 时间: %s",
                     execId,
                     orderId,
                     symbol,
+                    orderSide,
+                    positionSide,
                     quantity,
                     price,
                     fee,
@@ -318,6 +343,7 @@ public class OrderTradeListTest {
     public static class TradeListRequest {
         private String symbol;      // 交易对
         private String orderId;     // 订单ID
+        private String orderSide;   // 订单方向
         private Long startTime;     // 开始时间
         private Long endTime;       // 结束时间
         private Integer page;       // 页码
@@ -337,6 +363,14 @@ public class OrderTradeListTest {
 
         public void setOrderId(String orderId) {
             this.orderId = orderId;
+        }
+
+        public String getOrderSide() {
+            return orderSide;
+        }
+
+        public void setOrderSide(String orderSide) {
+            this.orderSide = orderSide;
         }
 
         public Long getStartTime() {
