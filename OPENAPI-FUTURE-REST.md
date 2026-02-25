@@ -1111,6 +1111,378 @@ HashEx 合约交易平台 API 提供了程序化交易的能力，允许开发�
 }
 ```
 
+### 5.13 创建止盈止损委托
+
+**请求方法**: POST
+**接口路径**: `/fut/v1/entrust/create-profit`
+**是否签名**: 是
+
+**请求参数**:
+
+| 参数名 | 类型 | 是否必须 | 说明 |
+|-------|-----|---------|------|
+| symbol | String | 是 | 交易对，例如："btc_usdt" |
+| triggerProfitPrice | BigDecimal | 否 | 止盈触发价；与 `triggerStopPrice` 至少传一个 |
+| triggerStopPrice | BigDecimal | 否 | 止损触发价；与 `triggerProfitPrice` 至少传一个 |
+| triggerPriceType | String | 否 | 触发价格类型：`MARK_PRICE`(标记价格)、`LATEST_PRICE`(最新价格)，默认`LATEST_PRICE` |
+| positionId | Long | 否 | 仓位ID |
+| origQty | BigDecimal | 条件必填 | 委托数量（张）；`profitType=NORMAL` 时必填且须大于0，`profitType=ALL` 时无需传入 |
+| profitType | String | 否 | 止盈止损类型：`NORMAL`(按数量，默认)、`ALL`(全部仓位，无需origQty) |
+| expireTime | Long | 否 | 过期时间（毫秒时间戳） |
+
+**响应参数**:
+
+| 参数名 | 类型 | 说明 |
+|-------|-----|------|
+| code | Integer | 状态码，0表示成功 |
+| msg | String | 响应信息 |
+| data | String | 委托ID |
+
+**响应格式**:
+```json
+{
+   "code": 0,
+   "msg": "success",
+   "data": "596507084674713600"
+}
+```
+
+### 5.14 查询止盈止损委托列表
+
+**请求方法**: GET
+**接口路径**: `/fut/v1/entrust/profit-list`
+**是否签名**: 是
+
+**请求参数**:
+
+| 参数名 | 类型 | 是否必须 | 说明 |
+|-------|-----|---------|------|
+| symbol | String | 否 | 交易对 |
+| contractType | String | 否 | 合约类型：`PERPETUAL`(永续)，另有 `CURRENT_MONTH`(当月)、`NEXT_MONTH`(次月)、`CURRENT_QUARTER`(当季)、`NEXT_QUARTER`(次季) 等 |
+| positionSide | String | 否 | 仓位方向：`LONG`(多仓)、`SHORT`(空仓) |
+| state | String | 否 | 委托状态筛选：`UNFINISHED`(未触发，聚合)、`HISTORY`(历史，聚合)、`NOT_TRIGGERED`(未触发)、`TRIGGERED`(已触发)、`EXPIRED`(已过期)、`USER_REVOCATION`(用户撤销)、`PLATFORM_REVOCATION`(平台撤销) |
+| startTime | Long | 否 | 开始时间（毫秒时间戳） |
+| endTime | Long | 否 | 结束时间（毫秒时间戳） |
+| page | Integer | 否 | 页码，默认1 |
+| size | Integer | 否 | 每页大小，默认10 |
+
+**响应参数**:
+
+| 参数名 | 类型 | 说明 |
+|-------|-----|------|
+| code | Integer | 状态码，0表示成功 |
+| msg | String | 响应信息 |
+| data | Object | 分页数据 |
+
+**data对象字段**:
+
+| 参数名 | 类型 | 说明 |
+|-------|-----|------|
+| page | Integer | 当前页码 |
+| ps | Integer | 每页大小 |
+| total | Long | 总记录数 |
+| items | Array | 委托列表 |
+
+**items数组中每个对象的字段**:
+
+| 参数名 | 类型 | 说明 |
+|-------|-----|------|
+| profitId | String | 委托ID |
+| positionId | String | 持仓ID |
+| contractType | String | 合约类型：`PERPETUAL`(永续)、`CURRENT_MONTH`(当月)、`NEXT_MONTH`(次月)、`CURRENT_QUARTER`(当季)、`NEXT_QUARTER`(次季) 等 |
+| symbol | String | 交易对 |
+| profitType | String | 止盈止损类型：`NORMAL`(按数量/指定张数)、`ALL`(全部仓位) |
+| positionType | String | 仓位类型：`CROSSED`(全仓)、`ISOLATED`(逐仓) |
+| positionSide | String | 仓位方向：`LONG`(多仓)、`SHORT`(空仓) |
+| origQty | String | 委托数量（张） |
+| triggerPriceType | String | 触发价格类型：`MARK_PRICE`(标记价格)、`LATEST_PRICE`(最新价格) |
+| triggerProfitPrice | String | 止盈触发价 |
+| triggerStopPrice | String | 止损触发价 |
+| triggerPriceSide | Integer | 触发方向 |
+| entryPrice | String | 开仓均价 |
+| positionSize | String | 持仓数量 |
+| isolatedMargin | String | 逐仓保证金 |
+| triggerPrice | String | 当前触发价格 |
+| executedQty | String | 已执行数量 |
+| state | String | 委托状态（`NOT_TRIGGERED`未触发、`TRIGGERED`已触发、`EXPIRED`已过期、`USER_REVOCATION`用户撤销、`PLATFORM_REVOCATION`平台撤销） |
+| createdTime | Long | 创建时间 |
+| updatedTime | Long | 更新时间 |
+
+**响应格式**:
+```json
+{
+   "code": 0,
+   "msg": "success",
+   "data": {
+      "page": 1,
+      "ps": 10,
+      "total": 5,
+      "items": [
+         {
+            "profitId": "596521474568374272",
+            "positionId": "592447815234371840",
+            "contractType": "PERPETUAL",
+            "symbol": "btc_usdt",
+            "profitType": "NORMAL",
+            "positionType": "CROSSED",
+            "positionSide": "LONG",
+            "origQty": "3002",
+            "triggerPriceType": "LATEST_PRICE",
+            "triggerProfitPrice": "100000",
+            "triggerStopPrice": "30000",
+            "triggerPriceSide": 0,
+            "entryPrice": "66591.9",
+            "positionSize": "3002",
+            "isolatedMargin": "999.544",
+            "triggerPrice": "0",
+            "executedQty": "0",
+            "state": "NOT_TRIGGERED",
+            "createdTime": 1771923802386,
+            "updatedTime": 1771923802386
+         }
+      ]
+   }
+}
+```
+
+### 5.15 查询历史订单列表
+
+**请求方法**: GET
+**接口路径**: `/fut/v1/order/list-history`
+**是否签名**: 是
+
+**请求参数**:
+
+| 参数名 | 类型 | 是否必须 | 说明 |
+|-------|-----|---------|------|
+| symbol | String | 否 | 交易对 |
+| orderSide | String | 否 | 买卖方向：`BUY`(买入)、`SELL`(卖出) |
+| orderType | String | 否 | 订单类型：`LIMIT`(限价单)、`MARKET`(市价单) |
+| forceClose | Boolean | 否 | 是否强平订单 |
+| startTime | Long | 否 | 开始时间（毫秒时间戳） |
+| endTime | Long | 否 | 结束时间（毫秒时间戳） |
+| page | Integer | 否 | 页码，默认1 |
+| size | Integer | 否 | 每页大小，默认10 |
+| contractType | String | 否 | 合约类型：`PERPETUAL`(永续)，另有 `CURRENT_MONTH`(当月)、`NEXT_MONTH`(次月)、`CURRENT_QUARTER`(当季)、`NEXT_QUARTER`(次季) 等 |
+
+**响应参数**:
+
+| 参数名 | 类型 | 说明 |
+|-------|-----|------|
+| code | Integer | 状态码，0表示成功 |
+| msg | String | 响应信息 |
+| data | Object | 分页数据 |
+
+**data对象字段**:
+
+| 参数名 | 类型 | 说明 |
+|-------|-----|------|
+| hasPrev | Boolean | 是否有上一页 |
+| hasNext | Boolean | 是否有下一页 |
+| items | Array | 订单列表 |
+
+**items数组中每个对象的字段**:
+
+| 参数名 | 类型 | 说明 |
+|-------|-----|------|
+| orderId | String | 订单ID |
+| clientOrderId | String | 客户端订单ID，可能为null |
+| symbol | String | 交易对 |
+| contractType | String | 合约类型：`PERPETUAL`(永续)、`CURRENT_MONTH`(当月)、`NEXT_MONTH`(次月)、`CURRENT_QUARTER`(当季)、`NEXT_QUARTER`(次季) 等 |
+| orderType | String | 订单类型：`LIMIT`(限价单)、`MARKET`(市价单) |
+| orderSide | String | 买卖方向：`BUY`(买入)、`SELL`(卖出) |
+| leverage | Integer | 杠杆倍数 |
+| positionSide | String | 仓位方向：`LONG`(多仓)、`SHORT`(空仓) |
+| timeInForce | String | 有效方式：`GTC`(一直有效直到撤销)、`IOC`(立即成交剩余撤销)、`FOK`(全部成交或全部撤销)、`GTX`(Post-Only，只挂单) |
+| closePosition | Boolean | 是否平仓 |
+| price | String | 价格 |
+| origQty | String | 原始数量 |
+| avgPrice | String | 成交均价 |
+| executedQty | String | 已成交数量 |
+| marginFrozen | String | 冻结保证金 |
+| triggerProfitPrice | String | 止盈价 |
+| triggerStopPrice | String | 止损价 |
+| sourceId | String | 来源ID |
+| forceClose | Boolean | 是否强平 |
+| tradeFee | String | 交易费 |
+| closeProfit | String | 平仓盈亏 |
+| state | String | 订单状态（常见值：`NEW`、`PARTIALLY_FILLED`、`FILLED`、`CANCELED`、`PARTIALLY_CANCELED`） |
+| createdTime | Long | 创建时间 |
+| updatedTime | Long | 更新时间 |
+
+**响应格式**:
+```json
+{
+   "code": 0,
+   "msg": "success",
+   "data": {
+      "hasPrev": false,
+      "hasNext": true,
+      "items": [
+         {
+            "orderId": "592456494457801600",
+            "clientOrderId": null,
+            "symbol": "btc_usdt",
+            "contractType": "PERPETUAL",
+            "orderType": "MARKET",
+            "orderSide": "BUY",
+            "leverage": 20,
+            "positionSide": "LONG",
+            "timeInForce": "IOC",
+            "closePosition": false,
+            "price": "0",
+            "origQty": "3002",
+            "avgPrice": "66591.8",
+            "executedQty": "3002",
+            "marginFrozen": "999.6826",
+            "triggerProfitPrice": null,
+            "triggerStopPrice": null,
+            "sourceId": null,
+            "forceClose": false,
+            "tradeFee": "0.399",
+            "closeProfit": null,
+            "state": "FILLED",
+            "createdTime": 1770954635912,
+            "updatedTime": 1770954635914
+         }
+      ]
+   }
+}
+```
+
+### 5.16 查询资金账单
+
+**请求方法**: GET
+**接口路径**: `/fut/v1/balance/bills`
+**是否签名**: 是
+
+**请求参数**:
+
+| 参数名 | 类型 | 是否必须 | 说明 |
+|-------|-----|---------|------|
+| coin | String | 否 | 币种，例如："USDT" |
+| symbol | String | 否 | 交易对，例如："btc_usdt" |
+| balanceType | String | 否 | 账户类型：`CONTRACT`(合约)、`COPY`(跟单) |
+| type | String | 否 | 业务类型（示例：`FUND`，以服务端实际枚举为准） |
+| startTime | Long | 否 | 开始时间（毫秒时间戳） |
+| endTime | Long | 否 | 结束时间（毫秒时间戳） |
+| page | Integer | 否 | 页码，默认1 |
+| size | Integer | 否 | 每页大小，默认10 |
+
+**响应参数**:
+
+| 参数名 | 类型 | 说明 |
+|-------|-----|------|
+| code | Integer | 状态码，0表示成功 |
+| msg | String | 响应信息 |
+| data | Object | 分页数据 |
+
+**data对象字段**:
+
+| 参数名 | 类型 | 说明 |
+|-------|-----|------|
+| hasPrev | Boolean | 是否有上一页 |
+| hasNext | Boolean | 是否有下一页 |
+| items | Array | 账单列表 |
+
+**items数组中每个对象的字段**:
+
+| 参数名 | 类型 | 说明 |
+|-------|-----|------|
+| id | String | 账单ID |
+| coin | String | 币种 |
+| balanceType | String | 资金类型：`CONTRACT`(合约)、`COPY`(跟单) |
+| symbol | String | 交易对 |
+| positionId | Long | 持仓ID |
+| type | String | 业务类型，例如：`FUND` |
+| amount | String | 变动金额 |
+| side | String | 方向，可能为null |
+| afterAmount | String | 变动后余额 |
+| createdTime | Long | 创建时间 |
+
+**响应格式**:
+```json
+{
+   "code": 0,
+   "msg": "success",
+   "data": {
+      "hasPrev": false,
+      "hasNext": true,
+      "items": [
+         {
+            "id": "596490429839458560",
+            "coin": "usdt",
+            "balanceType": "CONTRACT",
+            "symbol": "btc_usdt",
+            "positionId": 592447815234371840,
+            "type": "FUND",
+            "amount": "1.2121",
+            "side": null,
+            "afterAmount": "7481.6302",
+            "createdTime": 1771916400730
+         }
+      ]
+   }
+}
+```
+
+### 5.17 查询持仓配置
+
+**请求方法**: GET
+**接口路径**: `/fut/v1/position/confs`
+**是否签名**: 是
+
+**请求参数**:
+
+| 参数名 | 类型 | 是否必须 | 说明 |
+|-------|-----|---------|------|
+| symbol | String | 是 | 交易对代码，建议小写下划线格式（示例：`btc_usdt`） |
+
+**响应参数**:
+
+| 参数名 | 类型 | 说明 |
+|-------|-----|------|
+| code | Integer | 状态码，0表示成功 |
+| msg | String | 响应信息 |
+| data | Array | 持仓配置列表 |
+
+**data数组中每个对象的字段**:
+
+| 参数名 | 类型 | 说明 |
+|-------|-----|------|
+| symbol | String | 交易对 |
+| leverage | Integer | 杠杆倍数 |
+| positionType | String | 仓位类型：`CROSSED`(全仓)、`ISOLATED`(逐仓) |
+| positionModel | String | 仓位模式：`AGGREGATION`(合仓)、`DISAGGREGATION`(分仓) |
+| positionSide | String | 持仓方向：`LONG`(多仓)、`SHORT`(空仓) |
+| autoMargin | Boolean | 是否自动追加保证金 |
+
+**响应格式**:
+```json
+{
+   "code": 0,
+   "msg": "success",
+   "data": [
+      {
+         "symbol": "btc_usdt",
+         "positionType": "CROSSED",
+         "positionSide": "SHORT",
+         "positionModel": "AGGREGATION",
+         "autoMargin": null,
+         "leverage": 20
+      },
+      {
+         "symbol": "btc_usdt",
+         "positionType": "CROSSED",
+         "positionSide": "LONG",
+         "positionModel": "AGGREGATION",
+         "autoMargin": null,
+         "leverage": 20
+      }
+   ]
+}
+```
+
 ## 6. 错误码说明
 
 | 错误码 | 说明 |
