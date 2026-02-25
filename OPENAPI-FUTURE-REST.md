@@ -1126,8 +1126,7 @@ HashEx 合约交易平台 API 提供了程序化交易的能力，允许开发�
 | triggerStopPrice | BigDecimal | 否 | 止损触发价；与 `triggerProfitPrice` 至少传一个 |
 | triggerPriceType | String | 否 | 触发价格类型：`MARK_PRICE`(标记价格)、`LATEST_PRICE`(最新价格)，默认`LATEST_PRICE` |
 | positionId | Long | 否 | 仓位ID |
-| origQty | BigDecimal | 条件必填 | 委托数量（张）；`profitType=NORMAL` 时必填且须大于0，`profitType=ALL` 时无需传入 |
-| profitType | String | 否 | 止盈止损类型：`NORMAL`(按数量，默认)、`ALL`(全部仓位，无需origQty) |
+| origQty | BigDecimal | 是 | 委托数量（张），必填且须大于0 |
 | expireTime | Long | 否 | 过期时间（毫秒时间戳） |
 
 **响应参数**:
@@ -1191,7 +1190,6 @@ HashEx 合约交易平台 API 提供了程序化交易的能力，允许开发�
 | positionId | String | 持仓ID |
 | contractType | String | 合约类型：`PERPETUAL`(永续)、`CURRENT_MONTH`(当月)、`NEXT_MONTH`(次月)、`CURRENT_QUARTER`(当季)、`NEXT_QUARTER`(次季) 等 |
 | symbol | String | 交易对 |
-| profitType | String | 止盈止损类型：`NORMAL`(按数量/指定张数)、`ALL`(全部仓位) |
 | positionType | String | 仓位类型：`CROSSED`(全仓)、`ISOLATED`(逐仓) |
 | positionSide | String | 仓位方向：`LONG`(多仓)、`SHORT`(空仓) |
 | origQty | String | 委托数量（张） |
@@ -1223,7 +1221,6 @@ HashEx 合约交易平台 API 提供了程序化交易的能力，允许开发�
             "positionId": "592447815234371840",
             "contractType": "PERPETUAL",
             "symbol": "btc_usdt",
-            "profitType": "NORMAL",
             "positionType": "CROSSED",
             "positionSide": "LONG",
             "origQty": "3002",

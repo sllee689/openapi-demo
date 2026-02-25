@@ -17,8 +17,6 @@ import java.util.TreeMap;
 public class EntrustCreateProfitTest {
 
     private static final Logger log = LoggerFactory.getLogger(EntrustCreateProfitTest.class);
-    private static final int MAX_RETRY_TIMES = 3;
-    private static final long RETRY_INTERVAL_MS = 1500L;
     private static ApiClient apiClient;
 
     public EntrustCreateProfitTest() {
@@ -44,8 +42,8 @@ public class EntrustCreateProfitTest {
             if (request.getTriggerProfitPrice() == null && request.getTriggerStopPrice() == null) {
                 throw new HashExApiException("止盈触发价和止损触发价至少填写一个");
             }
-            if ("NORMAL".equalsIgnoreCase(request.getProfitType()) && (request.getOrigQty() == null || request.getOrigQty().isEmpty())) {
-                throw new HashExApiException("profitType=NORMAL 时 origQty 必填");
+            if (request.getOrigQty() == null || request.getOrigQty().isEmpty()) {
+                throw new HashExApiException("origQty 必填");
             }
 
             // 创建参数Map
@@ -67,9 +65,6 @@ public class EntrustCreateProfitTest {
             }
             if (request.getOrigQty() != null) {
                 queryParams.put("origQty", request.getOrigQty());
-            }
-            if (request.getProfitType() != null) {
-                queryParams.put("profitType", request.getProfitType());
             }
             if (request.getExpireTime() != null) {
                 queryParams.put("expireTime", request.getExpireTime().toString());
@@ -101,58 +96,10 @@ public class EntrustCreateProfitTest {
         }
     }
 
-    private Object createProfitEntrustWithRetry(ProfitEntrustRequest request) throws HashExApiException {
-        HashExApiException lastException = null;
-
-        for (int attempt = 1; attempt <= MAX_RETRY_TIMES; attempt++) {
-            try {
-                return createProfitEntrust(request);
-            } catch (HashExApiException e) {
-                lastException = e;
-                if (!isRetryable(e) || attempt == MAX_RETRY_TIMES) {
-                    throw e;
-                }
-
-                log.warn("创建止盈止损委托第{}次失败(可重试): {}，{}ms后重试", attempt, e.getMessage(), RETRY_INTERVAL_MS);
-                try {
-                    Thread.sleep(RETRY_INTERVAL_MS);
-                } catch (InterruptedException interruptedException) {
-                    Thread.currentThread().interrupt();
-                    throw new HashExApiException("重试等待被中断", interruptedException);
-                }
-            }
-        }
-
-        throw lastException == null ? new HashExApiException("创建止盈止损委托失败，未获取到异常信息") : lastException;
-    }
-
-    private boolean isRetryable(HashExApiException e) {
-        String msg = e.getMessage();
-        if (msg == null) {
-            return false;
-        }
-        return msg.contains("状态码: 429")
-                || msg.contains("状态码: 500")
-                || msg.contains("状态码: 502")
-                || msg.contains("状态码: 503")
-                || msg.contains("状态码: 504")
-                || msg.contains("Read timed out")
-                || msg.contains("timeout")
-                || msg.contains("连接")
-                || msg.contains("Connection");
-    }
-
-    private void runCreateTest(ProfitEntrustRequest request, String scenario) throws HashExApiException {
-        try {
-            Object result = createProfitEntrustWithRetry(request);
-            log.info("{}结果（委托ID）: {}", scenario, result);
-        } catch (HashExApiException e) {
-            if (isRetryable(e)) {
-                log.warn("{}连续重试后仍失败，判定为环境波动，不作为用例失败: {}", scenario, e.getMessage());
-                return;
-            }
-            throw e;
-        }
+    private Object runCreateTest(ProfitEntrustRequest request, String scenario) throws HashExApiException {
+        Object result = createProfitEntrust(request);
+        log.info("{}结果（委托ID）: {}", scenario, result);
+        return result;
     }
 
     private void runCreateExpectFail(ProfitEntrustRequest request, String scenario) throws HashExApiException {
@@ -165,36 +112,6 @@ public class EntrustCreateProfitTest {
     }
 
     /**
-     * 测试创建止盈委托（全部仓位）
-     */
-    private void testCreateTakeProfitEntrust() throws HashExApiException {
-        log.info("===== 创建止盈委托测试 (profitType=ALL) =====");
-
-        ProfitEntrustRequest request = new ProfitEntrustRequest();
-        request.setSymbol("btc_usdt");
-        request.setTriggerProfitPrice("100000");
-        request.setTriggerPriceType("MARK_PRICE");
-        request.setProfitType("ALL");  // 全部仓位，无需传origQty
-
-        runCreateTest(request, "止盈委托创建");
-    }
-
-    /**
-     * 测试创建止损委托（全部仓位）
-     */
-    private void testCreateStopLossEntrust() throws HashExApiException {
-        log.info("===== 创建止损委托测试 (profitType=ALL) =====");
-
-        ProfitEntrustRequest request = new ProfitEntrustRequest();
-        request.setSymbol("btc_usdt");
-        request.setTriggerStopPrice("60000");
-        request.setTriggerPriceType("MARK_PRICE");
-        request.setProfitType("ALL");  // 全部仓位，无需传origQty
-
-        runCreateTest(request, "止损委托创建");
-    }
-
-    /**
      * 测试创建止盈止损委托（指定数量）
      */
     private void testCreateTakeProfitAndStopLoss() throws HashExApiException {
@@ -204,7 +121,6 @@ public class EntrustCreateProfitTest {
         request.setPositionId("592447815234371840");
         request.setSymbol("btc_usdt");
         request.setOrigQty("3002");
-        request.setProfitType("NORMAL");
         request.setTriggerProfitPrice("100000");
         request.setTriggerStopPrice("30000");
         request.setTriggerPriceType("LATEST_PRICE");
@@ -225,9 +141,11 @@ public class EntrustCreateProfitTest {
         runCreateTest(latestPriceReq, "LATEST_PRICE 创建");
 
         ProfitEntrustRequest markPriceReq = new ProfitEntrustRequest();
+        markPriceReq.setPositionId("592447815234371840");
         markPriceReq.setSymbol("btc_usdt");
-        markPriceReq.setProfitType("ALL");
+        markPriceReq.setOrigQty("3002");
         markPriceReq.setTriggerProfitPrice("100000");
+        markPriceReq.setTriggerStopPrice("30000");
         markPriceReq.setTriggerPriceType("MARK_PRICE");
         runCreateTest(markPriceReq, "MARK_PRICE 创建");
     }
@@ -241,29 +159,108 @@ public class EntrustCreateProfitTest {
         invalidTriggerTypeReq.setTriggerProfitPrice("100000");
         invalidTriggerTypeReq.setTriggerPriceType("BAD_TRIGGER_TYPE");
         runCreateExpectFail(invalidTriggerTypeReq, "非法triggerPriceType");
-
-        ProfitEntrustRequest invalidProfitTypeReq = new ProfitEntrustRequest();
-        invalidProfitTypeReq.setSymbol("btc_usdt");
-        invalidProfitTypeReq.setOrigQty("3002");
-        invalidProfitTypeReq.setTriggerProfitPrice("100000");
-        invalidProfitTypeReq.setTriggerPriceType("LATEST_PRICE");
-        invalidProfitTypeReq.setProfitType("BAD_PROFIT_TYPE");
-        runCreateExpectFail(invalidProfitTypeReq, "非法profitType");
     }
 
-    public static void main(String[] args) throws HashExApiException {
+    public static void main(String[] args) {
         apiClient = new ApiClient(
                 FutureTestConfig.BASE_URL,
                 FutureTestConfig.ACCESS_KEY,
                 FutureTestConfig.SECRET_KEY);
         EntrustCreateProfitTest test = new EntrustCreateProfitTest();
 
-        // 选择一个测试方法执行
-        test.testCreateTakeProfitAndStopLoss();
-        test.testCreateWithTriggerPriceTypeVariants();
-        test.testCreateWithInvalidEnumParams();
-        // test.testCreateTakeProfitEntrust();
-        // test.testCreateStopLossEntrust();
+        // ===== 组合1: LATEST_PRICE + positionId + origQty（止盈+止损）=====
+        try {
+            log.info("===== 组合1: LATEST_PRICE + positionId + origQty（止盈+止损）=====");
+            ProfitEntrustRequest req1 = new ProfitEntrustRequest();
+            req1.setPositionId("592447815234371840");
+            req1.setSymbol("btc_usdt");
+            req1.setOrigQty("3002");
+            req1.setTriggerProfitPrice("100000");
+            req1.setTriggerStopPrice("30000");
+            req1.setTriggerPriceType("LATEST_PRICE");
+            Object r1 = test.createProfitEntrust(req1);
+            log.info("组合1 ✅ 成功, 委托ID: {}", r1);
+        } catch (Exception e) {
+            log.error("组合1 ❌ 失败: {}", e.getMessage());
+        }
+
+        // ===== 组合2: MARK_PRICE + positionId + origQty（止盈+止损）=====
+        try {
+            log.info("===== 组合2: MARK_PRICE + positionId + origQty（止盈+止损）=====");
+            ProfitEntrustRequest req2 = new ProfitEntrustRequest();
+            req2.setPositionId("592447815234371840");
+            req2.setSymbol("btc_usdt");
+            req2.setOrigQty("3002");
+            req2.setTriggerProfitPrice("100000");
+            req2.setTriggerStopPrice("30000");
+            req2.setTriggerPriceType("MARK_PRICE");
+            Object r2 = test.createProfitEntrust(req2);
+            log.info("组合2 ✅ 成功, 委托ID: {}", r2);
+        } catch (Exception e) {
+            log.error("组合2 ❌ 失败: {}", e.getMessage());
+        }
+
+        // ===== 组合3: LATEST_PRICE + 只止盈 =====
+        try {
+            log.info("===== 组合3: LATEST_PRICE + 只止盈 =====");
+            ProfitEntrustRequest req3 = new ProfitEntrustRequest();
+            req3.setPositionId("592447815234371840");
+            req3.setSymbol("btc_usdt");
+            req3.setOrigQty("3002");
+            req3.setTriggerProfitPrice("100000");
+            req3.setTriggerPriceType("LATEST_PRICE");
+            Object r3 = test.createProfitEntrust(req3);
+            log.info("组合3 ✅ 成功, 委托ID: {}", r3);
+        } catch (Exception e) {
+            log.error("组合3 ❌ 失败: {}", e.getMessage());
+        }
+
+        // ===== 组合4: MARK_PRICE + 只止盈 =====
+        try {
+            log.info("===== 组合4: MARK_PRICE + 只止盈 =====");
+            ProfitEntrustRequest req4 = new ProfitEntrustRequest();
+            req4.setPositionId("592447815234371840");
+            req4.setSymbol("btc_usdt");
+            req4.setOrigQty("3002");
+            req4.setTriggerProfitPrice("100000");
+            req4.setTriggerPriceType("MARK_PRICE");
+            Object r4 = test.createProfitEntrust(req4);
+            log.info("组合4 ✅ 成功, 委托ID: {}", r4);
+        } catch (Exception e) {
+            log.error("组合4 ❌ 失败: {}", e.getMessage());
+        }
+
+        // ===== 组合5: LATEST_PRICE + 只止损 =====
+        try {
+            log.info("===== 组合5: LATEST_PRICE + 只止损 =====");
+            ProfitEntrustRequest req5 = new ProfitEntrustRequest();
+            req5.setPositionId("592447815234371840");
+            req5.setSymbol("btc_usdt");
+            req5.setOrigQty("3002");
+            req5.setTriggerStopPrice("30000");
+            req5.setTriggerPriceType("LATEST_PRICE");
+            Object r5 = test.createProfitEntrust(req5);
+            log.info("组合5 ✅ 成功, 委托ID: {}", r5);
+        } catch (Exception e) {
+            log.error("组合5 ❌ 失败: {}", e.getMessage());
+        }
+
+        // ===== 组合6: 不传 triggerPriceType（用默认值）=====
+        try {
+            log.info("===== 组合6: 不传triggerPriceType =====");
+            ProfitEntrustRequest req6 = new ProfitEntrustRequest();
+            req6.setPositionId("592447815234371840");
+            req6.setSymbol("btc_usdt");
+            req6.setOrigQty("3002");
+            req6.setTriggerProfitPrice("100000");
+            req6.setTriggerStopPrice("30000");
+            Object r6 = test.createProfitEntrust(req6);
+            log.info("组合6 ✅ 成功, 委托ID: {}", r6);
+        } catch (Exception e) {
+            log.error("组合6 ❌ 失败: {}", e.getMessage());
+        }
+
+        log.info("===== 所有组合测试完毕 =====");
     }
 
     /**
@@ -275,8 +272,7 @@ public class EntrustCreateProfitTest {
         private String triggerStopPrice;       // 止损触发价
         private String triggerPriceType;       // 触发价格类型：MARK_PRICE(标记价格)、LATEST_PRICE(最新价格)
         private String positionId;             // 仓位ID
-        private String origQty;               // 委托数量（张），profitType=NORMAL 时必填且须大于0
-        private String profitType;            // 止盈止损类型：NORMAL(按数量，默认)、ALL(全部仓位，无需origQty)
+        private String origQty;               // 委托数量（张），必填且须大于0
         private Long expireTime;              // 过期时间
 
         public String getSymbol() { return symbol; }
@@ -291,8 +287,6 @@ public class EntrustCreateProfitTest {
         public void setPositionId(String positionId) { this.positionId = positionId; }
         public String getOrigQty() { return origQty; }
         public void setOrigQty(String origQty) { this.origQty = origQty; }
-        public String getProfitType() { return profitType; }
-        public void setProfitType(String profitType) { this.profitType = profitType; }
         public Long getExpireTime() { return expireTime; }
         public void setExpireTime(Long expireTime) { this.expireTime = expireTime; }
     }
