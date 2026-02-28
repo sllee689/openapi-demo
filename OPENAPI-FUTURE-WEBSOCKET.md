@@ -372,16 +372,22 @@ HashEx交易平台提供合约WebSocket接口，支持实时订阅行情数据�
 - `positionId`: 持仓ID
 - `contractType`: 合约类型
 - `positionType`: 持仓类型（CROSSED全仓，ISOLATED逐仓）
+- `balanceType`: 余额类型
 - `positionModel`: 持仓模式（AGGREGATION聚合，INDEPENDENT单向）
 - `positionSide`: 持仓方向（LONG多，SHORT空）
 - `positionSize`: 持仓量
-- `availableCloseSize`: 可平数量
+- `closeOrderSize`: 平仓委托数量
+- `availableCloseSize`: 可平数量（= positionSize - closeOrderSize）
+- `realizedProfit`: 已实现盈亏
 - `entryPrice`: 开仓均价
 - `isolatedMargin`: 逐仓保证金
-- `openOrderMarginFrozen`: 委托冻结
-- `leverage`: 杠杆
+- `bounsMargin`: 奖励保证金
+- `openOrderMarginFrozen`: 委托冻结保证金
+- `underlyingType`: 标的类型（1币本位，2U本位）
 - `unsettledProfit`: 未结盈亏
-- `work`: 是否有效
+- `autoMargin`: 是否自动追加保证金
+- `leverage`: 杠杆
+- `work`: 是否有效持仓
 
 ```json
 {
@@ -389,17 +395,23 @@ HashEx交易平台提供合约WebSocket接口，支持实时订阅行情数据�
   "data": {
     "symbol": "btc_usdt",
     "positionId": "123456789",
-    "contractType": "perpetual",
+    "contractType": "PERPETUAL",
     "positionType": "CROSSED",
+    "balanceType": "CONTRACT",
     "positionModel": "AGGREGATION",
     "positionSide": "LONG",
     "positionSize": "0.5",
+    "closeOrderSize": "0.0",
     "availableCloseSize": "0.5",
+    "realizedProfit": "0.0",
     "entryPrice": "30000.00",
     "isolatedMargin": "0.0",
+    "bounsMargin": "0.0",
     "openOrderMarginFrozen": "0.0",
-    "leverage": "10",
+    "underlyingType": "2",
     "unsettledProfit": "0.01",
+    "autoMargin": false,
+    "leverage": 10,
     "work": true
   }
 }
@@ -412,6 +424,7 @@ HashEx交易平台提供合约WebSocket接口，支持实时订阅行情数据�
 - `positionType`: 持仓类型（CROSSED全仓，ISOLATED逐仓）
 - `positionModel`: 持仓模式（AGGREGATION聚合，INDEPENDENT单向）
 - `positionSide`: 持仓方向（LONG多，SHORT空）
+- `autoMargin`: 是否自动追加保证金
 - `leverage`: 杠杆
 
 ```json
@@ -422,7 +435,8 @@ HashEx交易平台提供合约WebSocket接口，支持实时订阅行情数据�
     "positionType": "CROSSED",
     "positionModel": "AGGREGATION",
     "positionSide": "LONG",
-    "leverage": "10"
+    "autoMargin": false,
+    "leverage": 10
   }
 }
 ```
@@ -440,16 +454,17 @@ HashEx交易平台提供合约WebSocket接口，支持实时订阅行情数据�
 - `orderSide`: 买卖方向（BUY买入，SELL卖出）
 - `positionSide`: 持仓方向（LONG做多，SHORT做空）
 - `marginFrozen`: 冻结保证金
-- `state`: 订单状态
 - `sourceType`: 来源类型
-- `createTime`: 创建时间
+- `sourceId`: 来源ID（可为 null，如止盈止损触发的来源单 ID）
+- `state`: 订单状态
+- `createTime`: 创建时间戳（ms）
 
 ```json
 {
   "channel": "user.order",
   "data": {
     "symbol": "btc_usdt",
-    "contractType": "perpetual",
+    "contractType": "PERPETUAL",
     "orderId": "475533479170587712",
     "origQty": "0.1",
     "avgPrice": "30050.00",
@@ -458,8 +473,9 @@ HashEx交易平台提供合约WebSocket接口，支持实时订阅行情数据�
     "orderSide": "BUY",
     "positionSide": "LONG",
     "marginFrozen": "150.25",
-    "state": "PARTIALLY_FILLED",
     "sourceType": "WEB",
+    "sourceId": null,
+    "state": "PARTIALLY_FILLED",
     "createTime": 1687245871234
   }
 }

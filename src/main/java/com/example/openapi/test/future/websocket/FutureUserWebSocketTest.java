@@ -226,6 +226,7 @@ public class FutureUserWebSocketTest {
             String balanceType = data.getStr("balanceType");
             int underlyingType = data.getInt("underlyingType");
             String walletBalance = data.getStr("walletBalance");
+            String bonus = data.getStr("bonus");
             String openOrderMarginFrozen = data.getStr("openOrderMarginFrozen");
             String isolatedMargin = data.getStr("isolatedMargin");
             String crossedMargin = data.getStr("crossedMargin");
@@ -233,9 +234,9 @@ public class FutureUserWebSocketTest {
 
             String underlyingTypeStr = underlyingType == 1 ? "币本位" : "U本位";
 
-            Console.log("收到余额更新: 币种:{}, 账户类型:{}, 类型:{}, 钱包余额:{}, 委托冻结:{}, " +
+            Console.log("收到余额更新: 币种:{}, 账户类型:{}, 类型:{}, 钱包余额:{}, 赠金:{}, 委托冻结:{}, " +
                             "逐仓保证金:{}, 全仓保证金:{}, 可用余额:{}",
-                    coin, balanceType, underlyingTypeStr, walletBalance, openOrderMarginFrozen,
+                    coin, balanceType, underlyingTypeStr, walletBalance, bonus, openOrderMarginFrozen,
                     isolatedMargin, crossedMargin, availableBalance);
         }
 
@@ -248,15 +249,21 @@ public class FutureUserWebSocketTest {
             String positionId = data.getStr("positionId");
             String contractType = data.getStr("contractType");
             String positionType = data.getStr("positionType");
+            String balanceType = data.getStr("balanceType");
             String positionModel = data.getStr("positionModel");
             String positionSide = data.getStr("positionSide");
             String positionSize = data.getStr("positionSize");
+            String closeOrderSize = data.getStr("closeOrderSize");
             String availableCloseSize = data.getStr("availableCloseSize");
+            String realizedProfit = data.getStr("realizedProfit");
             String entryPrice = data.getStr("entryPrice");
             String isolatedMargin = data.getStr("isolatedMargin");
+            String bounsMargin = data.getStr("bounsMargin");
             String openOrderMarginFrozen = data.getStr("openOrderMarginFrozen");
-            String leverage = data.getStr("leverage");
+            String underlyingType = data.getStr("underlyingType");
             String unsettledProfit = data.getStr("unsettledProfit");
+            boolean autoMargin = data.getBool("autoMargin", false);
+            String leverage = data.getStr("leverage");
             boolean work = data.getBool("work", true);
 
             // 转换持仓方向为更友好的显示
@@ -268,12 +275,14 @@ public class FutureUserWebSocketTest {
             // 转换持仓模式为更友好的显示
             String positionModelStr = "AGGREGATION".equals(positionModel) ? "聚合" : "单向";
 
-            Console.log("收到持仓更新: 交易对:{}, 仓位ID:{}, 合约类型:{}, 保证金类型:{}, 持仓模式:{}, " +
-                            "方向:{}, 持仓量:{}, 可平量:{}, 开仓均价:{}, 保证金:{}, 委托冻结:{}, " +
-                            "杠杆:{}, 未结盈亏:{}, 有效:{}",
-                    symbol, positionId, contractType, positionTypeStr, positionModelStr,
-                    directionStr, positionSize, availableCloseSize, entryPrice, isolatedMargin,
-                    openOrderMarginFrozen, leverage, unsettledProfit, work ? "是" : "否");
+            Console.log("收到持仓更新: 交易对:{}, 仓位ID:{}, 合约类型:{}, 保证金类型:{}, 余额类型:{}, 持仓模式:{}, " +
+                            "方向:{}, 持仓量:{}, 平仓委托:{}, 可平量:{}, 已实现盈亏:{}, 开仓均价:{}, " +
+                            "逐仓保证金:{}, 奖励保证金:{}, 委托冻结:{}, 标的类型:{}, 未结盈亏:{}, " +
+                            "自动追保:{}, 杠杆:{}, 有效:{}",
+                    symbol, positionId, contractType, positionTypeStr, balanceType, positionModelStr,
+                    directionStr, positionSize, closeOrderSize, availableCloseSize, realizedProfit, entryPrice,
+                    isolatedMargin, bounsMargin, openOrderMarginFrozen, underlyingType, unsettledProfit,
+                    autoMargin ? "是" : "否", leverage, work ? "是" : "否");
         }
 
         /**
@@ -285,6 +294,7 @@ public class FutureUserWebSocketTest {
             String positionType = data.getStr("positionType");
             String positionModel = data.getStr("positionModel");
             String positionSide = data.getStr("positionSide");
+            boolean autoMargin = data.getBool("autoMargin", false);
             String leverage = data.getStr("leverage");
 
             // 转换为友好显示
@@ -292,8 +302,8 @@ public class FutureUserWebSocketTest {
             String positionModelStr = "AGGREGATION".equals(positionModel) ? "聚合" : "单向";
             String directionStr = "LONG".equals(positionSide) ? "多" : "空";
 
-            Console.log("收到持仓配置: 交易对:{}, 保证金类型:{}, 持仓模式:{}, 方向:{}, 杠杆:{}",
-                    symbol, positionTypeStr, positionModelStr, directionStr, leverage);
+            Console.log("收到持仓配置: 交易对:{}, 保证金类型:{}, 持仓模式:{}, 方向:{}, 自动追保:{}, 杠杆:{}",
+                    symbol, positionTypeStr, positionModelStr, directionStr, autoMargin ? "是" : "否", leverage);
         }
 
         /**
@@ -311,8 +321,9 @@ public class FutureUserWebSocketTest {
             String orderSide = data.getStr("orderSide");
             String positionSide = data.getStr("positionSide");
             String marginFrozen = data.getStr("marginFrozen");
-            String state = data.getStr("state");
             String sourceType = data.getStr("sourceType");
+            String sourceId = data.getStr("sourceId");
+            String state = data.getStr("state");
             long createTime = data.getLong("createTime");
 
             // 转换为友好显示
@@ -331,10 +342,10 @@ public class FutureUserWebSocketTest {
 
             Console.log("收到订单更新: 交易对:{}, 合约:{}, 订单ID:{}, {}{}, " +
                             "价格:{}, 数量:{}, 已成交:{}, 成交均价:{}, " +
-                            "冻结保证金:{}, 来源:{}, 状态:{}, 时间:{}",
+                            "冻结保证金:{}, 来源类型:{}, 来源ID:{}, 状态:{}, 时间:{}",
                     symbol, contractType, orderId, sideStr, positionSideStr,
                     price, origQty, executedQty, avgPrice,
-                    marginFrozen, sourceType, stateStr, new Date(createTime));
+                    marginFrozen, sourceType, sourceId, stateStr, new Date(createTime));
         }
 
         /**
