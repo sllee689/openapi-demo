@@ -1,8 +1,8 @@
 # MGBX Futures WebSocket API Documentation
 
-> ⚠️ **Important Notice**: Futures trading requires activation by contacting customer service. Please reach out to our online customer service through the official website or send an email to the support mailbox to apply for futures trading access. Once activated, you can use the following WebSocket endpoints for real-time futures data subscriptions.
-
 ## 1. WebSocket Overview
+
+> ⚠️ **Important Notice**: Futures trading requires activation by contacting customer service. Please reach out to our online customer service through the official website or send an email to the support mailbox to apply for futures trading access. Once activated, you can use the following WebSocket endpoints for real-time futures data subscriptions.
 
 The MGBX trading platform provides futures WebSocket interfaces that support real-time subscription to market data and user data. Compared to REST API, WebSocket offers lower latency and higher efficiency. WebSocket connections do not require authentication to subscribe to market data, but authentication via listenKey is required for subscribing to private user data.
 

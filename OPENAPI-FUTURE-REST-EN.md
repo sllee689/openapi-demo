@@ -1,8 +1,9 @@
 # MGBX Futures OpenAPI Documentation
 
+## 1. API Overview
+
 > ⚠️ **Important Notice**: Futures trading requires activation by contacting customer service. Please reach out to our online customer service through the official website or send an email to the support mailbox to apply for futures trading access. Once activated, you can use the following API endpoints for futures trading.
 
-## 1. API Overview
 The MGBX Futures Trading Platform API provides programmatic trading capabilities, allowing developers to create orders, query market data, and other functions via HTTP requests.
 
 ## 2. Service Address
