@@ -57,6 +57,10 @@ pipeline {
                     WEBSOCKET_DOC_PATH=""
                     REST_EN_DOC_PATH=""
                     WEBSOCKET_EN_DOC_PATH=""
+                    FUTURE_REST_DOC_PATH=""
+                    FUTURE_WEBSOCKET_DOC_PATH=""
+                    FUTURE_REST_EN_DOC_PATH=""
+                    FUTURE_WEBSOCKET_EN_DOC_PATH=""
 
                     # 复制预先准备好的图片文件
                     if [ -d "${CONFIGS_DIR}/static/img" ]; then
@@ -87,6 +91,27 @@ pipeline {
                         echo "在configs目录找到英文WebSocket API文档"
                     fi
 
+                    # 查找合约文档 - configs目录
+                    if [ -f "${WORKSPACE}/${CONFIGS_DIR}/OPENAPI-FUTURE-REST.md" ]; then
+                        FUTURE_REST_DOC_PATH="${WORKSPACE}/${CONFIGS_DIR}/OPENAPI-FUTURE-REST.md"
+                        echo "在configs目录找到合约REST API文档"
+                    fi
+
+                    if [ -f "${WORKSPACE}/${CONFIGS_DIR}/OPENAPI-FUTURE-WEBSOCKET.md" ]; then
+                        FUTURE_WEBSOCKET_DOC_PATH="${WORKSPACE}/${CONFIGS_DIR}/OPENAPI-FUTURE-WEBSOCKET.md"
+                        echo "在configs目录找到合约WebSocket API文档"
+                    fi
+
+                    if [ -f "${WORKSPACE}/${CONFIGS_DIR}/OPENAPI-FUTURE-REST-EN.md" ]; then
+                        FUTURE_REST_EN_DOC_PATH="${WORKSPACE}/${CONFIGS_DIR}/OPENAPI-FUTURE-REST-EN.md"
+                        echo "在configs目录找到英文合约REST API文档"
+                    fi
+
+                    if [ -f "${WORKSPACE}/${CONFIGS_DIR}/OPENAPI-FUTURE-WEBSOCKET-EN.md" ]; then
+                        FUTURE_WEBSOCKET_EN_DOC_PATH="${WORKSPACE}/${CONFIGS_DIR}/OPENAPI-FUTURE-WEBSOCKET-EN.md"
+                        echo "在configs目录找到英文合约WebSocket API文档"
+                    fi
+
                     # 2. 检查项目根目录
                     if [ -z "$REST_DOC_PATH" ] && [ -f "${WORKSPACE}/OPENAPI-SPOT-REST.md" ]; then
                         REST_DOC_PATH="${WORKSPACE}/OPENAPI-SPOT-REST.md"
@@ -106,6 +131,27 @@ pipeline {
                     if [ -z "$WEBSOCKET_EN_DOC_PATH" ] && [ -f "${WORKSPACE}/OPENAPI-SPOT-WEBSOCKET-EN.md" ]; then
                         WEBSOCKET_EN_DOC_PATH="${WORKSPACE}/OPENAPI-SPOT-WEBSOCKET-EN.md"
                         echo "在根目录找到英文WebSocket API文档"
+                    fi
+
+                    # 查找合约文档 - 根目录
+                    if [ -z "$FUTURE_REST_DOC_PATH" ] && [ -f "${WORKSPACE}/OPENAPI-FUTURE-REST.md" ]; then
+                        FUTURE_REST_DOC_PATH="${WORKSPACE}/OPENAPI-FUTURE-REST.md"
+                        echo "在根目录找到合约REST API文档"
+                    fi
+
+                    if [ -z "$FUTURE_WEBSOCKET_DOC_PATH" ] && [ -f "${WORKSPACE}/OPENAPI-FUTURE-WEBSOCKET.md" ]; then
+                        FUTURE_WEBSOCKET_DOC_PATH="${WORKSPACE}/OPENAPI-FUTURE-WEBSOCKET.md"
+                        echo "在根目录找到合约WebSocket API文档"
+                    fi
+
+                    if [ -z "$FUTURE_REST_EN_DOC_PATH" ] && [ -f "${WORKSPACE}/OPENAPI-FUTURE-REST-EN.md" ]; then
+                        FUTURE_REST_EN_DOC_PATH="${WORKSPACE}/OPENAPI-FUTURE-REST-EN.md"
+                        echo "在根目录找到英文合约REST API文档"
+                    fi
+
+                    if [ -z "$FUTURE_WEBSOCKET_EN_DOC_PATH" ] && [ -f "${WORKSPACE}/OPENAPI-FUTURE-WEBSOCKET-EN.md" ]; then
+                        FUTURE_WEBSOCKET_EN_DOC_PATH="${WORKSPACE}/OPENAPI-FUTURE-WEBSOCKET-EN.md"
+                        echo "在根目录找到英文合约WebSocket API文档"
                     fi
 
                     # 3. 检查其他可能的目录
@@ -129,17 +175,46 @@ pipeline {
                             WEBSOCKET_EN_DOC_PATH="${DIR}/OPENAPI-SPOT-WEBSOCKET-EN.md"
                             echo "在 ${DIR} 目录找到英文WebSocket API文档"
                         fi
+
+                        # 查找合约文档
+                        if [ -z "$FUTURE_REST_DOC_PATH" ] && [ -f "${DIR}/OPENAPI-FUTURE-REST.md" ]; then
+                            FUTURE_REST_DOC_PATH="${DIR}/OPENAPI-FUTURE-REST.md"
+                            echo "在 ${DIR} 目录找到合约REST API文档"
+                        fi
+
+                        if [ -z "$FUTURE_WEBSOCKET_DOC_PATH" ] && [ -f "${DIR}/OPENAPI-FUTURE-WEBSOCKET.md" ]; then
+                            FUTURE_WEBSOCKET_DOC_PATH="${DIR}/OPENAPI-FUTURE-WEBSOCKET.md"
+                            echo "在 ${DIR} 目录找到合约WebSocket API文档"
+                        fi
+
+                        if [ -z "$FUTURE_REST_EN_DOC_PATH" ] && [ -f "${DIR}/OPENAPI-FUTURE-REST-EN.md" ]; then
+                            FUTURE_REST_EN_DOC_PATH="${DIR}/OPENAPI-FUTURE-REST-EN.md"
+                            echo "在 ${DIR} 目录找到英文合约REST API文档"
+                        fi
+
+                        if [ -z "$FUTURE_WEBSOCKET_EN_DOC_PATH" ] && [ -f "${DIR}/OPENAPI-FUTURE-WEBSOCKET-EN.md" ]; then
+                            FUTURE_WEBSOCKET_EN_DOC_PATH="${DIR}/OPENAPI-FUTURE-WEBSOCKET-EN.md"
+                            echo "在 ${DIR} 目录找到英文合约WebSocket API文档"
+                        fi
                     done
 
                     echo "${REST_DOC_PATH}" > rest_doc_path.txt
                     echo "${WEBSOCKET_DOC_PATH}" > websocket_doc_path.txt
                     echo "${REST_EN_DOC_PATH}" > rest_en_doc_path.txt
                     echo "${WEBSOCKET_EN_DOC_PATH}" > websocket_en_doc_path.txt
+                    echo "${FUTURE_REST_DOC_PATH}" > future_rest_doc_path.txt
+                    echo "${FUTURE_WEBSOCKET_DOC_PATH}" > future_websocket_doc_path.txt
+                    echo "${FUTURE_REST_EN_DOC_PATH}" > future_rest_en_doc_path.txt
+                    echo "${FUTURE_WEBSOCKET_EN_DOC_PATH}" > future_websocket_en_doc_path.txt
 
                     echo "REST文档路径: ${REST_DOC_PATH}"
                     echo "WebSocket文档路径: ${WEBSOCKET_DOC_PATH}"
                     echo "英文REST文档路径: ${REST_EN_DOC_PATH}"
                     echo "英文WebSocket文档路径: ${WEBSOCKET_EN_DOC_PATH}"
+                    echo "合约REST文档路径: ${FUTURE_REST_DOC_PATH}"
+                    echo "合约WebSocket文档路径: ${FUTURE_WEBSOCKET_DOC_PATH}"
+                    echo "英文合约REST文档路径: ${FUTURE_REST_EN_DOC_PATH}"
+                    echo "英文合约WebSocket文档路径: ${FUTURE_WEBSOCKET_EN_DOC_PATH}"
                 '''
             }
         }
@@ -152,6 +227,10 @@ pipeline {
                     WEBSOCKET_DOC_PATH=$(cat websocket_doc_path.txt)
                     REST_EN_DOC_PATH=$(cat rest_en_doc_path.txt)
                     WEBSOCKET_EN_DOC_PATH=$(cat websocket_en_doc_path.txt)
+                    FUTURE_REST_DOC_PATH=$(cat future_rest_doc_path.txt)
+                    FUTURE_WEBSOCKET_DOC_PATH=$(cat future_websocket_doc_path.txt)
+                    FUTURE_REST_EN_DOC_PATH=$(cat future_rest_en_doc_path.txt)
+                    FUTURE_WEBSOCKET_EN_DOC_PATH=$(cat future_websocket_en_doc_path.txt)
 
                     # 处理中文REST API文档
                     if [ -n "$REST_DOC_PATH" ] && [ -f "$REST_DOC_PATH" ]; then
@@ -177,6 +256,28 @@ pipeline {
                         echo -e "---\\nid: websocket\\nslug: api/websocket\\ntitle: WebSocket API\\ndescription: MGBX WebSocket API接入文档\\n---\\n\\n# WebSocket API\\n\\n文档正在更新中..." > "${API_DOCS_DIR}/websocket.md"
                     fi
 
+                    # 处理中文合约REST API文档
+                    if [ -n "$FUTURE_REST_DOC_PATH" ] && [ -f "$FUTURE_REST_DOC_PATH" ]; then
+                        cp -f "${FUTURE_REST_DOC_PATH}" "${API_DOCS_DIR}/futures-rest.md"
+                        echo "已复制合约REST API文档: ${FUTURE_REST_DOC_PATH} -> ${API_DOCS_DIR}/futures-rest.md"
+                        sed -i '1i ---\\nid: futures-rest\\nslug: api/futures-rest\\ntitle: 合约 REST API\\ndescription: MGBX 合约 REST API接入文档\\n---\\n' "${API_DOCS_DIR}/futures-rest.md"
+                        echo "已添加合约REST文档前置元数据"
+                    else
+                        echo "警告: 未找到合约REST API文档，创建空文档"
+                        echo -e "---\\nid: futures-rest\\nslug: api/futures-rest\\ntitle: 合约 REST API\\ndescription: MGBX 合约 REST API接入文档\\n---\\n\\n# 合约 REST API\\n\\n文档正在更新中..." > "${API_DOCS_DIR}/futures-rest.md"
+                    fi
+
+                    # 处理中文合约WebSocket API文档
+                    if [ -n "$FUTURE_WEBSOCKET_DOC_PATH" ] && [ -f "$FUTURE_WEBSOCKET_DOC_PATH" ]; then
+                        cp -f "${FUTURE_WEBSOCKET_DOC_PATH}" "${API_DOCS_DIR}/futures-websocket.md"
+                        echo "已复制合约WebSocket API文档: ${FUTURE_WEBSOCKET_DOC_PATH} -> ${API_DOCS_DIR}/futures-websocket.md"
+                        sed -i '1i ---\\nid: futures-websocket\\nslug: api/futures-websocket\\ntitle: 合约 WebSocket API\\ndescription: MGBX 合约 WebSocket API接入文档\\n---\\n' "${API_DOCS_DIR}/futures-websocket.md"
+                        echo "已添加合约WebSocket文档前置元数据"
+                    else
+                        echo "警告: 未找到合约WebSocket API文档，创建空文档"
+                        echo -e "---\\nid: futures-websocket\\nslug: api/futures-websocket\\ntitle: 合约 WebSocket API\\ndescription: MGBX 合约 WebSocket API接入文档\\n---\\n\\n# 合约 WebSocket API\\n\\n文档正在更新中..." > "${API_DOCS_DIR}/futures-websocket.md"
+                    fi
+
                     # 创建中文首页文档
                     echo "创建中文版intro.md..."
                     cat > "${DOCUSAURUS_DIR}/docs/intro.md" << EOF
@@ -194,8 +295,13 @@ title: MGBX API 文档中心
 
 ## 文档导航
 
+### 现货
 - [REST API](api/api/rest) - HTTP 接口，用于交易、账户管理等操作
 - [WebSocket API](api/api/websocket) - 实时数据推送，用于行情订阅
+
+### 合约
+- [合约 REST API](api/api/futures-rest) - 合约交易 HTTP 接口
+- [合约 WebSocket API](api/api/futures-websocket) - 合约实时数据推送
 
 ## 快速开始
 
@@ -234,6 +340,28 @@ EOF
                         echo -e "---\\nid: websocket\\nslug: api/websocket\\ntitle: WebSocket API\\ndescription: MGBX WebSocket API Documentation\\n---\\n\\n# WebSocket API\\n\\nDocumentation is being updated..." > "${DOCUSAURUS_DIR}/i18n/en/docusaurus-plugin-content-docs/current/api/websocket.md"
                     fi
 
+                    # 处理英文合约REST API文档
+                    if [ -n "$FUTURE_REST_EN_DOC_PATH" ] && [ -f "$FUTURE_REST_EN_DOC_PATH" ]; then
+                        cp -f "${FUTURE_REST_EN_DOC_PATH}" "${DOCUSAURUS_DIR}/i18n/en/docusaurus-plugin-content-docs/current/api/futures-rest.md"
+                        echo "已复制英文合约REST API文档: ${FUTURE_REST_EN_DOC_PATH}"
+                        sed -i '1i ---\\nid: futures-rest\\nslug: api/futures-rest\\ntitle: Futures REST API\\ndescription: MGBX Futures REST API Documentation\\n---\\n' "${DOCUSAURUS_DIR}/i18n/en/docusaurus-plugin-content-docs/current/api/futures-rest.md"
+                        echo "已添加英文合约REST文档前置元数据"
+                    else
+                        echo "警告: 未找到英文合约REST API文档，创建空文档"
+                        echo -e "---\\nid: futures-rest\\nslug: api/futures-rest\\ntitle: Futures REST API\\ndescription: MGBX Futures REST API Documentation\\n---\\n\\n# Futures REST API\\n\\nDocumentation is being updated..." > "${DOCUSAURUS_DIR}/i18n/en/docusaurus-plugin-content-docs/current/api/futures-rest.md"
+                    fi
+
+                    # 处理英文合约WebSocket API文档
+                    if [ -n "$FUTURE_WEBSOCKET_EN_DOC_PATH" ] && [ -f "$FUTURE_WEBSOCKET_EN_DOC_PATH" ]; then
+                        cp -f "${FUTURE_WEBSOCKET_EN_DOC_PATH}" "${DOCUSAURUS_DIR}/i18n/en/docusaurus-plugin-content-docs/current/api/futures-websocket.md"
+                        echo "已复制英文合约WebSocket API文档: ${FUTURE_WEBSOCKET_EN_DOC_PATH}"
+                        sed -i '1i ---\\nid: futures-websocket\\nslug: api/futures-websocket\\ntitle: Futures WebSocket API\\ndescription: MGBX Futures WebSocket API Documentation\\n---\\n' "${DOCUSAURUS_DIR}/i18n/en/docusaurus-plugin-content-docs/current/api/futures-websocket.md"
+                        echo "已添加英文合约WebSocket文档前置元数据"
+                    else
+                        echo "警告: 未找到英文合约WebSocket API文档，创建空文档"
+                        echo -e "---\\nid: futures-websocket\\nslug: api/futures-websocket\\ntitle: Futures WebSocket API\\ndescription: MGBX Futures WebSocket API Documentation\\n---\\n\\n# Futures WebSocket API\\n\\nDocumentation is being updated..." > "${DOCUSAURUS_DIR}/i18n/en/docusaurus-plugin-content-docs/current/api/futures-websocket.md"
+                    fi
+
                     # 创建英文首页文档
                     echo "创建英文版intro.md..."
                     cat > "${DOCUSAURUS_DIR}/i18n/en/docusaurus-plugin-content-docs/current/intro.md" << EOF
@@ -251,8 +379,13 @@ You can check our integration examples and the latest documentation updates in o
 
 ## Documentation Navigation
 
+### Spot
 - [REST API](api/api/rest) - HTTP interfaces for trading, account management, and other operations
 - [WebSocket API](api/api/websocket) - Real-time data streaming for market data
+
+### Futures
+- [Futures REST API](api/api/futures-rest) - Futures trading HTTP interfaces
+- [Futures WebSocket API](api/api/futures-websocket) - Futures real-time data streaming
 
 ## Quick Start
 
@@ -271,6 +404,10 @@ EOF
   "sidebar.apiSidebar.category.现货": {
     "message": "Spot",
     "description": "The label for category 现货 in sidebar apiSidebar"
+  },
+  "sidebar.apiSidebar.category.合约": {
+    "message": "Futures",
+    "description": "The label for category 合约 in sidebar apiSidebar"
   },
   "sidebar.apiSidebar.category.REST API": {
     "message": "REST API",
@@ -473,6 +610,19 @@ EOF
                         echo "中文WebSocket API页面生成成功"
                     fi
 
+                    # 检查中文合约API文档
+                    if [ ! -f "${DOCUSAURUS_DIR}/build/api/futures-rest/index.html" ]; then
+                        echo "警告: 中文合约REST API页面不存在!"
+                    else
+                        echo "中文合约REST API页面生成成功"
+                    fi
+
+                    if [ ! -f "${DOCUSAURUS_DIR}/build/api/futures-websocket/index.html" ]; then
+                        echo "警告: 中文合约WebSocket API页面不存在!"
+                    else
+                        echo "中文合约WebSocket API页面生成成功"
+                    fi
+
                     # 检查英文版构建结果
                     echo "检查英文版页面..."
                     if [ ! -d "${DOCUSAURUS_DIR}/build/en" ]; then
@@ -492,6 +642,19 @@ EOF
                             find "${DOCUSAURUS_DIR}/build/en" -type f -name "*.html" | grep -i websocket || echo "未找到相关页面"
                         else
                             echo "英文WebSocket API页面生成成功"
+                        fi
+
+                        # 检查英文合约API文档
+                        if [ ! -f "${DOCUSAURUS_DIR}/build/en/api/futures-rest/index.html" ]; then
+                            echo "警告: 英文合约REST API页面不存在!"
+                        else
+                            echo "英文合约REST API页面生成成功"
+                        fi
+
+                        if [ ! -f "${DOCUSAURUS_DIR}/build/en/api/futures-websocket/index.html" ]; then
+                            echo "警告: 英文合约WebSocket API页面不存在!"
+                        else
+                            echo "英文合约WebSocket API页面生成成功"
                         fi
                     fi
 
@@ -540,7 +703,7 @@ EOF
             echo "构建失败: 请检查日志"
         }
         always {
-            sh "rm -f rest_doc_path.txt websocket_doc_path.txt rest_en_doc_path.txt websocket_en_doc_path.txt || true"
+            sh "rm -f rest_doc_path.txt websocket_doc_path.txt rest_en_doc_path.txt websocket_en_doc_path.txt future_rest_doc_path.txt future_websocket_doc_path.txt future_rest_en_doc_path.txt future_websocket_en_doc_path.txt || true"
         }
     }
 }
