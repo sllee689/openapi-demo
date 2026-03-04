@@ -426,7 +426,6 @@ Field descriptions:
 - `positionType`: Position type (CROSSED=cross, ISOLATED=isolated)
 - `positionModel`: Position model (AGGREGATION=hedge, INDEPENDENT=one-way)
 - `positionSide`: Position side (LONG, SHORT)
-- `autoMargin`: Whether auto-add margin is enabled
 - `leverage`: Leverage multiplier
 
 ```json
@@ -437,7 +436,6 @@ Field descriptions:
     "positionType": "CROSSED",
     "positionModel": "AGGREGATION",
     "positionSide": "LONG",
-    "autoMargin": false,
     "leverage": 10
   }
 }
@@ -457,7 +455,6 @@ Field descriptions:
 - `positionSide`: Position side (LONG, SHORT)
 - `marginFrozen`: Frozen margin
 - `sourceType`: Source type
-- `sourceId`: Source ID (may be null, e.g., source order ID for TP/SL triggered orders)
 - `state`: Order status
 - `createTime`: Creation timestamp (ms)
 
@@ -476,7 +473,6 @@ Field descriptions:
     "positionSide": "LONG",
     "marginFrozen": "150.25",
     "sourceType": "WEB",
-    "sourceId": null,
     "state": "PARTIALLY_FILLED",
     "createTime": 1687245871234
   }
@@ -513,3 +509,5 @@ Field descriptions:
 4. **Async listenKey Retrieval**: Retrieve listenKey asynchronously after connection is established; do not block the main thread
 5. **Data Verification**: For critical business data, use REST API for secondary confirmation
 6. **Efficient Processing**: Implement proper caching and processing strategies for high-frequency data to avoid memory overflow
+7. **Error Handling**: Handle all types of exceptions properly, including authentication failures and subscription errors
+8. **Rate Limiting**: Control the frequency of subscription requests to avoid being throttled by the server

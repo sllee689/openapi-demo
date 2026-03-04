@@ -99,24 +99,42 @@ No parameters required
 
 | Parameter Name | Type | Description |
 |-------|-----|------|
-| id | Integer | Trading pair ID |
-| symbol | String | Trading pair name |
-| contractType | String | Contract type |
-| underlyingType | String | Underlying type |
-| contractSize | String | Contract size |
-| initLeverage | Integer | Initial leverage multiplier |
-| initPositionType | String | Initial position type |
-| baseCoin | String | Base asset |
-| quoteCoin | String | Quote asset |
-| quantityPrecision | Integer | Quantity precision |
-| pricePrecision | Integer | Price precision |
-| supportOrderType | String | Supported order types |
-| supportTimeInForce | String | Supported time-in-force types |
-| minQty | String | Minimum order quantity |
-| minNotional | String | Minimum order notional |
-| maxNotional | String | Maximum order notional |
+| id | Long | Trading pair ID |
+| symbol | String | Trading pair name, e.g., `btc_usdt` |
+| contractType | String | Contract type. `PERPETUAL` = perpetual contract |
+| underlyingType | String | Underlying type. `U_BASED` = USDT-margined, `COIN_BASED` = coin-margined |
+| contractSize | String | Contract multiplier / face value (base asset amount per contract) |
+| tradeSwitch | Boolean | Whether trading is enabled. `true` = tradeable, `false` = suspended |
+| state | Integer | Trading pair status. `0` = normal |
+| initLeverage | Integer | Initial leverage multiplier (maximum available leverage) |
+| initPositionType | String | Initial position mode. `CROSSED` = cross margin, `ISOLATED` = isolated margin |
+| baseCoin | String | Base asset, e.g., `btc` |
+| quoteCoin | String | Quote asset, e.g., `usdt` |
+| baseCoinPrecision | Integer | Base asset precision |
+| quoteCoinPrecision | Integer | Quote asset precision |
+| quantityPrecision | Integer | Quantity precision (decimal places for order quantity) |
+| pricePrecision | Integer | Price precision (decimal places for order price) |
+| supportOrderType | String | Supported order types, comma-separated, e.g., `LIMIT,MARKET` |
+| supportTimeInForce | String | Supported time-in-force types, comma-separated, e.g., `GTC,FOK,IOC,GTX` |
+| supportEntrustType | String | Supported conditional order types, comma-separated, e.g., `TAKE_PROFIT,STOP,TAKE_PROFIT_MARKET,STOP_MARKET,TRAILING_STOP_MARKET` |
+| supportPositionType | String | Supported position modes, comma-separated, e.g., `CROSSED,ISOLATED` |
+| minPrice | String | Minimum order price. `null` means no restriction |
+| minQty | String | Minimum order quantity (contracts) |
+| minNotional | String | Minimum order notional value (USDT) |
+| maxNotional | String | Maximum order notional value (USDT) |
+| multiplierDown | String | Limit sell order price floor percentage |
+| multiplierUp | String | Limit buy order price ceiling percentage |
+| maxOpenOrders | Integer | Maximum number of open orders |
+| maxEntrusts | Integer | Maximum number of conditional orders (TP/SL, etc.) |
 | makerFee | String | Maker fee rate |
 | takerFee | String | Taker fee rate |
+| liquidationFee | String | Liquidation fee rate (used in forced liquidation) |
+| marketTakeBound | String | Market order price protection deviation ratio |
+| depthPrecisionMerge | Integer | Depth data precision merge level |
+| labels | Array[String] | Label list, e.g., `["HOT"]` |
+| onboardDate | Long | Listing date timestamp (milliseconds) |
+| enName | String | English name |
+| cnName | String | Chinese name |
 | minStepPrice | String | Minimum price step |
 
 **Response Format**:
@@ -132,20 +150,19 @@ No parameters required
       "contractSize": "0.0001",
       "tradeSwitch": true,
       "state": 0,
-      "initLeverage": 100,
+      "initLeverage": 200,
       "initPositionType": "CROSSED",
       "baseCoin": "btc",
       "quoteCoin": "usdt",
-      "baseCoinPrecision": 6,
-      "baseCoinDisplayPrecision": 5,
+      "baseCoinPrecision": 8,
       "quoteCoinPrecision": 4,
-      "quoteCoinDisplayPrecision": 4,
       "quantityPrecision": 0,
       "pricePrecision": 1,
       "supportOrderType": "LIMIT,MARKET",
       "supportTimeInForce": "GTC,FOK,IOC,GTX",
       "supportEntrustType": "TAKE_PROFIT,STOP,TAKE_PROFIT_MARKET,STOP_MARKET,TRAILING_STOP_MARKET",
       "supportPositionType": "CROSSED,ISOLATED",
+      "minPrice": null,
       "minQty": "1",
       "minNotional": "1",
       "maxNotional": "100000000",
@@ -156,7 +173,7 @@ No parameters required
       "makerFee": "0.0005",
       "takerFee": "0.0003",
       "liquidationFee": "0.015",
-      "marketTakeBound": "0.0003",
+      "marketTakeBound": "0.0002",
       "depthPrecisionMerge": 3,
       "labels": ["HOT"],
       "onboardDate": 1651528801000,
@@ -562,6 +579,7 @@ No parameters required
 | tradeFee | String | Trading fee |
 | closeProfit | String | Close position P&L |
 | state | String | Order status |
+| timeInForce | String | Time-in-force policy |
 | createdTime | Long | Creation time |
 | updatedTime | Long | Update time |
 
@@ -590,6 +608,7 @@ No parameters required
       "forceClose": false,
       "tradeFee": "0",
       "closeProfit": null,
+      "timeInForce": "FOK",
       "state": "NEW",
       "createdTime": 1744515251497,
       "updatedTime": 1744515251497
@@ -657,6 +676,7 @@ No parameters required
 | tradeFee | String | Trading fee |
 | closeProfit | String | Close position P&L |
 | state | String | Order status |
+| timeInForce | String | Time-in-force policy |
 | createdTime | Long | Creation time |
 | updatedTime | Long | Update time |
 
@@ -691,6 +711,7 @@ No parameters required
             "tradeFee": "0",
             "closeProfit": null,
             "state": "NEW",
+            "timeInForce": "FOK",
             "createdTime": 1744515251497,
             "updatedTime": 1744515251497
          }
