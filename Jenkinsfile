@@ -562,6 +562,9 @@ EOF
 EOF
                         echo "已创建package.json文件"
 
+                        # 覆盖全局 npm registry，确保使用官方源
+                        echo "registry=https://registry.npmjs.org" > .npmrc
+
                         # 安装依赖
                         echo "安装Docusaurus依赖..."
                         npm install
