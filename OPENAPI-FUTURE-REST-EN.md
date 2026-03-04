@@ -1075,7 +1075,7 @@ No parameters required
 **Endpoint**: `/fut/v1/order/cancel`
 **Signature Required**: Yes
 
-> ⚠️ **Note**: This is an asynchronous interface. A successful response only indicates that the cancellation request has been submitted. The actual cancellation result should be confirmed by querying the order status through the order query endpoint.
+> ⚠️ **Note**: This is an asynchronous interface. A successful response only indicates that the cancellation request has been submitted. The actual cancellation result should be confirmed by querying the order status through the order query endpoint ([5.2 Query Order Details](#52-query-order-details) or [5.3 Query Order List](#53-query-order-list)) to verify whether the order status has changed to `CANCELED`.
 
 **Request Parameters**:
 

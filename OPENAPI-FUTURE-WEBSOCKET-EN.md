@@ -356,7 +356,7 @@ Field descriptions:
   "data": {
     "coin": "BTC",
     "balanceType": "FUTURES",
-    "underlyingType": 1,
+    "underlyingType": 2,
     "walletBalance": "1.5",
     "openOrderMarginFrozen": "0.5",
     "isolatedMargin": "0.3",
@@ -385,7 +385,7 @@ Field descriptions:
 - `isolatedMargin`: Isolated margin
 - `bounsMargin`: Bonus margin
 - `openOrderMarginFrozen`: Open order frozen margin
-- `underlyingType`: Underlying type (1=coin-based, 2=USDT-based)
+- `underlyingType`: Underlying type (U_BASED=USDT-based (U-margined), COIN_BASED=coin-based (Coin-margined))
 - `unsettledProfit`: Unsettled P&L
 - `autoMargin`: Whether auto-add margin is enabled
 - `leverage`: Leverage multiplier
@@ -410,7 +410,7 @@ Field descriptions:
     "isolatedMargin": "0.0",
     "bounsMargin": "0.0",
     "openOrderMarginFrozen": "0.0",
-    "underlyingType": "2",
+    "underlyingType": "U_BASED",
     "unsettledProfit": "0.01",
     "autoMargin": false,
     "leverage": 10,
