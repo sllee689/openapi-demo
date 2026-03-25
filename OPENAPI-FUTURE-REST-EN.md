@@ -579,7 +579,7 @@ No parameters required
 | tradeFee | String | Trading fee |
 | closeProfit | String | Close position P&L |
 | state | String | Order status |
-| timeInForce | String | Time-in-force policy |
+| timeInForce | String | Time-in-force, limit orders support: `GTC`, `IOC`, `FOK`, `GTX` |
 | createdTime | Long | Creation time |
 | updatedTime | Long | Update time |
 
@@ -676,7 +676,7 @@ No parameters required
 | tradeFee | String | Trading fee |
 | closeProfit | String | Close position P&L |
 | state | String | Order status |
-| timeInForce | String | Time-in-force policy |
+| timeInForce | String | Time-in-force, limit orders support: `GTC`, `IOC`, `FOK`, `GTX` |
 | createdTime | Long | Creation time |
 | updatedTime | Long | Update time |
 
